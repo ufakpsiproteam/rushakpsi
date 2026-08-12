@@ -1,0 +1,801 @@
+@import "tailwindcss";
+
+/* =====================================================================
+   AKΨ Recruitment — design tokens
+
+   PRD §10.1: two expressions of one system.
+   · Authenticated surfaces are quiet and high-contrast — greyscale,
+     system type, soft cards, minimal chrome. The content is people and
+     numbers; the interface stays out of the way.
+   · Public surfaces (landing) carry the cycle theme on top of the same
+     tokens. Theme is a token layer, not a fork.
+
+   Semantic colour is deliberately narrow and desaturated, and per
+   PRD §11.6 is never the only signal — every status pairs it with a
+   label and an icon or shape.
+   ===================================================================== */
+
+@theme {
+  /* Ink */
+  --color-ink: #0a0a0a;
+  --color-ink-muted: #52525b;
+  --color-ink-subtle: #8a8a93;
+  --color-ink-faint: #b4b4bb;
+
+  /* Structure */
+  --color-line: #e7e7ea;
+  --color-line-strong: #d2d2d8;
+  --color-surface: #ffffff;
+  --color-surface-alt: #fafafa;
+  --color-surface-sunken: #f4f4f5;
+  --color-canvas: #f4f4f5;
+
+  /* Inverted surfaces (primary buttons, nav pills, headers) */
+  --color-inverse: #0a0a0a;
+  --color-inverse-soft: #1c1c1f;
+  --color-on-inverse: #ffffff;
+
+  /* Semantic — used only inside badges, alerts and meters, always with
+     an accompanying label. Desaturated so the overall surface still
+     reads as monochrome. */
+  --color-positive: #15803d;
+  --color-positive-soft: #f0f7f2;
+  --color-warning: #a16207;
+  --color-warning-soft: #faf6ec;
+  --color-negative: #b91c1c;
+  --color-negative-soft: #fbf1f1;
+
+  /* Chapter accent — reserved for the public landing surface and the
+     decision-letter celebration. Not used in the authenticated app. */
+  --color-akpsi-gold: #ffb81c;
+  --color-akpsi-navy: #0b1f4b;
+
+  /* Space theme — landing only */
+  --color-space-void: #05060c;
+  --color-space-deep: #0a0d1c;
+  --color-space-haze: #141a33;
+  --color-space-star: #e8ecff;
+
+  --radius-card: 14px;
+
+  --font-display: var(--font-cinzel), "Iowan Old Style", "Palatino Linotype",
+    Palatino, "Times New Roman", serif;
+}
+
+/* ---------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------- */
+
+html,
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+/* PRD §11.6: visible focus on every interactive element. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* PRD §11.2: 44px minimum touch target on coarse pointers. */
+@media (pointer: coarse) {
+  button,
+  a[role="button"],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: 44px;
+  }
+  .allow-compact-target,
+  .allow-compact-target button {
+    min-height: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Component primitives (PRD §10.5)
+   No screen should define its own button, card, field or badge.
+   --------------------------------------------------------------------- */
+
+@layer components {
+  /* Page scaffolding ------------------------------------------------ */
+
+  .app-shell {
+    min-height: 100vh;
+    background: var(--color-canvas);
+  }
+
+  .app-container {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .app-container {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  .page-eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-subtle);
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+    line-height: 1.15;
+    font-weight: 640;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .page-subtitle {
+    margin-top: 0.375rem;
+    font-size: 0.9375rem;
+    color: var(--color-ink-muted);
+  }
+
+  .section-title {
+    font-size: 1rem;
+    font-weight: 620;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+  }
+
+  /* Cards ------------------------------------------------------------ */
+
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    box-shadow: 0 1px 2px rgb(9 9 11 / 0.04);
+  }
+
+  .card-pad {
+    padding: 1.25rem;
+  }
+
+  .card-interactive {
+    transition: border-color 160ms ease, box-shadow 160ms ease,
+      transform 160ms ease;
+  }
+
+  .card-interactive:hover {
+    border-color: var(--color-line-strong);
+    box-shadow: 0 4px 16px rgb(9 9 11 / 0.07);
+  }
+
+  .card-emphasis {
+    border-color: var(--color-ink);
+    box-shadow: 0 4px 20px rgb(9 9 11 / 0.1);
+  }
+
+  /* Buttons ---------------------------------------------------------- */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 560;
+    letter-spacing: -0.005em;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 140ms ease, border-color 140ms ease,
+      color 140ms ease, opacity 140ms ease;
+    white-space: nowrap;
+  }
+
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--color-inverse);
+    color: var(--color-on-inverse);
+  }
+
+  .btn-primary:not(:disabled):hover {
+    background: var(--color-inverse-soft);
+  }
+
+  .btn-secondary {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    border-color: var(--color-line-strong);
+  }
+
+  .btn-secondary:not(:disabled):hover {
+    background: var(--color-surface-alt);
+    border-color: var(--color-ink-faint);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-ink-muted);
+  }
+
+  .btn-ghost:not(:disabled):hover {
+    background: var(--color-surface-sunken);
+    color: var(--color-ink);
+  }
+
+  .btn-danger {
+    background: var(--color-surface);
+    color: var(--color-negative);
+    border-color: color-mix(in srgb, var(--color-negative) 30%, transparent);
+  }
+
+  .btn-danger:not(:disabled):hover {
+    background: var(--color-negative-soft);
+  }
+
+  .btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    border-radius: 8px;
+  }
+
+  .btn-lg {
+    padding: 0.8125rem 1.375rem;
+    font-size: 0.9375rem;
+    border-radius: 12px;
+  }
+
+  .btn-block {
+    width: 100%;
+  }
+
+  /* Fields ----------------------------------------------------------- */
+
+  .field-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 560;
+    color: var(--color-ink);
+    margin-bottom: 0.375rem;
+  }
+
+  .field-help {
+    font-size: 0.75rem;
+    color: var(--color-ink-subtle);
+    margin-top: 0.375rem;
+  }
+
+  .field-error {
+    font-size: 0.75rem;
+    color: var(--color-negative);
+    margin-top: 0.375rem;
+  }
+
+  .input,
+  .textarea,
+  .select {
+    width: 100%;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line-strong);
+    border-radius: 10px;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--color-ink);
+    transition: border-color 140ms ease, box-shadow 140ms ease;
+  }
+
+  .input::placeholder,
+  .textarea::placeholder {
+    color: var(--color-ink-faint);
+  }
+
+  .input:focus,
+  .textarea:focus,
+  .select:focus {
+    outline: none;
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 3px rgb(9 9 11 / 0.07);
+  }
+
+  .input:disabled,
+  .textarea:disabled,
+  .select:disabled {
+    background: var(--color-surface-sunken);
+    color: var(--color-ink-muted);
+    cursor: not-allowed;
+  }
+
+  .textarea {
+    min-height: 7rem;
+    resize: vertical;
+    line-height: 1.55;
+  }
+
+  .char-counter {
+    font-size: 0.75rem;
+    color: var(--color-ink-subtle);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .char-counter-over {
+    color: var(--color-negative);
+    font-weight: 560;
+  }
+
+  /* Badges ----------------------------------------------------------- */
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border: 1px solid var(--color-line-strong);
+    color: var(--color-ink-muted);
+    background: var(--color-surface);
+    white-space: nowrap;
+  }
+
+  .badge-solid {
+    background: var(--color-inverse);
+    border-color: var(--color-inverse);
+    color: var(--color-on-inverse);
+  }
+
+  .badge-positive {
+    background: var(--color-positive-soft);
+    border-color: color-mix(in srgb, var(--color-positive) 28%, transparent);
+    color: var(--color-positive);
+  }
+
+  .badge-warning {
+    background: var(--color-warning-soft);
+    border-color: color-mix(in srgb, var(--color-warning) 28%, transparent);
+    color: var(--color-warning);
+  }
+
+  .badge-negative {
+    background: var(--color-negative-soft);
+    border-color: color-mix(in srgb, var(--color-negative) 28%, transparent);
+    color: var(--color-negative);
+  }
+
+  /* Stat tiles ------------------------------------------------------- */
+
+  .stat-tile {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    padding: 1rem 1.125rem;
+  }
+
+  .stat-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-subtle);
+  }
+
+  .stat-value {
+    margin-top: 0.375rem;
+    font-size: 1.75rem;
+    line-height: 1;
+    font-weight: 620;
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-meta {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--color-ink-subtle);
+  }
+
+  /* Empty / loading / error states (PRD §10.6) ----------------------- */
+
+  .state-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--color-ink-muted);
+  }
+
+  .state-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .state-body {
+    margin-top: 0.375rem;
+    font-size: 0.875rem;
+    color: var(--color-ink-subtle);
+    max-width: 26rem;
+  }
+
+  /* Navigation ------------------------------------------------------- */
+
+  .nav-bar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+    backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .nav-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4375rem;
+    padding: 0.4375rem 0.8125rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 520;
+    color: var(--color-ink-muted);
+    transition: background-color 140ms ease, color 140ms ease;
+  }
+
+  .nav-tab:hover {
+    background: var(--color-surface-sunken);
+    color: var(--color-ink);
+  }
+
+  .nav-tab-active {
+    background: var(--color-inverse);
+    color: var(--color-on-inverse);
+  }
+
+  .nav-tab-active:hover {
+    background: var(--color-inverse-soft);
+    color: var(--color-on-inverse);
+  }
+
+  .lettermark {
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-ink);
+  }
+
+  /* Mobile bottom tabs, with safe-area inset (PRD §10.6, §11.2) ------ */
+
+  .bottom-tabs {
+    position: fixed;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    z-index: 40;
+    display: grid;
+    align-items: stretch;
+    gap: 0.125rem;
+    padding: 0.375rem;
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+    backdrop-filter: saturate(180%) blur(16px);
+    border: 1px solid var(--color-line);
+    border-radius: 18px;
+    box-shadow: 0 8px 28px rgb(9 9 11 / 0.12);
+  }
+
+  .bottom-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1875rem;
+    padding: 0.4375rem 0.125rem;
+    border-radius: 12px;
+    font-size: 0.625rem;
+    font-weight: 560;
+    color: var(--color-ink-subtle);
+    transition: background-color 140ms ease, color 140ms ease;
+  }
+
+  .bottom-tab-active {
+    background: var(--color-inverse);
+    color: var(--color-on-inverse);
+  }
+
+  /* Tables ----------------------------------------------------------- */
+
+  .data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.875rem;
+  }
+
+  .data-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--color-surface-alt);
+    border-bottom: 1px solid var(--color-line);
+    padding: 0.625rem 0.875rem;
+    text-align: left;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-subtle);
+    white-space: nowrap;
+  }
+
+  .data-table tbody td {
+    padding: 0.75rem 0.875rem;
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-ink);
+    vertical-align: middle;
+  }
+
+  .data-table tbody tr:hover td {
+    background: var(--color-surface-alt);
+  }
+
+  /* Modals ----------------------------------------------------------- */
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgb(9 9 11 / 0.45);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .modal-panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgb(9 9 11 / 0.25);
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    position: sticky;
+    top: 0;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-line);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  /* Alerts ----------------------------------------------------------- */
+
+  .alert {
+    display: flex;
+    gap: 0.625rem;
+    padding: 0.75rem 0.875rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    border: 1px solid var(--color-line-strong);
+    background: var(--color-surface-alt);
+    color: var(--color-ink-muted);
+  }
+
+  .alert-negative {
+    border-color: color-mix(in srgb, var(--color-negative) 28%, transparent);
+    background: var(--color-negative-soft);
+    color: var(--color-negative);
+  }
+
+  .alert-warning {
+    border-color: color-mix(in srgb, var(--color-warning) 28%, transparent);
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+  }
+
+  .alert-positive {
+    border-color: color-mix(in srgb, var(--color-positive) 28%, transparent);
+    background: var(--color-positive-soft);
+    color: var(--color-positive);
+  }
+
+  /* PRD §14.13 — rushee photos render black and white throughout the
+     authenticated app, as a consistent visual treatment. */
+  .rushee-photo {
+    filter: grayscale(100%) contrast(1.04);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Motion (PRD §10.4)
+   --------------------------------------------------------------------- */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Letter reveal — fade + 10px rise, 0.5s ease-out */
+@keyframes letter-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Status pulse — soft shadow breathing, 2.4s loop */
+@keyframes status-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(9 9 11 / 0.14);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgb(9 9 11 / 0);
+  }
+}
+
+@keyframes splash-logo {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes splash-text {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Space theme — landing only */
+@keyframes star-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes orbit-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes aurora-shift {
+  0%,
+  100% {
+    transform: translate3d(-6%, 0, 0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate3d(6%, -3%, 0) scale(1.12);
+    opacity: 0.8;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-letter-reveal {
+  animation: letter-reveal 0.5s ease-out;
+}
+
+.animate-status-pulse {
+  animation: status-pulse 2.4s ease-in-out infinite;
+}
+
+.animate-splash-logo {
+  animation: splash-logo 0.5s ease-out forwards;
+}
+
+.animate-splash-text {
+  animation: splash-text 0.5s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+.animate-star-drift {
+  animation: star-drift 120s linear infinite;
+}
+
+.animate-twinkle {
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+.animate-orbit-spin {
+  animation: orbit-spin 60s linear infinite;
+}
+
+.animate-aurora {
+  animation: aurora-shift 18s ease-in-out infinite;
+}
+
+.delay-150 {
+  animation-delay: 150ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+/* PRD §10.4 / §11.6 — all motion respects prefers-reduced-motion.
+   Under that preference the typewriter and confetti are replaced by an
+   instant reveal (handled in the components), and everything else stops. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

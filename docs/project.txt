@@ -1,0 +1,118 @@
+recruitment.ufakpsi.com
+
+Mobile/Desktop Responsive Design Needed
+
+Account → Sign In Interface with Sign Up option at the bottom
+Brothers will all make accounts and be marked as brothers in the account type prior to recruitment, all accounts made through “sign up” during recruitment will be Rushee accounts
+
+Account Types → 
+Rushee
+Brother
+Admin (any brother can be marked as admin, default to FALSE and changed in the backend).
+
+Landing Page:
+Show themed rush page
+FAQ
+Show Rush Events (and details)
+
+
+Rushee Experience:
+→ create your account → Name, Major, Minor(s), Email, Password
+Once account is made:
+A page for information [Pillars, Professional Team & Titles, Recruitment Team]
+A page with recruitment event cards that show (check in) for attendance on the day/time of event
+Shows standards status of 2 casual events & 1 Professional Event Status
+Same top element showing individuals status is seen on application page
+Once minimum standard is met the application can be viewed/completed
+A page for status updates that is like college application decisions that shows an update if a rushee is moving onto Invite Only and then another update if they receive a bid (status’ are shown both ways [yes/no]).
+Somewhere on the platform (probably near an account or home/dash), there is a point of contact that a Rushee is assigned to which they can see the contact and reach out with any questions. (need to think through how those will be assigned).
+Rushee Attendance Flow:
+Show up to events and when the day and time of the event is true there is a Check-In button, which when clicked shows instructions for what counts as a valid photo, then they are taken to a photobooth experience where they take a live photo, review it, and submit it for review (it will be reviewed by someone on the backend and grant them the point), and will be shown a thank you and phones away message. 
+If there are any issues they can see a brother at the end of the event and get manually checked in. 
+
+
+
+Brother Experience:
+All brothers will have an account made prior to recruitment
+Main page has a welcome and there are pages/screens for the following:
+Events (shows date and time of events)
+Events can be clicked to “Start Evaluation" once the event ends and Rushees leave 
+There is a toggle on the admin side for each event to change a boolean of Accept Evals = False to True which will show a button on the event card so brothers can start the evaluation process. 
+When the boolean is False they can see event details but cant enter or evaluate since that will be locked
+When an event is clicked to start evaluation, all Rushees who attended are shown and the brother is asked to select all that they spoke/engaged with
+The next screen shows just those that they engaged with and allows them to select any on the screen fill out an evaluation form for them
+The brother can evaluate a minimum of 5 of those they engaged with but can do all if they wish
+They click continue when they are done.
+**evaluations on a Rushee can be updated at any time by brothers 
+A page showing all the rushee’s
+Brothers can click any to see details like their major/year
+Brothers can write any personal notes for themselves
+Brothers can star any Rushees they have their eye on
+If they have evaluated a Rushee this is where they can update that
+
+
+
+
+
+
+Admin Pages/Features:
+Admin will be able to see certain restricted pages.
+Recruitment Team/Professional Team user types will have access to certain pages like Cuts/Bid Night based on a toggle of enablement so it can be granted and revoked after the time needed.
+There should be a way to see attendance for any event and also manually edit if needed
+See evaluations of brothers for Rushees 
+See anonymized Rushee overview pages that show a summary of evals 
+
+Cuts Page:
+Will show all Rushee tiles and when clicked will open up a view that shows their basic account info (year/major), the eval summary, and then have a button to open a popup to view their application. 
+
+Rushee Standing Page (only accessible to the VP of Recruitment)
+Shows the Rushees in an overview format:
+Rushee Name
+# Casual Events
+# Professional Events
+# Interactions
+# Evals
+Standing(Select One)?*
+In Progress
+Event Minimums Met
+Invite Only (Y)
+Invite Only (N)
+Bid (Y)
+Bid (N)
+
+*the in progress and Events minimum is automatic the choice of invite only and then bid if a ruhsee makes it that far is selected by dropdown by the VP.
+When they make changes to this row and click save first a popup confirming rushee names that are Invite Only (Y), (N), and Bid (Y), and (N) will be done to ensure no mistakes are made.
+The VP should be able to change the standing which will in turn change the message that is shown on the Status Change
+This page should also include buttons to push out status changes to the website for view 
+The system should operate like college admissions where people who keep going can get multiple status updates and those that do not will get as far as they do and if they don't make it, nothing should change beyond their rejection letter.
+
+Things to Think Through:
+Make sure there is no way to see bid status in inspect or for Rushees to view admin or brother views/components
+
+
+
+The Application:
+I think the application should be short and character capped since we don’t really read through the entire application ever and making it open ended with no guide of how long makes people prone to using AI and not knowing what is ‘enough’
+Potential Questions:
+Name, Major, Year, Email, Phone No (all prefilled from account information)
+Pronouns/Race (mention this will have no impact)
+GPA (if Freshman Fall use Highschool GPA)
+
+Why AKPSI?
+What are your professional/career interests and how will AKPSI help you in reaching your goals?
+Who is a Brother that you connected with and why?
+Who is another Rushee you connected with and why?
+How would those around you describe you?
+What Pillar of AKPSI resonates most with you and why?
+Code of Conduct & Time Commitment acknowledgement (Y/N)
+
+
+
+The Evaluation:
+
+Design elements:
+Themed like an admissions site with the application and events site with the rush events
+AKPSI themed but modern and clean 
+Restricted & 403 page should have graphics that aligns to AKPSI or the issue
+Site should be minimal and will have designed added/modifed after functionality (minimalistic rich design)
+ images of rushees should be black and white

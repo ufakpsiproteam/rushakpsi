@@ -1,0 +1,40 @@
+{
+  "name": "akpsi-recruitment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "private": true,
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.86.0",
+    "@tailwindcss/postcss": "^4.1.17",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.6",
+    "autoprefixer": "^10.4.22",
+    "canvas-confetti": "^1.9.4",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+    "jspdf": "^4.1.0",
+    "jspdf-autotable": "^5.0.7",
+    "next": "^16.0.7",
+    "openai": "^6.17.0",
+    "postcss": "^8.5.6",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "tailwindcss": "^4.1.17",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0"
+  }
+}

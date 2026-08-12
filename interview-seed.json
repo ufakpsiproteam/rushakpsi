@@ -1,0 +1,228 @@
+{
+  "_meta": {
+    "source_casual": "Agnivesh_Kaundinya_Spring_2026_Casual_Interview_Rubric_.pdf (Spring 2026 casual rubric)",
+    "source_professional": "Fall 2026 AKPsi Professional Interview Evaluation Form (Google Form)",
+    "note": "Casual rubric descriptors were transcribed from a PDF with OCR artifacts. Every casual question carries needs_human_review. Questions 2 and 3 are known-bad: the tier text in the source appears displaced between tables and does not match the question prompt. Seed them as written, flag them in the admin question editor, and have the recruitment team correct the text before the cycle opens. Do not invent replacement rubric text.",
+    "scales": {
+      "casual_total": 10,
+      "professional_total": 20,
+      "recommendation": "1-5, both types"
+    }
+  },
+
+  "scripts": {
+    "casual": {
+      "opening": [
+        "Introduce yourself, your role in AKPsi, as well as major and year.",
+        "Explain that we will be taking notes, but it's nothing to worry about.",
+        "Have PNMs introduce themselves with their year and major as well.",
+        "Questions will then be asked down the line by each interviewer."
+      ],
+      "closing": [
+        "This concludes your casual interview.",
+        "Due to the nature of the interview, please do not discuss interview questions or content with anyone outside of this room, including other potential new members."
+      ],
+      "interviewer_notes": [
+        "Interviews must be kept to 15 minutes with 5 minutes of transition time.",
+        "Each brother is assigned one PNM to record answers for and score. One rubric per PNM.",
+        "If you know a PNM you cannot complete the rubric for them. Flag the conflict so a director can reassign you.",
+        "Do not discuss scores with your co-interviewers until after you have submitted.",
+        "Passion and genuine interest in growing is the main thing we want. An imperfect answer from a good fit can still earn a 1.5. Be honest and earnest.",
+        "Question 4 is a choice of four creative prompts. Coordinate with the other interviewers so all PNMs in the time slot receive the same one."
+      ]
+    },
+    "professional": {
+      "opening": [
+        "Welcome to the Alpha Kappa Psi Professional Rush Interviews. We are excited to have you at this step of the process. Please remember to be yourself and be passionate.",
+        "Introduce yourselves. Traditionally, whoever asks the first question introduces themselves last.",
+        "Let's get started with our questions."
+      ],
+      "closing": [
+        "Please make sure to keep {invite_event_dates} open in the event you are offered the opportunity to pledge. Additionally, you must be available every Monday and every Tuesday night, and occasionally Thursday nights.",
+        "Everything seen or heard during this interview is of a confidential nature and must not be shared with anyone who has not completed the pledging process. If we are made aware that what was said and asked here leaves the room, you will be removed from any further consideration. Do you understand?"
+      ],
+      "conditional_conflict_script": "Shown only when the panelist has flagged knows_personally: \"Regardless of any experiences you have had in the past with me or anyone else on the professional team, our relationship when it comes to Alpha Kappa Psi will remain professional, strictly professional, and nothing but professional. Is this understood?\"",
+      "interviewer_notes": [
+        "Designate one person, typically the person who is not E-Board or a professional advisor, to focus on taking notes while the rushee speaks. All panelists are still expected to take notes during the interview and score afterward.",
+        "If you do not complete your rubric in its entirety it is null and void. Every question requires a score before you can submit."
+      ]
+    }
+  },
+
+  "casual_questions": [
+    {
+      "order_index": 1,
+      "prompt": "What do you look to gain by joining Alpha Kappa Psi? And why?",
+      "is_scored": true,
+      "needs_human_review": true,
+      "score_options": [
+        { "value": 1.5, "label": "Exemplary", "descriptors": ["They mention growing professionally and pushing themselves for their future", "Brings up giving back to the fraternity as well", "Mentions wanting to be a part of the greater community", "Seems genuine overall"] },
+        { "value": 1, "label": "Good", "descriptors": ["Provides good reasons for joining such as professional tips and individual growth", "Generally good answer that talks about being part of the community", "Wants to grow as an individual"] },
+        { "value": 0.5, "label": "Fair", "descriptors": ["Pretty basic response, typically saying professional development", "No real mention of community or personal growth"] },
+        { "value": 0, "label": "Poor", "descriptors": ["Does not answer the question or inappropriate response"] }
+      ]
+    },
+    {
+      "order_index": 2,
+      "prompt": "What do you think your best character trait is and why?",
+      "is_scored": true,
+      "needs_human_review": true,
+      "review_reason": "Source rubric text describes brotherhood and community, which does not match this prompt. Likely displaced from another question in the original document. Recruitment team must supply correct tier text.",
+      "score_options": [
+        { "value": 1.5, "label": "Exemplary", "descriptors": ["Provides a clear and thorough answer explaining what it means to them", "Mentions having a community to rely on and give back to", "Offers a unique perspective or addition to the table"] },
+        { "value": 1, "label": "Good", "descriptors": ["Provides a clear and interesting opinion", "Mentions the idea of community and bonding"] },
+        { "value": 0.5, "label": "Fair", "descriptors": ["Attempts to offer a unique perspective but lacks detail and individuality", "Does not provide a clear and compelling answer", "Attempts to answer as best they can"] },
+        { "value": 0, "label": "Poor", "descriptors": ["Does not answer the question or inappropriate response"] }
+      ]
+    },
+    {
+      "order_index": 3,
+      "prompt": "What is something you're deeply passionate about?",
+      "is_scored": true,
+      "needs_human_review": true,
+      "review_reason": "Tier text in the source PDF overflows across table boundaries. Fair and Good tiers are partially interleaved. Verify before the cycle opens.",
+      "score_options": [
+        { "value": 1.5, "label": "Exemplary", "descriptors": ["Shows passion for a subject and describes it well", "Provides an interesting perspective", "You can observe their care for the subject", "They seem genuine and show creativity in their response"] },
+        { "value": 1, "label": "Good", "descriptors": ["Answers well and has an evident care for the subject", "Explains an interesting perspective, but could be more interesting or detailed", "You can see that they care"] },
+        { "value": 0.5, "label": "Fair", "descriptors": ["Shares a passion but seems to be dry in response", "Provides good reasoning and some detail", "Has at least some care of subject"] },
+        { "value": 0, "label": "Poor", "descriptors": ["Does not answer the question or inappropriate response"] }
+      ]
+    },
+    {
+      "order_index": 4,
+      "prompt": "Creative question. Choose one and ask it to every PNM in this time slot: (1) It's a late weeknight and you are super tired, but your friends invite you to hang out with them. You know you have another busy day tomorrow. What do you do? (2) You find yourself working with a brother who has a completely different personality from you. How do you approach building a connection? (3) If you could only read one book for the rest of your life, what would it be? (4) If you could have dinner with any person from history, dead or alive, who would you choose?",
+      "help_text": "Coordinate with the other interviewers. All PNMs in the time slot must receive the same prompt.",
+      "is_scored": true,
+      "needs_human_review": true,
+      "score_options": [
+        { "value": 1.5, "label": "Exemplary", "descriptors": ["Answers the question with a creative and interesting response", "Shows their personality in a fun and engaging way", "Displays an innovative way of thinking"] },
+        { "value": 1, "label": "Good", "descriptors": ["Answers the question, but response lacks a unique way of thinking", "Shows some personality, but not super engaging"] },
+        { "value": 0.5, "label": "Fair", "descriptors": ["Provides a response that is lacking in creativity", "Is not engaging or showing personality"] },
+        { "value": 0, "label": "Poor", "descriptors": ["Does not answer the question or inappropriate response"] }
+      ]
+    },
+    {
+      "order_index": 5,
+      "prompt": "Do you have any questions that you would like to ask us?",
+      "is_scored": true,
+      "needs_human_review": true,
+      "score_options": [
+        { "value": 1.5, "label": "Exemplary", "descriptors": ["Asks at least one meaningful question about your own experience in AKPsi, opportunities provided, or any other meaningful content"] },
+        { "value": 1, "label": "Good", "descriptors": ["Only asks a question or questions about bid status or invite-only invitations"] },
+        { "value": 0, "label": "Poor", "descriptors": ["Does not ask any questions"] }
+      ]
+    },
+    {
+      "order_index": 6,
+      "prompt": "If you were granted the opportunity to pledge Alpha Kappa Psi, the time commitment is about an average of 4 to 6 hours a week, which includes weekly requirements such as coffee chats and mock interviews, with weekly meetings on Mondays and Tuesdays at 7PM. Will you be able to handle this time commitment?",
+      "is_scored": true,
+      "needs_human_review": true,
+      "score_options": [
+        { "value": 2.5, "label": "Yes", "descriptors": ["PNM describes that they can handle the time commitment"] },
+        { "value": 0, "label": "No", "descriptors": ["PNM provides reasoning for not being able to handle the time commitment"] }
+      ]
+    },
+    {
+      "order_index": 7,
+      "prompt": "Are you able to attend the Invite-Only Event, {invite_only_datetime}?",
+      "is_scored": false,
+      "field_type": "yes_no",
+      "needs_human_review": true,
+      "help_text": "Not scored. Recorded so leadership knows availability."
+    }
+  ],
+
+  "professional_questions": [
+    {
+      "order_index": 1,
+      "prompt": "Tell me about yourself.",
+      "is_scored": true,
+      "score_options": [
+        { "value": 3, "label": "Exemplary", "descriptors": ["Provides basic characteristics such as major, year, name, hometown", "Brings up BOTH personal values or goals and interest for joining AKPsi", "Evident that the rushee cares and wants to join AKPsi, whether for professional or personal reasons, and that AKPsi will help them in their future endeavors", "Clear interest, excitement, authentic, intentional, and personable"] },
+        { "value": 2, "label": "Good", "descriptors": ["Provides basic characteristics such as major, year, name, hometown", "Brings up personal values or goals OR interest for joining AKPsi", "Seems slightly or mildly interested in AKPsi", "Shows interest, though motivation or alignment may be surface-level"] },
+        { "value": 1, "label": "Fair", "descriptors": ["Provides basic characteristics such as major, year, name, hometown", "Does NOT bring up personal values or goals or interest for joining AKPsi", "Vague and basic answer, no passion or drive for AKPsi", "Response feels generic, rehearsed, or disengaged"] },
+        { "value": 0, "label": "Poor", "descriptors": ["Does not answer the question or inappropriate response"] }
+      ]
+    },
+    {
+      "order_index": 2,
+      "prompt": "What motivates you to rush Alpha Kappa Psi and what unique perspective would you bring to our brotherhood?",
+      "is_scored": true,
+      "score_options": [
+        { "value": 3, "label": "Exemplary", "descriptors": ["Provides a clear and compelling reason for interest in joining", "Mentions BOTH professional and community reasons for joining", "Offers a unique perspective or addition to the table, such as aiming to seek leadership or give back to the fraternity"] },
+        { "value": 2, "label": "Good", "descriptors": ["Provides a clear and compelling reason for interest in joining", "Mentions professional OR community reasons for joining", "Attempts to offer a unique perspective but lacks detail and individuality"] },
+        { "value": 1, "label": "Fair", "descriptors": ["Does NOT provide a clear and compelling reason for interest, for example was told to apply or for a resume", "Does not mention professional or community reasons for joining", "Does NOT offer or attempt to offer a unique perspective"] },
+        { "value": 0, "label": "Poor", "descriptors": ["Does not answer the question or inappropriate response"] }
+      ]
+    },
+    {
+      "order_index": 3,
+      "prompt": "What role do you naturally take on in a team, and how do you adapt when the team needs something different from you?",
+      "is_scored": true,
+      "score_options": [
+        { "value": 3, "label": "Exemplary", "descriptors": ["Clearly identifies their natural role on a team, whatever that may be", "Demonstrates willingness to step outside that role when needed, indicating that they are adaptable and personable", "Demonstrates a unique perspective or insight into conflict resolution, collaboration, or adaptability", "Explains in depth their position on a team, passion for teamwork, and desire to grow", "Reflects comfort supporting others and learning from teammates, or a desire to get better at teamwork"] },
+        { "value": 2, "label": "Good", "descriptors": ["Identifies a team role", "Acknowledges adaptability, but explanation lacks depth", "Attempts to show perspective or insight into conflict resolution, collaboration, or adaptability, but lacks detail or individuality", "Attempts to show genuine passion for teamwork and a genuine willingness to grow and learn", "Shows general understanding of teamwork"] },
+        { "value": 1, "label": "Fair", "descriptors": ["Provides a vague or generic example with minimal connection to teamwork or leadership", "Limited reflection on adaptability or teamwork", "Does not seem interested in teamwork or learning more about teamwork", "Unclear understanding of how they contribute in group settings and does not show desire to learn more", "Does not offer perspective or insight into conflict resolution, collaboration, or adaptability"] },
+        { "value": 0, "label": "Poor", "descriptors": ["Does not answer the question or inappropriate response"] }
+      ]
+    },
+    {
+      "order_index": 4,
+      "prompt": "What are each of your involvement and job commitments for this year? This includes other organizations and activities you are considering joining and getting involved in. How would you stay organized and manage your priorities when you have competing obligations while pledging?",
+      "is_scored": true,
+      "score_options": [
+        { "value": 3, "label": "Exemplary", "descriptors": ["Details each involvement and what a typical week looks like", "Explains current and anticipated commitments", "Includes time management tools such as calendars and to-do lists, and a process for prioritizing by urgency and importance", "Demonstrates realistic understanding of time and responsibility", "Specifies prioritizing AKPsi and pledging"] },
+        { "value": 2, "label": "Good", "descriptors": ["Details each involvement and what a typical week looks like", "Includes time management tools and a process for prioritizing", "Mentions organization or prioritization strategies", "Does NOT specify prioritizing AKPsi or pledging"] },
+        { "value": 1, "label": "Fair", "descriptors": ["Fails to detail each involvement and what a typical week looks like, or lacks detail regarding time management tools and process for prioritizing", "Gives a vague or incomplete overview of commitments", "Lacks a clear plan for managing responsibilities", "Does NOT specify prioritizing AKPsi or pledging and raises concern about overcommitting or not being prepared for pledging"] },
+        { "value": 0, "label": "Poor", "descriptors": ["Does not answer the question or inappropriate response"] }
+      ]
+    },
+    {
+      "order_index": 5,
+      "prompt": "Where do you ideally see yourself in 5 years post-graduation, and how will Alpha Kappa Psi help you reach that goal?",
+      "is_scored": true,
+      "score_options": [
+        { "value": 3, "label": "Exemplary", "descriptors": ["Clearly explains how AKPsi will support their development through mentorship, people, opportunities, and values", "Articulates a thoughtful and realistic vision for their future, indicating they are motivated and passionate", "Explicitly connects AKPsi opportunities such as committees, mentorship, workshops, networking, and professional trips to how they will grow", "Focuses on personal and professional growth, not just outcomes or titles", "Shows genuine motivation and a forward-thinking mindset"] },
+        { "value": 2, "label": "Good", "descriptors": ["Describes a general idea of where they see themselves in 5 years", "Mentions growth or development, but vision is broad or loosely defined", "Attempts to appear motivated and excited for their future", "Makes some connection to AKPsi resources, but explanation is vague or surface-level"] },
+        { "value": 1, "label": "Fair", "descriptors": ["Vision is vague, unrealistic, or overly focused on job titles or status", "Demonstrates a lack of understanding of the world", "Provides little to no reasoning for why it matters or how AKPsi will specifically help", "Limited evidence of intentionality or long-term thinking"] },
+        { "value": 0, "label": "Poor", "descriptors": ["Does not identify any professional growth area", "Provides irrelevant, inappropriate, or unclear response", "Fails to connect answer to AKPsi"] }
+      ]
+    },
+    {
+      "order_index": 6,
+      "prompt": "You have 1 minute to present a niche topic that you are passionate about.",
+      "help_text": "Professional advisors may interrupt and push back. Run a timer. The rushee should be reaching roughly 50 seconds.",
+      "is_scored": true,
+      "timer_seconds": 60,
+      "score_options": [
+        { "value": 3, "label": "Exemplary", "descriptors": ["Crafts a compelling story of their passion and maintains excitement", "Shows genuine passion and takes on the challenge, while displaying authenticity and creativity", "Performed well under pressure"] },
+        { "value": 2, "label": "Good", "descriptors": ["Crafts a compelling story of their passion and maintains excitement", "Could show more passion or creativity", "Attempted to perform well under pressure, seeming less engaging or expressive"] },
+        { "value": 1, "label": "Fair", "descriptors": ["Presents passion but does not seem engaged or excited", "Could show more passion, authenticity, or creativity", "Passion is limited or unclear", "Appears uncomfortable or disengaged", "Effort feels minimal or forced"] },
+        { "value": 0, "label": "Poor", "descriptors": ["Does not answer the question or inappropriate response"] }
+      ]
+    },
+    {
+      "order_index": 7,
+      "prompt": "Do you have any questions for us?",
+      "help_text": "Everyone may answer professional questions. For personal or casual questions, the professional advisor may not answer or acknowledge the question.",
+      "is_scored": true,
+      "score_options": [
+        { "value": 2, "label": "Exemplary", "descriptors": ["Asks multiple questions", "Asks deeper questions that show the rushee is curious about the pledging and business fraternity experience"] },
+        { "value": 1, "label": "Fair", "descriptors": ["Asks at least one question", "Asks surface-level questions that do not demonstrate curiosity in the pledging and business fraternity experience"] },
+        { "value": 0, "label": "Poor", "descriptors": ["Does not ask any questions"] }
+      ]
+    }
+  ],
+
+  "recommendation_scale": {
+    "applies_to": ["casual", "professional"],
+    "note": "Transcribed from the professional form. The casual rubric PDF had no 1-5 recommendation. Confirm the chapter wants the same wording on casual before seeding, or supply casual-specific labels.",
+    "options": [
+      { "value": 5, "label": "Exceptional", "description": "Rushee is a must for the frat. They possess valuable skills and experiences, as well as enthusiasm and detailed responses. They would put their all into this opportunity and contribute positively to our community and the pledge class." },
+      { "value": 4, "label": "Above Average", "description": "Rushee is a solid contender for the frat. They possess valuable skills and experiences, as well as enthusiasm. They would contribute positively to our community and the pledge class. Their responses could use more detail." },
+      { "value": 3, "label": "Average", "description": "Rushee is a maybe for the frat. They possess valuable skills and experiences but lack enthusiasm or thoughtful responses." },
+      { "value": 2, "label": "Below Average", "description": "Rushee is not the best for the frat. They might have valuable skills or experiences but lacked enthusiasm and thoughtful responses." },
+      { "value": 1, "label": "Inadequate", "description": "Would not recommend rushee for the frat." }
+    ]
+  }
+}
