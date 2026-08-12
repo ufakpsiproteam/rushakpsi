@@ -24,7 +24,7 @@ const publicRoutes = [
 // return nothing at all unless the token validates server-side (PRD S3).
 const publicDynamicRoutes = ['/invite/']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow public routes
@@ -46,7 +46,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Create Supabase client for middleware
+  // Create Supabase client for proxy
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -89,7 +89,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Get user profile for routing. This is a convenience only — PRD S1 is
-  // explicit that middleware exists to route users sensibly and is never
+  // explicit that proxy exists to route users sensibly and is never
   // the sole control on any read or write. Row Level Security is the
   // boundary.
   let account_type: string | null = null
