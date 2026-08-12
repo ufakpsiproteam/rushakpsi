@@ -50,15 +50,15 @@ function SignInForm() {
   }
 
   return (
-    <div className="bg-white border-2 border-black rounded-lg p-8">
+    <div className="card card-pad">
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border-2 border-red-500 rounded-lg">
-          <p className="text-red-700 text-sm">{error}</p>
+        <div className="alert alert-negative mb-4">
+          <p className="text-sm">{error}</p>
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-black mb-2">
+          <label htmlFor="email" className="field-label">
             Email Address
           </label>
           <input
@@ -69,17 +69,17 @@ function SignInForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 bg-white border-2 border-line-strong rounded-lg text-black placeholder-ink-faint focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+            className="input"
             placeholder="your.email@ufl.edu"
           />
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label htmlFor="password" className="block text-sm font-medium text-black">
+            <label htmlFor="password" className="field-label mb-0">
               Password
             </label>
-            <Link href="/auth/forgot-password" className="text-sm text-ink-muted hover:text-black">
+            <Link href="/auth/forgot-password" className="text-sm text-ink-muted hover:text-ink">
               Forgot password?
             </Link>
           </div>
@@ -92,13 +92,13 @@ function SignInForm() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 pr-12 bg-white border-2 border-line-strong rounded-lg text-black placeholder-ink-faint focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+              className="input pr-12"
               placeholder="••••••••"
             />
             <button
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-black transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-ink transition-colors"
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? (
@@ -117,11 +117,7 @@ function SignInForm() {
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3 px-4 bg-black text-white rounded-lg font-semibold hover:bg-inverse-soft transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 disabled:bg-ink-faint disabled:cursor-not-allowed"
-        >
+        <button type="submit" disabled={loading} className="btn btn-primary btn-lg btn-block">
           {loading ? 'Signing In...' : 'Sign In'}
         </button>
       </form>
@@ -131,20 +127,16 @@ function SignInForm() {
 
 export default function SignIn() {
   return (
-    <div className="min-h-screen bg-canvas relative overflow-hidden">
-      <div className="absolute inset-0">
-        <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-black/5 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-black/5 blur-3xl" />
-      </div>
+    <div className="app-shell relative overflow-hidden">
       <div className="relative flex min-h-screen items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-        <div className="w-full max-w-5xl rounded-3xl border border-black/10 bg-white/80 backdrop-blur shadow-[0_30px_80px_rgba(0,0,0,0.12)]">
+        <div className="w-full max-w-5xl card">
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr]">
-            <div className="px-6 sm:px-10 py-6 sm:py-8 border-b border-black/10 lg:border-b-0 lg:border-r">
-              <Link href="/" className="inline-flex items-center gap-3">
-                <span className="text-4xl font-bold text-black">ΑΚΨ</span>
-                <span className="text-xs uppercase tracking-[0.35em] text-ink-subtle">Alpha Phi Chapter</span>
+            <div className="px-6 sm:px-10 py-6 sm:py-8 border-b border-line lg:border-b-0 lg:border-r">
+              <Link href="/" className="inline-flex items-baseline gap-3">
+                <span className="lettermark text-4xl">ΑΚΨ</span>
+                <span className="page-eyebrow">Alpha Phi Chapter</span>
               </Link>
-              <h2 className="mt-6 text-3xl sm:text-4xl font-semibold text-black">Welcome back</h2>
+              <h2 className="page-title mt-6 text-3xl sm:text-4xl">Welcome back</h2>
               <p className="mt-3 text-ink-muted max-w-sm">
                 Sign in to manage your rush journey, check in to events, and track your progress.
               </p>
@@ -153,7 +145,7 @@ export default function SignIn() {
             <div className="px-6 sm:px-10 py-6 sm:py-8">
               {/* Sign In Form - wrapped in Suspense for useSearchParams */}
               <Suspense fallback={
-                <div className="bg-white border border-black/10 rounded-2xl p-8">
+                <div className="card card-pad">
                   <div className="animate-pulse space-y-6">
                     <div className="h-12 bg-line rounded"></div>
                     <div className="h-12 bg-line rounded"></div>
@@ -168,7 +160,7 @@ export default function SignIn() {
               <div className="mt-4">
                 <p className="text-ink-muted">
                   Don't have an account?{' '}
-                  <Link href="/auth/signup" className="text-black font-semibold hover:text-ink-muted">
+                  <Link href="/auth/signup" className="text-ink font-semibold hover:text-ink-muted">
                     Sign up for Rush
                   </Link>
                 </p>

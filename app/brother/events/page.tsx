@@ -389,7 +389,7 @@ function BrotherEventsContent() {
                   </div>
                   <button
                     onClick={() => setSelectionView(selectionView === 'grid' ? 'swipe' : 'grid')}
-                    className="px-4 py-2 bg-white border border-line-strong text-ink-muted rounded-lg font-semibold hover:bg-surface-alt transition-colors text-sm whitespace-nowrap"
+                    className="px-4 py-2 bg-surface border border-line-strong text-ink-muted rounded-lg font-semibold hover:bg-surface-alt transition-colors text-sm whitespace-nowrap"
                   >
                     {selectionView === 'grid' ? 'Swipe View' : 'Card View'}
                   </button>
@@ -407,7 +407,7 @@ function BrotherEventsContent() {
                         className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
                           isSelected
                             ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500/20'
-                            : 'border-line bg-white hover:border-line-strong'
+                            : 'border-line bg-surface hover:border-line-strong'
                         }`}
                       >
                         <div className="w-full aspect-square mb-2 flex items-center justify-center bg-surface-sunken rounded-lg overflow-hidden relative">
@@ -444,7 +444,7 @@ function BrotherEventsContent() {
                     {currentSwipeRushee ? (
                       <div className="relative">
                         <div
-                          className={`relative bg-white border border-line rounded-2xl shadow-lg overflow-hidden touch-pan-y select-none transition-shadow ${
+                          className={`relative bg-surface border border-line rounded-2xl shadow-lg overflow-hidden touch-pan-y select-none transition-shadow ${
                             selectedRushees.includes(currentSwipeRushee.id) ? 'ring-2 ring-emerald-400 ring-offset-2 ring-offset-surface-sunken' : ''
                           }`}
                           style={{ transform: `translateX(${swipeOffset}px) rotate(${swipeOffset / 20}deg)`, transition: isDragging ? 'none' : 'transform 180ms ease' }}
@@ -476,9 +476,9 @@ function BrotherEventsContent() {
                                 </svg>
                               </div>
                             )}
-                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4">
-                              <p className="text-white text-xl font-semibold">{currentSwipeRushee.name}</p>
-                              <p className="text-white/80 text-sm">{selectedRushees.includes(currentSwipeRushee.id) ? 'Marked as Met' : 'Not selected yet'}</p>
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[var(--color-inverse)]/70 via-[var(--color-inverse)]/20 to-transparent p-4">
+                              <p className="text-on-inverse text-xl font-semibold">{currentSwipeRushee.name}</p>
+                              <p className="text-on-inverse/80 text-sm">{selectedRushees.includes(currentSwipeRushee.id) ? 'Marked as Met' : 'Not selected yet'}</p>
                             </div>
                           </div>
                         </div>
@@ -488,7 +488,7 @@ function BrotherEventsContent() {
                         </div>
                       </div>
                     ) : (
-                      <div className="bg-white border border-line rounded-2xl p-6 text-center">
+                      <div className="bg-surface border border-line rounded-2xl p-6 text-center">
                         <p className="text-ink-muted font-semibold">All rushees reviewed</p>
                         <p className="text-ink-subtle text-sm mt-1">You can switch back to card view to edit selections.</p>
                       </div>
@@ -526,7 +526,7 @@ function BrotherEventsContent() {
                       onClick={() => setRevealAttendance(prev => !prev)}
                       disabled={!currentSwipeRushee}
                       className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                        currentSwipeRushee ? 'bg-ink text-white hover:bg-inverse-soft' : 'bg-surface-sunken text-ink-faint cursor-not-allowed'
+                        currentSwipeRushee ? 'bg-inverse text-on-inverse hover:bg-inverse-soft' : 'bg-surface-sunken text-ink-faint cursor-not-allowed'
                       }`}
                     >
                       {revealAttendance ? 'Show Profile' : 'Reveal Attendance'}
@@ -536,7 +536,7 @@ function BrotherEventsContent() {
               )}
 
               {/* Floating bottom bar - extra padding on mobile for nav pill */}
-              <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm pt-4 pb-6 lg:pb-6 px-4 border-t border-line shadow-lg z-40" style={{ paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 5rem))' }}>
+              <div className="fixed bottom-0 left-0 right-0 bg-surface/95 backdrop-blur-sm pt-4 pb-6 lg:pb-6 px-4 border-t border-line shadow-lg z-40" style={{ paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 5rem))' }}>
                 <div className="flex gap-3 max-w-4xl mx-auto">
                   <button
                     onClick={() => {
@@ -547,7 +547,7 @@ function BrotherEventsContent() {
                       setAwaitingProfessional([])
                       setStep('select')
                     }}
-                    className="flex-1 py-3 bg-white text-ink border border-line-strong rounded-lg font-semibold hover:bg-surface-alt transition-colors"
+                    className="flex-1 py-3 bg-surface text-ink border border-line-strong rounded-lg font-semibold hover:bg-surface-alt transition-colors"
                   >
                     Cancel
                   </button>
@@ -556,7 +556,7 @@ function BrotherEventsContent() {
                     disabled={selectedRushees.length === 0}
                     className={`flex-1 py-3 rounded-lg font-semibold transition-colors ${
                       selectedRushees.length > 0
-                        ? 'bg-ink text-white hover:bg-inverse-soft'
+                        ? 'bg-inverse text-on-inverse hover:bg-inverse-soft'
                         : 'bg-line text-ink-faint cursor-not-allowed'
                     }`}
                   >
@@ -632,7 +632,7 @@ function BrotherEventsContent() {
               </div>
 
               {/* Progress bar */}
-              <div className="bg-white border border-line rounded-xl p-4 mb-6">
+              <div className="bg-surface border border-line rounded-xl p-4 mb-6">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <span className="text-sm text-ink-muted">
                     Progress: <span className="font-bold text-ink">{evaluatedRushees.length}</span> / {selectedRushees.length} evaluated
@@ -676,7 +676,7 @@ function BrotherEventsContent() {
                             ? 'bg-emerald-50 border-emerald-300 hover:bg-emerald-100/70'
                             : isAwaitingProfessional
                               ? 'bg-amber-50 border-amber-300 hover:bg-amber-100/70'
-                              : 'bg-white border-line hover:bg-surface-alt'
+                              : 'bg-surface border-line hover:bg-surface-alt'
                         }`}
                       >
                         <div className="flex items-center">
@@ -722,13 +722,13 @@ function BrotherEventsContent() {
               </div>
 
               {/* Floating bottom bar - extra padding on mobile for nav pill */}
-              <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm pt-4 pb-6 lg:pb-6 px-4 border-t border-line shadow-lg z-40" style={{ paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 5rem))' }}>
+              <div className="fixed bottom-0 left-0 right-0 bg-surface/95 backdrop-blur-sm pt-4 pb-6 lg:pb-6 px-4 border-t border-line shadow-lg z-40" style={{ paddingBottom: 'max(1.5rem, calc(env(safe-area-inset-bottom) + 5rem))' }}>
                 <div className="flex gap-3 max-w-4xl mx-auto">
                   <button
                     onClick={() => {
                       setStep('select')
                     }}
-                    className="px-6 py-3 bg-white text-ink border border-line-strong rounded-lg font-semibold hover:bg-surface-alt transition-colors"
+                    className="px-6 py-3 bg-surface text-ink border border-line-strong rounded-lg font-semibold hover:bg-surface-alt transition-colors"
                   >
                     ← Back
                   </button>
@@ -778,7 +778,7 @@ function BrotherEventsContent() {
                       setAwaitingProfessional([])
                       setStep('select')
                     }}
-                    className="flex-1 py-3 bg-ink text-white rounded-lg font-semibold hover:bg-inverse-soft transition-colors"
+                    className="flex-1 py-3 bg-inverse text-on-inverse rounded-lg font-semibold hover:bg-inverse-soft transition-colors"
                   >
                     Complete Evaluations
                   </button>
@@ -813,7 +813,7 @@ function BrotherEventsContent() {
           {events.map((event) => (
             <div
               key={event.id}
-              className="bg-white border border-line rounded-2xl p-6 shadow-sm"
+              className="bg-surface border border-line rounded-2xl p-6 shadow-sm"
             >
               {attendedEventIds.includes(event.id) && (
                 <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200">
@@ -828,7 +828,7 @@ function BrotherEventsContent() {
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-semibold ${
                     event.type === 'Professional'
-                      ? 'bg-ink text-white'
+                      ? 'bg-inverse text-on-inverse'
                       : 'bg-line text-ink-muted'
                   }`}
                 >
@@ -849,7 +849,7 @@ function BrotherEventsContent() {
               ) : event.status === 'evaluation' ? (
                 <button
                   onClick={() => handleStartEvaluation(event.id)}
-                  className="w-full py-3 bg-ink text-white rounded-lg font-semibold hover:bg-inverse-soft transition-colors"
+                  className="w-full py-3 bg-inverse text-on-inverse rounded-lg font-semibold hover:bg-inverse-soft transition-colors"
                 >
                   Evaluation
                 </button>

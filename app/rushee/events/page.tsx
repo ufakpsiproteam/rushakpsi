@@ -622,9 +622,9 @@ export default function RusheeEvents() {
 
         {/* Photo Check-In Modal */}
         {showPhotoModal && (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white border-2 border-black rounded-lg p-6 max-w-2xl w-full">
-              <h2 className="text-2xl font-bold text-black mb-4">
+          <div className="fixed inset-0 bg-[var(--color-inverse-soft)]/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="modal-panel p-6 max-w-2xl w-full">
+              <h2 className="page-title text-2xl mb-4">
                 {captureStep === 'instructions' && 'Event Check-In'}
                 {captureStep === 'camera' && 'Take Your Photo'}
                 {captureStep === 'review' && 'Review Photo'}
@@ -634,9 +634,9 @@ export default function RusheeEvents() {
               {/* Progress Indicator */}
               {captureStep !== 'submitted' && (
                 <div className="flex items-center justify-center gap-2 mb-6">
-                  <div className={`h-2 w-2 rounded-full ${captureStep === 'instructions' ? 'bg-black w-8' : 'bg-line-strong'}`} />
-                  <div className={`h-2 w-2 rounded-full ${captureStep === 'camera' ? 'bg-black w-8' : 'bg-line-strong'}`} />
-                  <div className={`h-2 w-2 rounded-full ${captureStep === 'review' ? 'bg-black w-8' : 'bg-line-strong'}`} />
+                  <div className={`h-2 w-2 rounded-full ${captureStep === 'instructions' ? 'bg-inverse w-8' : 'bg-line-strong'}`} />
+                  <div className={`h-2 w-2 rounded-full ${captureStep === 'camera' ? 'bg-inverse w-8' : 'bg-line-strong'}`} />
+                  <div className={`h-2 w-2 rounded-full ${captureStep === 'review' ? 'bg-inverse w-8' : 'bg-line-strong'}`} />
                 </div>
               )}
 
@@ -644,7 +644,7 @@ export default function RusheeEvents() {
               {captureStep === 'instructions' && (
                 <div>
                   <div className="bg-surface-alt border-2 border-line-strong rounded-lg p-6 mb-6">
-                    <h3 className="text-black font-semibold mb-3 text-lg">Photo Guidelines:</h3>
+                    <h3 className="text-ink font-semibold mb-3 text-lg">Photo Guidelines:</h3>
                     <ul className="text-sm text-ink-muted space-y-2">
                       <li className="flex items-start">
                         <span className="mr-2">✓</span>
@@ -672,16 +672,10 @@ export default function RusheeEvents() {
                   </div>
 
                   <div className="flex gap-3">
-                    <button
-                      onClick={closeModal}
-                      className="flex-1 py-3 bg-white text-black border-2 border-black rounded-lg font-semibold hover:bg-surface-alt transition-colors"
-                    >
+                    <button onClick={closeModal} className="btn btn-secondary flex-1">
                       Cancel
                     </button>
-                    <button
-                      onClick={handleStartCamera}
-                      className="flex-1 py-3 bg-black text-white rounded-lg font-semibold hover:bg-inverse-soft transition-colors"
-                    >
+                    <button onClick={handleStartCamera} className="btn btn-primary flex-1">
                       Start Camera
                     </button>
                   </div>
@@ -719,10 +713,7 @@ export default function RusheeEvents() {
                     </p>
                   </div>
 
-                  <button
-                    onClick={closeModal}
-                    className="w-full py-3 bg-white text-black border-2 border-black rounded-lg font-semibold hover:bg-surface-alt transition-colors"
-                  >
+                  <button onClick={closeModal} className="btn btn-secondary btn-block">
                     Cancel
                   </button>
                 </div>
@@ -750,7 +741,7 @@ export default function RusheeEvents() {
                           type="checkbox"
                           checked={faceVisible}
                           onChange={(e) => setFaceVisible(e.target.checked)}
-                          className="w-5 h-5 rounded border-line-strong text-black focus:ring-black mr-3"
+                          className="w-5 h-5 rounded border-line-strong text-inverse focus:ring-inverse mr-3"
                         />
                         <span className="text-ink-muted text-sm">Your face is clearly seen</span>
                       </label>
@@ -759,7 +750,7 @@ export default function RusheeEvents() {
                           type="checkbox"
                           checked={onlyOneFace}
                           onChange={(e) => setOnlyOneFace(e.target.checked)}
-                          className="w-5 h-5 rounded border-line-strong text-black focus:ring-black mr-3"
+                          className="w-5 h-5 rounded border-line-strong text-inverse focus:ring-inverse mr-3"
                         />
                         <span className="text-ink-muted text-sm">Your face is the only one in view</span>
                       </label>
@@ -797,7 +788,7 @@ export default function RusheeEvents() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <h3 className="text-2xl font-bold text-black mb-2">Check-In Submitted!</h3>
+                    <h3 className="page-title text-2xl mb-2">Check-In Submitted!</h3>
                     <p className="text-ink-muted mb-4">
                       Your attendance photo has been submitted for review.
                     </p>
@@ -835,10 +826,7 @@ export default function RusheeEvents() {
                     </ul>
                   </div>
 
-                  <button
-                    onClick={closeModal}
-                    className="w-full py-3 bg-black text-white rounded-lg font-semibold hover:bg-inverse-soft transition-colors"
-                  >
+                  <button onClick={closeModal} className="btn btn-primary btn-block">
                     Done
                   </button>
                 </div>

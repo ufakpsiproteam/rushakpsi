@@ -321,7 +321,7 @@ export default function BrotherCuts() {
       <div className="min-h-screen bg-canvas">
         <BrotherNav />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white border border-line rounded-2xl p-6 text-center">
+          <div className="bg-surface border border-line rounded-2xl p-6 text-center">
             <h2 className="text-xl font-semibold text-ink mb-2">Access Denied</h2>
             <p className="text-ink-muted">
               You need elevated permissions to access this page.
@@ -355,7 +355,7 @@ export default function BrotherCuts() {
                 placeholder="Search by name, major, or year..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 pl-11 bg-white border border-line rounded-lg text-ink placeholder-ink-faint focus:ring-2 focus:ring-ink focus:border-transparent"
+                className="w-full px-4 py-3 pl-11 bg-surface border border-line rounded-lg text-ink placeholder-ink-faint focus:ring-2 focus:ring-ink focus:border-transparent"
               />
               <svg
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-ink-faint"
@@ -378,7 +378,7 @@ export default function BrotherCuts() {
             </div>
 
             {/* Sort Section */}
-            <div className="bg-white border border-line rounded-lg">
+            <div className="bg-surface border border-line rounded-lg">
               {/* Collapsible Header */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
@@ -414,7 +414,7 @@ export default function BrotherCuts() {
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value as 'name' | 'rating')}
-                      className="w-full px-3 py-2 bg-white border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink focus:border-transparent"
+                      className="w-full px-3 py-2 bg-surface border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink focus:border-transparent"
                     >
                       <option value="name">Name (A-Z)</option>
                       <option value="rating">Rating (High to Low)</option>
@@ -454,7 +454,7 @@ export default function BrotherCuts() {
             return (
               <div
                 key={rushee.id}
-                className="border border-line bg-white rounded-2xl p-5 transition-colors cursor-pointer relative shadow-sm hover:shadow-md"
+                className="border border-line bg-surface rounded-2xl p-5 transition-colors cursor-pointer relative shadow-sm hover:shadow-md"
               >
               <div
                 className="flex items-center mb-4"
@@ -481,28 +481,28 @@ export default function BrotherCuts() {
               </div>
 
               <div className="grid grid-cols-2 gap-3 text-sm mb-3">
-                <div className="bg-white/70 border border-line rounded-lg p-2">
+                <div className="bg-surface/70 border border-line rounded-lg p-2">
                   <p className="text-ink-subtle text-xs uppercase tracking-[0.2em]">Casual</p>
                   <p className="text-ink font-semibold">{rushee.casualEvents}</p>
                 </div>
-                <div className="bg-white/70 border border-line rounded-lg p-2">
+                <div className="bg-surface/70 border border-line rounded-lg p-2">
                   <p className="text-ink-subtle text-xs uppercase tracking-[0.2em]">Professional</p>
                   <p className="text-ink font-semibold">{rushee.professionalEvents}</p>
                 </div>
-                <div className="bg-white/70 border border-line rounded-lg p-2">
+                <div className="bg-surface/70 border border-line rounded-lg p-2">
                   <p className="text-ink-subtle text-xs uppercase tracking-[0.2em]">Interactions</p>
                   <p className="text-ink font-semibold">{rushee.interactions}</p>
                 </div>
-                <div className="bg-white/70 border border-line rounded-lg p-2">
+                <div className="bg-surface/70 border border-line rounded-lg p-2">
                   <p className="text-ink-subtle text-xs uppercase tracking-[0.2em]">Evals</p>
                   <p className="text-ink font-semibold">{rushee.evaluations}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mb-3">
-                <div className="bg-ink rounded-lg p-3 text-center">
-                  <p className="text-white/70 text-xs font-semibold mb-1 uppercase tracking-[0.3em]">Avg Score</p>
-                  <p className="text-2xl font-semibold text-white">{rushee.avgScore}</p>
+                <div className="bg-inverse rounded-lg p-3 text-center">
+                  <p className="text-on-inverse/70 text-xs font-semibold mb-1 uppercase tracking-[0.3em]">Avg Score</p>
+                  <p className="text-2xl font-semibold text-on-inverse">{rushee.avgScore}</p>
                 </div>
                 <div className="bg-surface-alt border border-line rounded-lg p-3 text-center">
                   <p className="text-ink-subtle text-xs font-semibold mb-1 uppercase tracking-[0.3em]">App Score</p>
@@ -518,7 +518,7 @@ export default function BrotherCuts() {
                     setShowApplication(true)
                     setShowComments(false)
                   }}
-                  className="w-full py-2 bg-ink text-white text-sm rounded-lg font-semibold hover:bg-inverse-soft transition-colors"
+                  className="w-full py-2 bg-inverse text-on-inverse text-sm rounded-lg font-semibold hover:bg-inverse-soft transition-colors"
                 >
                   View Application
                 </button>
@@ -535,8 +535,8 @@ export default function BrotherCuts() {
 
         {/* Rushee Detail Modal */}
         {selectedRushee && selectedRusheeData && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white border border-line rounded-2xl max-w-4xl w-full shadow-xl max-h-[90vh] flex flex-col">
+          <div className="fixed inset-0 bg-[var(--color-inverse-soft)]/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-surface border border-line rounded-2xl max-w-4xl w-full shadow-xl max-h-[90vh] flex flex-col">
               {/* Fixed Header */}
               <div className="flex-shrink-0 p-6 pb-4 border-b border-line">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -751,11 +751,11 @@ export default function BrotherCuts() {
                   setShowComments(true)
                   await loadEvaluations(selectedRusheeData.id)
                 }}
-                className="w-full bg-ink rounded-2xl p-3 mb-6 text-center hover:bg-inverse-soft transition-colors cursor-pointer"
+                className="w-full bg-inverse rounded-2xl p-3 mb-6 text-center hover:bg-inverse-soft transition-colors cursor-pointer"
               >
-                <p className="text-white/70 text-xs uppercase tracking-[0.35em] mb-1">Average Score</p>
-                <p className="text-3xl font-semibold text-white">{selectedRusheeData.avgScore} / 5</p>
-                <p className="text-white/50 text-xs mt-1">Click to view comments</p>
+                <p className="text-on-inverse/70 text-xs uppercase tracking-[0.35em] mb-1">Average Score</p>
+                <p className="text-3xl font-semibold text-on-inverse">{selectedRusheeData.avgScore} / 5</p>
+                <p className="text-on-inverse/50 text-xs mt-1">Click to view comments</p>
               </button>
 
               {/* Evaluation Summary */}
@@ -796,7 +796,7 @@ export default function BrotherCuts() {
                 <>
                   <button
                     onClick={() => setShowApplication(!showApplication)}
-                    className="w-full py-2.5 bg-ink text-white rounded-lg font-semibold hover:bg-inverse-soft transition-colors mb-3 text-sm"
+                    className="w-full py-2.5 bg-inverse text-on-inverse rounded-lg font-semibold hover:bg-inverse-soft transition-colors mb-3 text-sm"
                   >
                     {showApplication ? 'Hide' : 'View'} Application
                   </button>

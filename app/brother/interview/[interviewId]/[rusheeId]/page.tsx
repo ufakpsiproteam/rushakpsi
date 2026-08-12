@@ -55,7 +55,7 @@ function ScriptBlock({ lines }: { lines: string[] }) {
   return (
     <div className="space-y-3">
       {lines.map((line, i) => (
-        <p key={i} className="text-gray-700 leading-relaxed">{line}</p>
+        <p key={i} className="text-ink-muted leading-relaxed">{line}</p>
       ))}
     </div>
   )
@@ -74,14 +74,14 @@ function TimerDisplay({ seconds }: { seconds: number }) {
   function restart() { setRemaining(seconds); setRunning(true) }
 
   const pct = (remaining / seconds) * 100
-  const color = remaining <= 10 ? 'text-red-500' : remaining <= 30 ? 'text-amber-500' : 'text-gray-600'
+  const color = remaining <= 10 ? 'text-red-500' : remaining <= 30 ? 'text-amber-500' : 'text-ink-muted'
 
   return (
     <div className="flex items-center gap-2 mb-4">
       <span className={`text-sm font-mono font-medium ${color}`}>
         {Math.floor(remaining / 60)}:{String(remaining % 60).padStart(2, '0')}
       </span>
-      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+      <div className="flex-1 h-1.5 bg-surface-sunken rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${remaining <= 10 ? 'bg-red-400' : 'bg-blue-400'}`}
           style={{ width: `${pct}%` }}
@@ -89,7 +89,7 @@ function TimerDisplay({ seconds }: { seconds: number }) {
       </div>
       <button
         onClick={restart}
-        className="text-xs text-gray-400 hover:text-gray-600 shrink-0"
+        className="text-xs text-ink-subtle hover:text-ink-muted shrink-0"
         title="Restart timer"
       >
         ↺
@@ -373,10 +373,10 @@ export default function InterviewModePage() {
 
   if (step === 'loading') {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-canvas">
         <BrotherNav />
         <div className="flex items-center justify-center h-64">
-          <p className="text-gray-400">Loading…</p>
+          <p className="text-ink-subtle">Loading…</p>
         </div>
       </div>
     )
@@ -384,7 +384,7 @@ export default function InterviewModePage() {
 
   if (step === 'error') {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-canvas">
         <BrotherNav />
         <div className="max-w-xl mx-auto px-4 py-12 text-center">
           <p className="text-red-600 mb-4">{errorMsg || 'Something went wrong.'}</p>
@@ -398,7 +398,7 @@ export default function InterviewModePage() {
 
   if (step === 'already_done') {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-canvas">
         <BrotherNav />
         <div className="max-w-xl mx-auto px-4 py-12 text-center">
           <p className="text-green-600 font-medium mb-2">{errorMsg || 'Assignment already submitted.'}</p>
@@ -411,25 +411,25 @@ export default function InterviewModePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 lg:pb-8">
+    <div className="min-h-screen bg-canvas pb-24 lg:pb-8">
       <BrotherNav />
 
       <div className="max-w-xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-6">
-          <p className="text-xs uppercase tracking-wide text-gray-400 font-medium">
+          <p className="text-xs uppercase tracking-wide text-ink-subtle font-medium">
             {interviewType} interview
           </p>
-          <h1 className="text-xl font-bold text-gray-900">{rushee.name}</h1>
-          {rushee.major && <p className="text-sm text-gray-500">{rushee.major}</p>}
+          <h1 className="text-xl font-bold text-ink">{rushee.name}</h1>
+          {rushee.major && <p className="text-sm text-ink-subtle">{rushee.major}</p>}
         </div>
 
         {/* ── OPENING ──────────────────────────────────────────────────────── */}
         {step === 'opening' && (
           <div className="space-y-6">
             {openingScripts.length > 0 && (
-              <div className="bg-white rounded-lg shadow p-5">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Opening Script</h2>
+              <div className="bg-surface rounded-lg shadow p-5">
+                <h2 className="text-sm font-semibold text-ink-subtle uppercase tracking-wide mb-3">Opening Script</h2>
                 <ScriptBlock lines={openingScripts} />
               </div>
             )}
@@ -487,7 +487,7 @@ export default function InterviewModePage() {
             {!casualConflictFlagged && (
               <button
                 onClick={() => { setCurrentQIdx(0); setStep('question') }}
-                className="w-full bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium"
+                className="w-full bg-inverse hover:bg-inverse-soft text-on-inverse py-3 rounded-lg font-medium"
               >
                 Begin Interview
               </button>
@@ -498,11 +498,11 @@ export default function InterviewModePage() {
         {/* ── QUESTION ─────────────────────────────────────────────────────── */}
         {step === 'question' && currentQuestion && currentAnswer && (
           <div className="space-y-5">
-            <div className="flex items-center justify-between text-sm text-gray-400">
+            <div className="flex items-center justify-between text-sm text-ink-subtle">
               <span>Q{currentQuestion.order_index} of {questions.length}</span>
               <div className="flex gap-1">
                 {questions.map((_, i) => (
-                  <div key={i} className={`w-2 h-2 rounded-full ${i === currentQIdx ? 'bg-black' : i < currentQIdx ? 'bg-green-400' : 'bg-gray-200'}`} />
+                  <div key={i} className={`w-2 h-2 rounded-full ${i === currentQIdx ? 'bg-inverse' : i < currentQIdx ? 'bg-green-400' : 'bg-line-strong'}`} />
                 ))}
               </div>
             </div>
@@ -514,10 +514,10 @@ export default function InterviewModePage() {
               />
             )}
 
-            <div className="bg-white rounded-lg shadow p-5">
-              <p className="text-gray-900 font-medium leading-relaxed mb-2">{currentQuestion.prompt}</p>
+            <div className="bg-surface rounded-lg shadow p-5">
+              <p className="text-ink font-medium leading-relaxed mb-2">{currentQuestion.prompt}</p>
               {currentQuestion.help_text && (
-                <p className="text-sm text-gray-500 italic mb-4">{currentQuestion.help_text}</p>
+                <p className="text-sm text-ink-subtle italic mb-4">{currentQuestion.help_text}</p>
               )}
 
               {currentQuestion.field_type === 'yes_no' && (
@@ -529,7 +529,7 @@ export default function InterviewModePage() {
                       className={`flex-1 py-2.5 rounded-lg border font-medium text-sm transition-colors ${
                         currentAnswer.yes_no === val
                           ? val ? 'bg-green-600 text-white border-green-600' : 'bg-red-600 text-white border-red-600'
-                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+                          : 'bg-surface text-ink-muted border-line-strong hover:border-ink-faint'
                       }`}
                     >
                       {val ? 'Yes' : 'No'}
@@ -547,12 +547,12 @@ export default function InterviewModePage() {
                       className={`text-left px-3 py-2 rounded-lg border text-sm transition-colors ${
                         currentAnswer.score === opt.value
                           ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+                          : 'bg-surface text-ink-muted border-line-strong hover:border-ink-faint'
                       }`}
                     >
                       <span className="font-medium">{opt.value} — {opt.label}</span>
                       {opt.descriptors?.length > 0 && (
-                        <p className={`text-xs mt-0.5 ${currentAnswer.score === opt.value ? 'text-blue-100' : 'text-gray-400'}`}>
+                        <p className={`text-xs mt-0.5 ${currentAnswer.score === opt.value ? 'text-blue-100' : 'text-ink-subtle'}`}>
                           {opt.descriptors.join(' · ')}
                         </p>
                       )}
@@ -566,20 +566,20 @@ export default function InterviewModePage() {
                 value={currentAnswer.notes}
                 onChange={e => updateAnswer(currentQuestion.id, { notes: e.target.value })}
                 rows={3}
-                className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"
+                className="w-full border border-line-strong rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ink resize-none"
               />
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={goToPrevQuestion}
-                className="flex-1 border border-gray-200 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50"
+                className="flex-1 border border-line-strong text-ink-muted py-2.5 rounded-lg text-sm font-medium hover:bg-surface-alt"
               >
                 {currentQIdx === 0 ? 'Back to Script' : 'Previous'}
               </button>
               <button
                 onClick={goToNextQuestion}
-                className="flex-1 bg-black hover:bg-gray-800 text-white py-2.5 rounded-lg text-sm font-medium"
+                className="flex-1 bg-inverse hover:bg-inverse-soft text-on-inverse py-2.5 rounded-lg text-sm font-medium"
               >
                 {currentQIdx === questions.length - 1 ? 'Review Answers' : 'Next'}
               </button>
@@ -590,12 +590,12 @@ export default function InterviewModePage() {
         {/* ── REVIEW ───────────────────────────────────────────────────────── */}
         {step === 'review' && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Review your answers</h2>
+            <h2 className="text-lg font-semibold text-ink">Review your answers</h2>
             {questions.map((q) => {
               const ans = answers[q.id] ?? { score: null, yes_no: null, notes: '' }
               return (
-                <div key={q.id} className="bg-white rounded-lg shadow p-4">
-                  <p className="text-sm font-medium text-gray-800 mb-2">Q{q.order_index}: {q.prompt}</p>
+                <div key={q.id} className="bg-surface rounded-lg shadow p-4">
+                  <p className="text-sm font-medium text-ink mb-2">Q{q.order_index}: {q.prompt}</p>
                   {q.field_type === 'yes_no' && (
                     <div className="flex gap-2 mb-2">
                       {[true, false].map(val => (
@@ -605,7 +605,7 @@ export default function InterviewModePage() {
                           className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
                             ans.yes_no === val
                               ? val ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              : 'bg-surface-sunken text-ink-muted hover:bg-line-strong'
                           }`}
                         >
                           {val ? 'Yes' : 'No'}
@@ -622,7 +622,7 @@ export default function InterviewModePage() {
                           className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                             ans.score === opt.value
                               ? 'bg-blue-600 text-white'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              : 'bg-surface-sunken text-ink-muted hover:bg-line-strong'
                           }`}
                         >
                           {opt.value} – {opt.label}
@@ -635,7 +635,7 @@ export default function InterviewModePage() {
                     value={ans.notes}
                     onChange={e => updateAnswer(q.id, { notes: e.target.value })}
                     rows={2}
-                    className="w-full border border-gray-200 rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-black resize-none"
+                    className="w-full border border-line-strong rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ink resize-none"
                   />
                 </div>
               )
@@ -643,7 +643,7 @@ export default function InterviewModePage() {
 
             <button
               onClick={() => setStep('recommendation')}
-              className="w-full bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium"
+              className="w-full bg-inverse hover:bg-inverse-soft text-on-inverse py-3 rounded-lg font-medium"
             >
               Continue to Recommendation
             </button>
@@ -653,7 +653,7 @@ export default function InterviewModePage() {
         {/* ── RECOMMENDATION ───────────────────────────────────────────────── */}
         {step === 'recommendation' && (
           <div className="space-y-5">
-            <h2 className="text-lg font-semibold text-gray-900">Recommendation</h2>
+            <h2 className="text-lg font-semibold text-ink">Recommendation</h2>
 
             <div className="space-y-2">
               {RECOMMENDATION_OPTIONS.map(opt => (
@@ -663,11 +663,11 @@ export default function InterviewModePage() {
                   className={`w-full text-left px-4 py-3 rounded-lg border transition-colors ${
                     recommendation === opt.value
                       ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-800 border-gray-200 hover:border-gray-400'
+                      : 'bg-surface text-ink border-line-strong hover:border-ink-faint'
                   }`}
                 >
                   <span className="font-medium">{opt.value} — {opt.label}</span>
-                  <p className={`text-xs mt-0.5 ${recommendation === opt.value ? 'text-blue-100' : 'text-gray-400'}`}>
+                  <p className={`text-xs mt-0.5 ${recommendation === opt.value ? 'text-blue-100' : 'text-ink-subtle'}`}>
                     {opt.description}
                   </p>
                 </button>
@@ -675,7 +675,7 @@ export default function InterviewModePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-ink-muted mb-1">
                 Recommendation notes <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -683,7 +683,7 @@ export default function InterviewModePage() {
                 value={recNotes}
                 onChange={e => setRecNotes(e.target.value)}
                 rows={4}
-                className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"
+                className="w-full border border-line-strong rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ink resize-none"
               />
             </div>
 
@@ -696,13 +696,13 @@ export default function InterviewModePage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setStep('review')}
-                className="flex-1 border border-gray-200 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50"
+                className="flex-1 border border-line-strong text-ink-muted py-2.5 rounded-lg text-sm font-medium hover:bg-surface-alt"
               >
                 Back to Review
               </button>
               <button
                 onClick={handleProceedToConfirm}
-                className="flex-1 bg-black hover:bg-gray-800 text-white py-2.5 rounded-lg text-sm font-medium"
+                className="flex-1 bg-inverse hover:bg-inverse-soft text-on-inverse py-2.5 rounded-lg text-sm font-medium"
               >
                 Review &amp; Submit
               </button>
@@ -713,26 +713,26 @@ export default function InterviewModePage() {
         {/* ── CONFIRM ──────────────────────────────────────────────────────── */}
         {step === 'confirm' && (
           <div className="space-y-5">
-            <h2 className="text-lg font-semibold text-gray-900">Confirm submission</h2>
+            <h2 className="text-lg font-semibold text-ink">Confirm submission</h2>
 
-            <div className="bg-white rounded-lg shadow divide-y divide-gray-100">
+            <div className="bg-surface rounded-lg shadow divide-y divide-line">
               <div className="px-4 py-3">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Rushee</p>
-                <p className="font-medium text-gray-900">{rushee.name}</p>
+                <p className="text-xs text-ink-subtle uppercase tracking-wide">Rushee</p>
+                <p className="font-medium text-ink">{rushee.name}</p>
               </div>
               <div className="px-4 py-3">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Recommendation</p>
-                <p className="font-medium text-gray-900">
+                <p className="text-xs text-ink-subtle uppercase tracking-wide">Recommendation</p>
+                <p className="font-medium text-ink">
                   {recommendation} — {RECOMMENDATION_OPTIONS.find(o => o.value === recommendation)?.label}
                 </p>
               </div>
               <div className="px-4 py-3">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Notes</p>
-                <p className="text-sm text-gray-700">{recNotes}</p>
+                <p className="text-xs text-ink-subtle uppercase tracking-wide">Notes</p>
+                <p className="text-sm text-ink-muted">{recNotes}</p>
               </div>
               <div className="px-4 py-3">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Questions answered</p>
-                <p className="text-sm text-gray-700">{questions.length}</p>
+                <p className="text-xs text-ink-subtle uppercase tracking-wide">Questions answered</p>
+                <p className="text-sm text-ink-muted">{questions.length}</p>
               </div>
             </div>
 
@@ -750,7 +750,7 @@ export default function InterviewModePage() {
               <button
                 onClick={() => setStep('recommendation')}
                 disabled={submitPending}
-                className="flex-1 border border-gray-200 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+                className="flex-1 border border-line-strong text-ink-muted py-2.5 rounded-lg text-sm font-medium hover:bg-surface-alt disabled:opacity-50"
               >
                 Back
               </button>
@@ -769,8 +769,8 @@ export default function InterviewModePage() {
         {step === 'closing' && (
           <div className="space-y-6">
             {closingScripts.length > 0 && (
-              <div className="bg-white rounded-lg shadow p-5">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Closing Script</h2>
+              <div className="bg-surface rounded-lg shadow p-5">
+                <h2 className="text-sm font-semibold text-ink-subtle uppercase tracking-wide mb-3">Closing Script</h2>
                 <ScriptBlock lines={closingScripts} />
               </div>
             )}
@@ -778,13 +778,13 @@ export default function InterviewModePage() {
             <div className="flex gap-3">
               <button
                 onClick={() => { setCurrentQIdx(questions.length - 1); setStep('question') }}
-                className="flex-1 border border-gray-200 text-gray-700 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50"
+                className="flex-1 border border-line-strong text-ink-muted py-2.5 rounded-lg text-sm font-medium hover:bg-surface-alt"
               >
                 Back
               </button>
               <button
                 onClick={() => setStep('review')}
-                className="flex-1 bg-black hover:bg-gray-800 text-white py-2.5 rounded-lg font-medium text-sm"
+                className="flex-1 bg-inverse hover:bg-inverse-soft text-on-inverse py-2.5 rounded-lg font-medium text-sm"
               >
                 Rushee left — begin scoring
               </button>
@@ -798,12 +798,12 @@ export default function InterviewModePage() {
             <div className="text-center py-4">
               <div className="text-4xl mb-2">✓</div>
               <p className="text-lg font-semibold text-green-700">Submitted successfully</p>
-              <p className="text-sm text-gray-500 mt-1">{rushee.name}</p>
+              <p className="text-sm text-ink-subtle mt-1">{rushee.name}</p>
             </div>
 
             <button
               onClick={() => router.push('/brother/interviews')}
-              className="w-full bg-black hover:bg-gray-800 text-white py-3 rounded-lg font-medium"
+              className="w-full bg-inverse hover:bg-inverse-soft text-on-inverse py-3 rounded-lg font-medium"
             >
               Back to Interviews
             </button>
@@ -814,14 +814,14 @@ export default function InterviewModePage() {
       {/* Professional conflict script overlay */}
       {showConflictScript && conflictScript && (
         <>
-          <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setShowConflictScript(false)} />
-          <div className="fixed inset-x-4 top-1/4 bg-white rounded-xl shadow-2xl z-50 p-6 max-w-md mx-auto">
-            <h3 className="font-semibold text-gray-900 mb-3">Personal Relationship Disclosure</h3>
-            <p className="text-sm text-gray-700 leading-relaxed mb-4">{conflictScript}</p>
+          <div className="fixed inset-0 bg-[var(--color-inverse-soft)]/40 z-40" onClick={() => setShowConflictScript(false)} />
+          <div className="fixed inset-x-4 top-1/4 bg-surface rounded-xl shadow-2xl z-50 p-6 max-w-md mx-auto">
+            <h3 className="font-semibold text-ink mb-3">Personal Relationship Disclosure</h3>
+            <p className="text-sm text-ink-muted leading-relaxed mb-4">{conflictScript}</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConflictScript(false)}
-                className="flex-1 border border-gray-200 text-gray-700 py-2 rounded text-sm"
+                className="flex-1 border border-line-strong text-ink-muted py-2 rounded text-sm"
               >
                 Cancel
               </button>

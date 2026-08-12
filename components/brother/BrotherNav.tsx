@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import RoleSwitcher from './RoleSwitcher'
 
@@ -92,31 +93,36 @@ export default function BrotherNav({ onBeforeNavigate }: BrotherNavProps = {}) {
   return (
     <>
       {/* Desktop/Tablet Top Navigation - Hidden on mobile */}
-      <nav className="hidden lg:block bg-black border-b border-line sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="hidden lg:block nav-bar">
+        <div className="app-container">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href="/brother/dashboard" className="flex items-center">
-                <span className="text-2xl font-bold text-white">ΑΚΨ</span>
-                <span className="ml-3 text-white font-semibold hidden sm:block">Brother Portal</span>
-              </Link>
-            </div>
+            <Link href="/brother/dashboard" className="flex items-baseline gap-2.5">
+              <span className="lettermark text-xl">ΑΚΨ</span>
+              <span className="text-sm font-medium text-ink-muted hidden sm:block">Brother Portal</span>
+            </Link>
 
-            <div className="hidden lg:flex space-x-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={(e) => handleNavClick(e, item.href)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    pathname === item.href
-                      ? 'bg-white text-black'
-                      : 'text-line-strong hover:bg-inverse-soft hover:text-white'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
+            <div className="hidden lg:flex items-center gap-1">
+              {navItems.map((item) => {
+                const active = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={(e) => handleNavClick(e, item.href)}
+                    aria-current={active ? 'page' : undefined}
+                    className={`nav-tab ${active ? 'nav-tab-active' : ''}`}
+                  >
+                    {item.label}
+                    {active && (
+                      <motion.span
+                        layoutId="portal-nav-underline"
+                        className="portal-nav-underline"
+                        transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                      />
+                    )}
+                  </Link>
+                )
+              })}
             </div>
 
             <div className="flex items-center gap-2">
@@ -124,17 +130,14 @@ export default function BrotherNav({ onBeforeNavigate }: BrotherNavProps = {}) {
               <Link
                 href="/brother/account"
                 onClick={(e) => handleNavClick(e, '/brother/account')}
-                className={`p-2 rounded-lg transition-colors ${
-                  pathname === '/brother/account'
-                    ? 'bg-white text-black'
-                    : 'text-line-strong hover:bg-inverse-soft hover:text-white'
-                }`}
+                aria-current={pathname === '/brother/account' ? 'page' : undefined}
+                className={`nav-tab ${pathname === '/brother/account' ? 'nav-tab-active' : ''}`}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </Link>
-              <button onClick={handleSignOut} className="px-4 py-2 text-line-strong hover:text-white transition-colors font-medium">
+              <button onClick={handleSignOut} className="btn btn-ghost btn-sm">
                 Sign Out
               </button>
             </div>
@@ -145,7 +148,7 @@ export default function BrotherNav({ onBeforeNavigate }: BrotherNavProps = {}) {
       {/* Mobile Bottom Tab Bar */}
       <div className="lg:hidden fixed bottom-4 left-0 right-0 z-50">
         <div
-          className="mx-auto w-fit rounded-full bg-black/90 px-10 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur"
+          className="mx-auto w-fit rounded-full bg-[var(--color-inverse)]/90 px-10 py-3 shadow-[0_10px_30px_rgb(9_23_51_/_0.35)] backdrop-blur"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           <div className="flex items-center gap-6 -translate-y-1">
@@ -158,8 +161,8 @@ export default function BrotherNav({ onBeforeNavigate }: BrotherNavProps = {}) {
                   onClick={(e) => handleNavClick(e, item.href)}
                   className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
                     isActive
-                      ? 'bg-white text-black'
-                      : 'text-ink-faint hover:text-white'
+                      ? 'bg-[var(--color-on-inverse)] text-[var(--color-inverse)]'
+                      : 'text-[var(--color-on-inverse)]/60 hover:text-[var(--color-on-inverse)]'
                   }`}
                 >
                   {item.icon}

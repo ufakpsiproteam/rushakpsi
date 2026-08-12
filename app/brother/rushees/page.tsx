@@ -161,21 +161,21 @@ export default function BrotherRushees() {
         </div>
 
         {/* Search and Filters - Sticky on desktop */}
-        <div className="bg-white border border-line rounded-2xl p-4 mb-6 shadow-sm lg:sticky lg:top-20 lg:z-30">
+        <div className="bg-surface border border-line rounded-2xl p-4 mb-6 shadow-sm lg:sticky lg:top-20 lg:z-30">
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               type="text"
               placeholder="Search by name or major..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 px-4 py-2 bg-white border border-line rounded-lg text-ink placeholder-ink-faint focus:outline-none focus:ring-2 focus:ring-ink"
+              className="flex-1 px-4 py-2 bg-surface border border-line rounded-lg text-ink placeholder-ink-faint focus:outline-none focus:ring-2 focus:ring-ink"
             />
             <button
               onClick={() => setFilterStarred(!filterStarred)}
               className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
                 filterStarred
-                  ? 'bg-ink text-white'
-                  : 'bg-white text-ink border border-line hover:bg-surface-alt'
+                  ? 'bg-inverse text-on-inverse'
+                  : 'bg-surface text-ink border border-line hover:bg-surface-alt'
               }`}
             >
               Starred Only
@@ -189,7 +189,7 @@ export default function BrotherRushees() {
           {filteredRushees.map((rushee) => (
             <div
               key={rushee.id}
-              className="bg-white border border-line rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
+              className="bg-surface border border-line rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
               onClick={() => setSelectedRushee(rushee.id)}
             >
               {/* Profile Photo */}
@@ -213,16 +213,16 @@ export default function BrotherRushees() {
                     e.stopPropagation()
                     toggleStar(rushee.id)
                   }}
-                  className="absolute top-1.5 right-1.5 bg-white/90 backdrop-blur-sm rounded-full w-7 h-7 flex items-center justify-center hover:scale-110 transition-transform shadow text-sm"
+                  className="absolute top-1.5 right-1.5 bg-surface/90 backdrop-blur-sm rounded-full w-7 h-7 flex items-center justify-center hover:scale-110 transition-transform shadow text-sm"
                 >
                   {rushee.starred ? '⭐' : '☆'}
                 </button>
                 {/* Event badges overlaid on photo */}
                 <div className="absolute bottom-1.5 left-1.5 flex gap-1">
-                  <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${rushee.casualEvents >= 2 ? 'bg-emerald-500 text-white' : 'bg-black/60 text-white'}`}>
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${rushee.casualEvents >= 2 ? 'bg-emerald-500 text-white' : 'bg-[var(--color-inverse)]/60 text-on-inverse'}`}>
                     C:{rushee.casualEvents}
                   </span>
-                  <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${rushee.professionalEvents >= 1 ? 'bg-emerald-500 text-white' : 'bg-black/60 text-white'}`}>
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${rushee.professionalEvents >= 1 ? 'bg-emerald-500 text-white' : 'bg-[var(--color-inverse)]/60 text-on-inverse'}`}>
                     P:{rushee.professionalEvents}
                   </span>
                 </div>
@@ -238,15 +238,15 @@ export default function BrotherRushees() {
         </div>
 
         {filteredRushees.length === 0 && (
-          <div className="bg-white border border-line rounded-2xl p-12 text-center shadow-sm">
+          <div className="bg-surface border border-line rounded-2xl p-12 text-center shadow-sm">
             <p className="text-ink-muted">No rushees found matching your criteria.</p>
           </div>
         )}
 
         {/* Rushee Detail Modal */}
         {selectedRushee && selectedRusheeData && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white border border-line rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+          <div className="fixed inset-0 bg-[var(--color-inverse-soft)]/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-surface border border-line rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
               <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-4">
                   {/* Profile Photo */}
@@ -254,7 +254,7 @@ export default function BrotherRushees() {
                     <img
                       src={selectedRusheeData.photo}
                       alt={selectedRusheeData.name}
-                      className="w-24 h-24 object-cover rounded-lg border-2 border-black"
+                      className="w-24 h-24 object-cover rounded-lg border-2 border-line-strong"
                     />
                   ) : (
                     <div className="w-24 h-24 flex items-center justify-center bg-gradient-to-br from-surface-sunken to-line rounded-lg border-2 border-line-strong">
@@ -296,12 +296,12 @@ export default function BrotherRushees() {
                   value={notesCache[selectedRusheeData.id] || ''}
                   onChange={(e) => setNotesCache({ ...notesCache, [selectedRusheeData.id]: e.target.value })}
                   placeholder="Add your personal notes about this rushee..."
-                  className="w-full px-3 py-2 bg-white border border-line rounded-lg text-ink placeholder-ink-faint focus:outline-none focus:ring-2 focus:ring-ink resize-none"
+                  className="w-full px-3 py-2 bg-surface border border-line rounded-lg text-ink placeholder-ink-faint focus:outline-none focus:ring-2 focus:ring-ink resize-none"
                   rows={4}
                 />
                 <button
                   onClick={() => handleSaveNotes(selectedRusheeData.id)}
-                  className="mt-2 px-4 py-2 bg-ink text-white rounded-lg font-semibold hover:bg-inverse-soft transition-colors text-sm"
+                  className="mt-2 px-4 py-2 bg-inverse text-on-inverse rounded-lg font-semibold hover:bg-inverse-soft transition-colors text-sm"
                 >
                   Save Notes
                 </button>

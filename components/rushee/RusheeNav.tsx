@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 
 /**
@@ -102,16 +103,26 @@ export default function RusheeNav() {
             </Link>
 
             <div className="flex items-center gap-1">
-              {DESKTOP_TABS.map((tab) => (
-                <Link
-                  key={tab.href}
-                  href={tab.href}
-                  aria-current={pathname === tab.href ? 'page' : undefined}
-                  className={`nav-tab ${pathname === tab.href ? 'nav-tab-active' : ''}`}
-                >
-                  {tab.label}
-                </Link>
-              ))}
+              {DESKTOP_TABS.map((tab) => {
+                const active = pathname === tab.href
+                return (
+                  <Link
+                    key={tab.href}
+                    href={tab.href}
+                    aria-current={active ? 'page' : undefined}
+                    className={`nav-tab ${active ? 'nav-tab-active' : ''}`}
+                  >
+                    {tab.label}
+                    {active && (
+                      <motion.span
+                        layoutId="portal-nav-underline"
+                        className="portal-nav-underline"
+                        transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                      />
+                    )}
+                  </Link>
+                )
+              })}
             </div>
 
             <div className="flex items-center gap-1 shrink-0">

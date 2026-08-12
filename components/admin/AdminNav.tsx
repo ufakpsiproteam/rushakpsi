@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 
 /**
@@ -15,15 +16,19 @@ import { useAuth } from '@/contexts/AuthContext'
  *    as real pages with no nav entry at all — reachable only by typing
  *    the URL.
  */
+/**
+ * Review Board (/admin/cuts), Bid Night Deck (/admin/slides), and
+ * Interview Questions (/admin/interview-questions) are deliberately not
+ * here — with all 11 original entries this bar overflowed and forced a
+ * horizontal scrollbar. Those three are reachable as shortcut tiles on
+ * the dashboard instead (app/admin/dashboard/page.tsx).
+ */
 const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard' },
   { href: '/admin/events', label: 'Events' },
   { href: '/admin/attendance', label: 'Attendance' },
-  { href: '/admin/cuts', label: 'Review Board' },
   { href: '/admin/standing', label: 'Standings' },
   { href: '/brother/interviews', label: 'Interviews' },
-  { href: '/admin/interview-questions', label: 'Interview Questions' },
-  { href: '/admin/slides', label: 'Bid Night Deck' },
   { href: '/admin/brothers', label: 'Brothers' },
   { href: '/admin/brother-insights', label: 'Participation' },
   { href: '/admin/pledges', label: 'Pledges' },
@@ -53,16 +58,26 @@ export default function AdminNav() {
           </Link>
 
           <div className="hidden xl:flex items-center gap-0.5 overflow-x-auto">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={pathname === item.href ? 'page' : undefined}
-                className={`nav-tab ${pathname === item.href ? 'nav-tab-active' : ''}`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {NAV_ITEMS.map((item) => {
+              const active = pathname === item.href
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? 'page' : undefined}
+                  className={`nav-tab ${active ? 'nav-tab-active' : ''}`}
+                >
+                  {item.label}
+                  {active && (
+                    <motion.span
+                      layoutId="portal-nav-underline"
+                      className="portal-nav-underline"
+                      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                    />
+                  )}
+                </Link>
+              )
+            })}
           </div>
 
           <button onClick={handleSignOut} className="btn btn-ghost btn-sm shrink-0">

@@ -50,16 +50,16 @@ function bestStatus(rows: ProgressRow[]): ProgressRow | undefined {
 
 function StatusCell({ row }: { row: ProgressRow | undefined }) {
   if (!row) {
-    return <span className="text-gray-300 text-lg">✗</span>
+    return <span className="text-ink-faint text-lg">✗</span>
   }
   if (row.interview_status === 'completed') {
     if (row.submitted_count === 0) {
-      return <span className="text-gray-300 text-lg">✗</span>
+      return <span className="text-ink-faint text-lg">✗</span>
     }
     return (
       <span className="inline-flex items-center gap-1 text-green-600 font-medium text-sm">
         <span className="text-base">✓</span>
-        <span className="text-xs text-gray-400">({row.submitted_count})</span>
+        <span className="text-xs text-ink-subtle">({row.submitted_count})</span>
       </span>
     )
   }
@@ -70,13 +70,13 @@ function StatusCell({ row }: { row: ProgressRow | undefined }) {
         <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
           In Progress
         </span>
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-ink-subtle">
           {row.submitted_count}/{total - row.removed_count} done
         </span>
       </span>
     )
   }
-  return <span className="text-gray-300 text-sm">Cancelled</span>
+  return <span className="text-ink-faint text-sm">Cancelled</span>
 }
 
 function MultiSelect({
@@ -97,11 +97,11 @@ function MultiSelect({
   }
   return (
     <div>
-      <p className="text-sm font-medium text-gray-700 mb-1">{label}</p>
-      <div className="border border-gray-200 rounded max-h-48 overflow-y-auto divide-y divide-gray-100">
-        {items.length === 0 && <p className="text-xs text-gray-400 px-3 py-2">None available</p>}
+      <p className="text-sm font-medium text-ink-muted mb-1">{label}</p>
+      <div className="border border-line-strong rounded max-h-48 overflow-y-auto divide-y divide-line">
+        {items.length === 0 && <p className="text-xs text-ink-subtle px-3 py-2">None available</p>}
         {items.map(item => (
-          <label key={item.id} className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer">
+          <label key={item.id} className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-alt cursor-pointer">
             <input
               type="checkbox"
               checked={selected.includes(item.id)}
@@ -113,7 +113,7 @@ function MultiSelect({
         ))}
       </div>
       {selected.length > 0 && (
-        <p className="text-xs text-gray-400 mt-0.5">{selected.length} selected</p>
+        <p className="text-xs text-ink-subtle mt-0.5">{selected.length} selected</p>
       )}
     </div>
   )
@@ -155,19 +155,19 @@ function StartInterviewSheet({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 z-40"
+        className="fixed inset-0 bg-[var(--color-inverse-soft)]/40 z-40"
         onClick={onClose}
       />
       {/* Sheet */}
-      <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl z-50 flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">Start Interview</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+      <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-surface shadow-2xl z-50 flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+          <h2 className="text-lg font-semibold text-ink">Start Interview</h2>
+          <button onClick={onClose} className="text-ink-subtle hover:text-ink-muted text-2xl leading-none">&times;</button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-1">Interview type</p>
+            <p className="text-sm font-medium text-ink-muted mb-1">Interview type</p>
             <div className="flex gap-3">
               {(['casual', 'professional'] as InterviewType[]).map(t => (
                 <button
@@ -175,8 +175,8 @@ function StartInterviewSheet({
                   onClick={() => setType(t)}
                   className={`flex-1 py-2 rounded border text-sm font-medium capitalize transition-colors ${
                     type === t
-                      ? 'bg-black text-white border-black'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+                      ? 'bg-inverse text-on-inverse border-inverse'
+                      : 'bg-surface text-ink-muted border-line-strong hover:border-ink-faint'
                   }`}
                 >
                   {t}
@@ -202,15 +202,15 @@ function StartInterviewSheet({
           {error && <p className="text-red-600 text-sm">{error}</p>}
         </div>
 
-        <div className="px-5 py-4 border-t">
-          <p className="text-xs text-gray-400 mb-3">
+        <div className="px-5 py-4 border-t border-line">
+          <p className="text-xs text-ink-subtle mb-3">
             Each panelist will be assigned to each selected rushee. They can open their rubric
             from the Interviews tab.
           </p>
           <button
             onClick={handleSubmit}
             disabled={pending || selectedRushees.length === 0 || selectedBrothers.length === 0}
-            className="w-full bg-black hover:bg-gray-800 text-white py-2.5 rounded font-medium text-sm disabled:opacity-40"
+            className="w-full bg-inverse hover:bg-inverse-soft text-on-inverse py-2.5 rounded font-medium text-sm disabled:opacity-40"
           >
             {pending
               ? 'Starting…'
@@ -251,7 +251,7 @@ function ManagePanel({
   }
 
   if (interviews.length === 0) {
-    return <p className="text-gray-400 text-sm py-2">No in-progress interviews.</p>
+    return <p className="text-ink-subtle text-sm py-2">No in-progress interviews.</p>
   }
 
   return (
@@ -271,13 +271,13 @@ function ManagePanel({
         const rusheeIds = [...rusheeGroups.keys()]
 
         return (
-          <div key={iv.id} className={`bg-white rounded-lg shadow border ${iv.is_stuck ? 'border-amber-300' : 'border-transparent'}`}>
+          <div key={iv.id} className={`bg-surface rounded-lg shadow border ${iv.is_stuck ? 'border-amber-300' : 'border-transparent'}`}>
             <button
               className="w-full flex items-center justify-between px-4 py-3 text-left"
               onClick={() => setExpanded(isExpanded ? null : iv.id)}
             >
               <div className="flex items-center gap-2">
-                <span className="font-medium text-gray-900 capitalize">{iv.type} interview</span>
+                <span className="font-medium text-ink capitalize">{iv.type} interview</span>
                 {iv.is_stuck && (
                   <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200">
                     Stuck
@@ -285,22 +285,22 @@ function ManagePanel({
                 )}
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-ink-subtle">
                   {new Date(iv.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
-                <span className="text-gray-400">{isExpanded ? '▲' : '▼'}</span>
+                <span className="text-ink-subtle">{isExpanded ? '▲' : '▼'}</span>
               </div>
             </button>
 
             {isExpanded && (
-              <div className="border-t px-4 py-3 space-y-4">
+              <div className="border-t border-line px-4 py-3 space-y-4">
                 {rusheeIds.map(rusheeId => {
                   const group = rusheeGroups.get(rusheeId)!
                   const rusheeName = group[0].rushee_name
                   return (
-                    <div key={rusheeId} className="border border-gray-100 rounded-lg p-3">
+                    <div key={rusheeId} className="border border-line rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm font-medium text-gray-800">{rusheeName}</p>
+                        <p className="text-sm font-medium text-ink">{rusheeName}</p>
                         <button
                           onClick={() => doAction(() => dropRushee(iv.id, rusheeId))}
                           disabled={actionPending}
@@ -313,10 +313,10 @@ function ManagePanel({
                         {group.map(a => (
                           <div key={a.brother_id} className="flex items-center justify-between text-xs">
                             <div className="flex items-center gap-2">
-                              <span className="text-gray-700">{a.brother_name}</span>
+                              <span className="text-ink-muted">{a.brother_name}</span>
                               <span className={`px-1.5 py-0.5 rounded text-xs ${
                                 a.status === 'submitted' ? 'bg-green-100 text-green-700' :
-                                a.status === 'removed' ? 'bg-gray-100 text-gray-500' :
+                                a.status === 'removed' ? 'bg-surface-sunken text-ink-subtle' :
                                 'bg-blue-50 text-blue-700'
                               }`}>
                                 {a.status}
@@ -340,7 +340,7 @@ function ManagePanel({
                                   >
                                     Reassign
                                   </button>
-                                  <span className="text-gray-300">|</span>
+                                  <span className="text-ink-faint">|</span>
                                 </>
                               )}
                               <button
@@ -359,11 +359,11 @@ function ManagePanel({
                       {reassignState?.interviewId === iv.id &&
                         reassignState.brotherId === group[0].brother_id &&
                         reassignState.oldRusheeId === rusheeId && (
-                        <div className="mt-2 pt-2 border-t border-gray-100 flex gap-2 items-center">
+                        <div className="mt-2 pt-2 border-t border-line flex gap-2 items-center">
                           <select
                             value={reassignNewRusheeId}
                             onChange={e => setReassignNewRusheeId(e.target.value)}
-                            className="flex-1 text-xs border border-gray-200 rounded px-2 py-1"
+                            className="flex-1 text-xs border border-line-strong rounded px-2 py-1"
                           >
                             <option value="">Select new rushee…</option>
                             {rushees.filter(r => r.id !== rusheeId).map(r => (
@@ -388,7 +388,7 @@ function ManagePanel({
                           </button>
                           <button
                             onClick={() => setReassignState(null)}
-                            className="text-xs text-gray-400"
+                            className="text-xs text-ink-subtle"
                           >
                             Cancel
                           </button>
@@ -400,14 +400,14 @@ function ManagePanel({
 
                 {/* Cancel interview */}
                 {cancelTarget === iv.id ? (
-                  <div className="pt-2 border-t border-gray-100">
-                    <p className="text-xs text-gray-600 mb-2">Reason for cancellation:</p>
+                  <div className="pt-2 border-t border-line">
+                    <p className="text-xs text-ink-muted mb-2">Reason for cancellation:</p>
                     <input
                       type="text"
                       value={cancelReason}
                       onChange={e => setCancelReason(e.target.value)}
                       placeholder="Enter reason…"
-                      className="w-full text-xs border border-gray-200 rounded px-2 py-1.5 mb-2 focus:outline-none focus:ring-1 focus:ring-red-500"
+                      className="w-full text-xs border border-line-strong rounded px-2 py-1.5 mb-2 focus:outline-none focus:ring-1 focus:ring-red-500"
                     />
                     <div className="flex gap-2">
                       <button
@@ -421,7 +421,7 @@ function ManagePanel({
                       >
                         Confirm cancel
                       </button>
-                      <button onClick={() => setCancelTarget(null)} className="text-xs text-gray-500">
+                      <button onClick={() => setCancelTarget(null)} className="text-xs text-ink-subtle">
                         Back
                       </button>
                     </div>
@@ -541,16 +541,16 @@ export default function BrotherInterviewsPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 lg:pb-0">
+    <div className="min-h-screen bg-canvas pb-24 lg:pb-0">
       <BrotherNav />
 
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-5">
-          <h1 className="text-xl font-bold text-gray-900">Interviews</h1>
+          <h1 className="text-xl font-bold text-ink">Interviews</h1>
           {canManage && (
             <button
               onClick={() => setShowSheet(true)}
-              className="bg-black hover:bg-gray-800 text-white text-sm px-4 py-2 rounded font-medium"
+              className="bg-inverse hover:bg-inverse-soft text-on-inverse text-sm px-4 py-2 rounded font-medium"
             >
               + Start Interview
             </button>
@@ -562,25 +562,25 @@ export default function BrotherInterviewsPage() {
           placeholder="Search rushees…"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="w-full border border-gray-200 rounded px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-black"
+          className="w-full border border-line-strong rounded px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-ink"
         />
 
-        {loading && <p className="text-gray-400 text-sm">Loading…</p>}
+        {loading && <p className="text-ink-subtle text-sm">Loading…</p>}
 
         {!loading && (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-surface rounded-lg shadow overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-gray-50">
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Rushee</th>
-                  <th className="text-center px-4 py-3 font-medium text-gray-600">Casual</th>
-                  <th className="text-center px-4 py-3 font-medium text-gray-600">Professional</th>
+                <tr className="border-b border-line bg-surface-alt">
+                  <th className="text-left px-4 py-3 font-medium text-ink-muted">Rushee</th>
+                  <th className="text-center px-4 py-3 font-medium text-ink-muted">Casual</th>
+                  <th className="text-center px-4 py-3 font-medium text-ink-muted">Professional</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-line">
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="px-4 py-6 text-center text-gray-400">
+                    <td colSpan={3} className="px-4 py-6 text-center text-ink-subtle">
                       {searchQuery ? 'No rushees match.' : 'No rushees yet.'}
                     </td>
                   </tr>
@@ -590,11 +590,11 @@ export default function BrotherInterviewsPage() {
                   const casual = typeMap?.get('casual')
                   const professional = typeMap?.get('professional')
                   return (
-                    <tr key={rushee.id} className="hover:bg-gray-50">
+                    <tr key={rushee.id} className="hover:bg-surface-alt">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">{rushee.name}</p>
+                        <p className="font-medium text-ink">{rushee.name}</p>
                         {rushee.major && (
-                          <p className="text-xs text-gray-400">{rushee.major}</p>
+                          <p className="text-xs text-ink-subtle">{rushee.major}</p>
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -627,12 +627,12 @@ export default function BrotherInterviewsPage() {
           <div className="mt-6">
             <button
               onClick={() => setShowManage(v => !v)}
-              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+              className="flex items-center gap-2 text-sm font-medium text-ink-muted hover:text-ink"
             >
               <span>Manage Sessions</span>
-              <span className="text-gray-400 text-xs">{showManage ? '▲' : '▼'}</span>
+              <span className="text-ink-subtle text-xs">{showManage ? '▲' : '▼'}</span>
               {manageInterviews.length > 0 && (
-                <span className="ml-1 bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
+                <span className="ml-1 bg-surface-sunken text-ink-muted text-xs px-2 py-0.5 rounded-full">
                   {manageInterviews.length} active
                 </span>
               )}

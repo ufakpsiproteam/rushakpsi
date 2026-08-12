@@ -13,6 +13,19 @@
    Semantic colour is deliberately narrow and desaturated, and per
    PRD §11.6 is never the only signal — every status pairs it with a
    label and an icon or shape.
+
+   A third expression lives at the bottom of this file: `.portal-shell`.
+   It is the AKΨ navy/blue/gold theme for the whole authenticated app —
+   admin, brother, rushee, and sign-in — applied by wrapping each of
+   those route groups in `<div className="portal-shell">` (see
+   app/admin/layout.tsx, app/brother/layout.tsx, app/rushee/layout.tsx,
+   app/auth/signin/layout.tsx). It works by re-declaring the SAME
+   custom-property names used above, so every existing component class
+   (.btn, .card, .nav-tab, .badge, …) recolors automatically for those
+   routes without being duplicated. Landing keeps its own space theme
+   untouched. The old flat-grey scheme is retired everywhere except the
+   public landing page — do not reintroduce raw grey/black Tailwind
+   literals in the authenticated app; consume the tokens instead.
    ===================================================================== */
 
 @theme {
@@ -798,4 +811,206 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* =====================================================================
+   Portal theme — brother / rushee / sign-in only (see file header)
+   ===================================================================== */
+
+.portal-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+
+  /* Raw palette */
+  --portal-navy-dark: oklch(22% 0.06 258);
+  --portal-navy-mid: oklch(35% 0.07 258);
+  --portal-blue-light: oklch(74% 0.06 250);
+  --portal-gold-accent: oklch(74% 0.13 85);
+  --portal-surface: oklch(97.5% 0.003 258);
+  --portal-text: oklch(27% 0.05 258);
+
+  /* Re-declare the shared token names so every existing component class
+     (.btn, .card, .nav-tab, .badge, .modal-panel, .input, …) recolors
+     automatically within this subtree — nothing else needs to change. */
+  --color-ink: var(--portal-text);
+  --color-ink-muted: oklch(46% 0.05 258);
+  --color-ink-subtle: oklch(58% 0.045 258);
+  --color-ink-faint: oklch(72% 0.03 258);
+
+  --color-line: oklch(90% 0.02 255);
+  --color-line-strong: oklch(81% 0.035 255);
+  --color-surface: var(--portal-surface);
+  --color-surface-alt: oklch(95.5% 0.006 258);
+  --color-surface-sunken: oklch(93.5% 0.009 258);
+  /* Transparent, not a flat tone — this is what lets the fixed wave
+     background show through every page's outer wrapper (almost every
+     page's top-level div is `bg-canvas`/`.app-shell`). Anything that
+     needs to stay opaque (cards, nav, modals) uses --color-surface,
+     not --color-canvas. */
+  --color-canvas: transparent;
+
+  --color-inverse: var(--portal-navy-mid);
+  --color-inverse-soft: var(--portal-navy-dark);
+  --color-on-inverse: oklch(98% 0.003 258);
+
+  font-family: var(--font-portal-body), "Sora", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+.portal-shell .app-shell {
+  background: transparent;
+}
+
+/* Typography — Bodoni Moda italic headlines, Nunito uppercase gold
+   subheadings/labels, Sora body (set above on .portal-shell itself). */
+.portal-shell h1,
+.portal-shell h2,
+.portal-shell .page-title {
+  font-family: var(--font-portal-display), "Bodoni Moda", serif;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.portal-shell .section-title,
+.portal-shell .page-eyebrow,
+.portal-shell .stat-label,
+.portal-shell .field-label {
+  font-family: var(--font-portal-subheading), "Nunito", sans-serif;
+}
+
+.portal-shell .section-title,
+.portal-shell .page-eyebrow,
+.portal-shell .stat-label {
+  color: var(--portal-gold-accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The ΑΚΨ lettermark in nav bars and sign-in — set in the same display
+   serif as headlines instead of the default body sans. */
+.portal-shell .lettermark {
+  font-family: var(--font-portal-display), "Bodoni Moda", serif;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Buttons — lift + shadow on hover, no color shift (spec: "maintain
+   color; do not shift on hover"), tighter radius. */
+.portal-shell .btn {
+  border-radius: 8px;
+  transition: background-color 140ms ease, border-color 140ms ease,
+    color 140ms ease, opacity 140ms ease, transform 250ms ease-out,
+    box-shadow 250ms ease-out;
+}
+
+.portal-shell .btn-sm {
+  border-radius: 6px;
+}
+
+.portal-shell .btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgb(9 23 51 / 0.15);
+}
+
+.portal-shell .btn-primary:not(:disabled):hover {
+  background: var(--color-inverse);
+}
+
+.portal-shell .btn-secondary:not(:disabled):hover {
+  background: var(--color-surface);
+}
+
+/* Nav tabs — underline replaces the filled pill; the sliding underline
+   itself is rendered by AdminNav/BrotherNav/RusheeNav via a
+   framer-motion layoutId element, styled here. */
+.portal-shell .nav-tab {
+  position: relative;
+}
+
+.portal-shell .nav-tab-active {
+  background: transparent;
+  color: var(--color-ink);
+  font-weight: 640;
+}
+
+.portal-shell .nav-tab-active:hover {
+  background: var(--color-surface-sunken);
+}
+
+.portal-nav-underline {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--portal-gold-accent);
+}
+
+/* Cards, modals — entrance motion. Every .card / .stat-tile gets a
+   slight hover lift here, not just .card-interactive, per design ask
+   ("ALL boxes should have a slight animation on hover"). */
+.portal-shell .card,
+.portal-shell .stat-tile {
+  transition: transform 200ms ease-out, box-shadow 200ms ease-out,
+    border-color 200ms ease-out;
+}
+
+.portal-shell .card:hover,
+.portal-shell .stat-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgb(9 23 51 / 0.12);
+}
+
+@keyframes portal-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes portal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.portal-shell .modal-panel {
+  animation: portal-modal-in 350ms ease-out;
+}
+
+.portal-shell .modal-backdrop {
+  animation: portal-backdrop-in 250ms ease-out;
+}
+
+/* Wave background — fixed, ambient, behind all portal content. */
+.portal-wave-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.portal-wave-panel {
+  position: absolute;
+  inset: -12%;
+  width: 124%;
+  height: 124%;
+  transform: rotate(-6deg);
+}
+
+.portal-wave-panel svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }

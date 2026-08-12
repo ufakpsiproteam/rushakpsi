@@ -26,6 +26,15 @@ If another undocumented gap turns up, check `supabase/legacy/*.sql` fully before
 - **Brother accounts only get created via invite** (`/invite/[token]` → `/api/invites/accept`, admin-only to issue). There is currently **no frontend page that calls the invite-creation API** — the admin-side "send an invite" UI doesn't exist yet. This is a real gap, not a bug to fix by guessing the design.
 - First admin account was bootstrapped directly via SQL (not through the app, since no admin existed yet to issue an invite): `vp.prodevelopment@gmail.com`. Password was shared once in chat — should be rotated.
 
+## UI theme system
+
+- `app/globals.css` defines the base greyscale token system (`--color-ink`, `--color-surface`, `--color-inverse`, …) plus a `@layer components` block (`.btn`, `.card`, `.nav-tab`, `.badge`, `.modal-panel`, `.input`, etc.) that every screen in the app shares.
+- A second theme layer, `.portal-shell`, lives at the bottom of `app/globals.css`. It re-declares the same custom-property names with an AKΨ navy/blue/gold oklch palette and Bodoni Moda / Sora / Nunito type (`lib/portalFonts.ts`), so every shared component class recolors automatically wherever it's applied — no per-page edits needed.
+- **Scope**: `.portal-shell` is applied by `app/admin/layout.tsx`, `app/brother/layout.tsx`, `app/rushee/layout.tsx`, and `app/auth/signin/layout.tsx` (each wraps its route group in `<div className="portal-shell">` + renders `<WaveBackground />` from `components/portal/WaveBackground.tsx`). That's the entire authenticated app. Only the public landing page uses just the root `app/layout.tsx` and keeps its own space theme — do not add `.portal-shell` there.
+- The old flat grey/black chrome (hardcoded `bg-black`/`border-black`/`text-white` Tailwind literals) has been retired everywhere except landing — `BrotherNav.tsx` and `app/auth/signin/page.tsx` were rewritten to consume the shared token classes instead (`AdminNav.tsx`/`RusheeNav.tsx` already did). If you touch authenticated-app UI, use the existing component classes (`.btn`, `.card`, `.input`, `.nav-tab`, …) so it inherits the portal palette automatically; don't reintroduce raw black/white literals.
+- Nav tab active-state uses a Framer Motion (`layoutId="portal-nav-underline"`) sliding underline, implemented directly in `AdminNav.tsx`/`BrotherNav.tsx`/`RusheeNav.tsx`.
+- The rushee decision-letter reveal (`components/rushee/DecisionLetter.tsx`, `EnvelopeCard.tsx`, the `letter-reveal` keyframe, `canvas-confetti` logic) was deliberately left alone — it inherits the new portal card colors as a byproduct but its animation/trigger logic is unchanged.
+
 ## Known non-bugs
 
 - Two browser tabs on `localhost` (any ports) share one session cookie — logging into a second account in one tab silently swaps the session for both. Not a server bug, not a data leak. Use separate browser profiles/incognito for simultaneous multi-account testing.

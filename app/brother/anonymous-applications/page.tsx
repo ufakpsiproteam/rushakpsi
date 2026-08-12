@@ -116,7 +116,7 @@ export default function AnonymousApplicationsPage() {
   const hasNext = currentIndex < total - 1
 
   return (
-    <div className="min-h-screen bg-surface-alt">
+    <div className="min-h-screen bg-canvas">
       <BrotherNav />
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -125,12 +125,12 @@ export default function AnonymousApplicationsPage() {
             <h1 className="text-3xl font-semibold text-ink">Anonymous Applications</h1>
             <p className="text-ink-muted mt-1">Review one submitted application at a time with identifying info hidden.</p>
           </div>
-          <div className="rounded-full bg-ink text-white px-4 py-2 text-sm font-semibold w-fit">
+          <div className="rounded-full bg-inverse text-on-inverse px-4 py-2 text-sm font-semibold w-fit">
             Directors of Recruitment Access
           </div>
         </div>
 
-        <div className="mt-8 bg-white rounded-2xl shadow-sm border border-line p-6">
+        <div className="mt-8 bg-surface rounded-2xl shadow-sm border border-line p-6">
           {loading ? (
             <div className="text-ink-muted">Loading applications...</div>
           ) : error ? (
@@ -162,7 +162,7 @@ export default function AnonymousApplicationsPage() {
                     disabled={!hasNext}
                     className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-colors ${
                       hasNext
-                        ? 'border-ink bg-ink text-white hover:bg-inverse-soft'
+                        ? 'border-inverse bg-inverse text-on-inverse hover:bg-inverse-soft'
                         : 'border-line text-line-strong cursor-not-allowed'
                     }`}
                   >
@@ -202,31 +202,31 @@ export default function AnonymousApplicationsPage() {
                 </section>
 
                 <section className="grid gap-4">
-                  <div className="rounded-xl border border-line bg-white p-5">
+                  <div className="rounded-xl border border-line bg-surface p-5">
                     <h2 className="text-base font-semibold text-ink">Outside Involvements</h2>
                     <p className="text-ink-muted mt-2 whitespace-pre-wrap">{currentApplication?.outside_involvements || EMPTY_TEXT}</p>
                   </div>
-                  <div className="rounded-xl border border-line bg-white p-5">
+                  <div className="rounded-xl border border-line bg-surface p-5">
                     <h2 className="text-base font-semibold text-ink">How They Heard About AKPsi</h2>
                     <p className="text-ink-muted mt-2 whitespace-pre-wrap">{currentApplication?.how_heard_about_akpsi || EMPTY_TEXT}</p>
                   </div>
-                  <div className="rounded-xl border border-line bg-white p-5">
+                  <div className="rounded-xl border border-line bg-surface p-5">
                     <h2 className="text-base font-semibold text-ink">Why They&apos;re Interested</h2>
                     <p className="text-ink-muted mt-2 whitespace-pre-wrap">{currentApplication?.why_interested || EMPTY_TEXT}</p>
                   </div>
-                  <div className="rounded-xl border border-line bg-white p-5">
+                  <div className="rounded-xl border border-line bg-surface p-5">
                     <h2 className="text-base font-semibold text-ink">Pillar Relation</h2>
                     <p className="text-ink-muted mt-2 whitespace-pre-wrap">{currentApplication?.pillar_relation || EMPTY_TEXT}</p>
                   </div>
-                  <div className="rounded-xl border border-line bg-white p-5">
+                  <div className="rounded-xl border border-line bg-surface p-5">
                     <h2 className="text-base font-semibold text-ink">Brother Connection</h2>
                     <p className="text-ink-muted mt-2 whitespace-pre-wrap">{currentApplication?.brother_connection_reason || EMPTY_TEXT}</p>
                   </div>
-                  <div className="rounded-xl border border-line bg-white p-5">
+                  <div className="rounded-xl border border-line bg-surface p-5">
                     <h2 className="text-base font-semibold text-ink">Monopoly Piece</h2>
                     <p className="text-ink-muted mt-2 whitespace-pre-wrap">{currentApplication?.monopoly_piece || EMPTY_TEXT}</p>
                   </div>
-                  <div className="rounded-xl border border-line bg-white p-5">
+                  <div className="rounded-xl border border-line bg-surface p-5">
                     <h2 className="text-base font-semibold text-ink">Monopoly Theme Lesson</h2>
                     <p className="text-ink-muted mt-2 whitespace-pre-wrap">{currentApplication?.monopoly_theme_lesson || EMPTY_TEXT}</p>
                   </div>

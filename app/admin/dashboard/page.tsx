@@ -127,11 +127,11 @@ export default function AdminDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white border border-line rounded-2xl p-6 shadow-sm">
+          <div className="stat-tile">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-ink-muted text-sm font-medium mb-1">Total Rushees</p>
-                <p className="text-3xl font-semibold text-ink">{stats.totalRushees}</p>
+                <p className="stat-label">Total Rushees</p>
+                <p className="stat-value">{stats.totalRushees}</p>
               </div>
               <div className="text-2xl text-ink-faint">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -141,13 +141,13 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="bg-white border border-emerald-200 rounded-2xl p-6 shadow-sm">
+          <div className="stat-tile">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-ink-muted text-sm font-medium mb-1">Applications</p>
-                <p className="text-3xl font-semibold text-ink">{stats.applicationsSubmitted}</p>
+                <p className="stat-label">Applications</p>
+                <p className="stat-value">{stats.applicationsSubmitted}</p>
               </div>
-              <div className="text-2xl text-emerald-500">
+              <div className="text-2xl text-positive">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 9h6m-6 4h6M7 19h10a2 2 0 002-2V7l-4-4H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -155,13 +155,13 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="bg-ink border border-ink text-white rounded-2xl p-6 shadow-sm">
+          <div className="stat-tile bg-[var(--color-inverse)] border-[var(--color-inverse)]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/70 text-sm font-medium mb-1">Invite Only</p>
-                <p className="text-3xl font-semibold text-white">{stats.inviteOnly}</p>
+                <p className="stat-label text-[var(--color-on-inverse)]/70">Invite Only</p>
+                <p className="stat-value text-[var(--color-on-inverse)]">{stats.inviteOnly}</p>
               </div>
-              <div className="text-2xl text-white/70">
+              <div className="text-2xl text-[var(--color-on-inverse)]/70">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 2v4m0 12v4m10-10h-4M6 12H2m16.95-4.95l-2.83 2.83M7.88 16.12l-2.83 2.83m11.9 0-2.83-2.83M7.88 7.88 5.05 5.05" />
                   <circle cx="12" cy="12" r="3" strokeWidth={1.5} />
@@ -170,11 +170,11 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="bg-white border border-line rounded-2xl p-6 shadow-sm">
+          <div className="stat-tile">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-ink-muted text-sm font-medium mb-1">Bids Extended</p>
-                <p className="text-3xl font-semibold text-ink">{stats.bidsExtended}</p>
+                <p className="stat-label">Bids Extended</p>
+                <p className="stat-value">{stats.bidsExtended}</p>
               </div>
               <div className="text-2xl text-ink-faint">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,11 +184,11 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="bg-white border border-line rounded-2xl p-6 shadow-sm">
+          <div className="stat-tile">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-ink-muted text-sm font-medium mb-1">Total Events</p>
-                <p className="text-3xl font-semibold text-ink">{stats.totalEvents}</p>
+                <p className="stat-label">Total Events</p>
+                <p className="stat-value">{stats.totalEvents}</p>
               </div>
               <div className="text-2xl text-ink-faint">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,11 +198,11 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="bg-white border border-line rounded-2xl p-6 shadow-sm">
+          <div className="stat-tile">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-ink-muted text-sm font-medium mb-1">Completed Events</p>
-                <p className="text-3xl font-semibold text-ink">{stats.completedEvents}</p>
+                <p className="stat-label">Completed Events</p>
+                <p className="stat-value">{stats.completedEvents}</p>
               </div>
               <div className="text-2xl text-ink-faint">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,6 +210,43 @@ export default function AdminDashboard() {
                 </svg>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Shortcuts — moved off the top nav (it overflowed with all 11
+            links) and onto the dashboard as tiles instead. */}
+        <div className="mb-8">
+          <p className="section-title mb-3">More tools</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Link href="/admin/cuts" className="card card-interactive card-pad flex items-center gap-4">
+              <svg className="w-7 h-7 text-ink-faint shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <div>
+                <p className="section-title">Review Board</p>
+                <p className="mt-1 text-sm text-ink-muted">Cuts &amp; evaluations</p>
+              </div>
+            </Link>
+
+            <Link href="/admin/slides" className="card card-interactive card-pad flex items-center gap-4">
+              <svg className="w-7 h-7 text-ink-faint shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1zM9 21h6M12 17v4" />
+              </svg>
+              <div>
+                <p className="section-title">Bid Night Deck</p>
+                <p className="mt-1 text-sm text-ink-muted">Presentation slides</p>
+              </div>
+            </Link>
+
+            <Link href="/admin/interview-questions" className="card card-interactive card-pad flex items-center gap-4">
+              <svg className="w-7 h-7 text-ink-faint shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <p className="section-title">Interview Questions</p>
+                <p className="mt-1 text-sm text-ink-muted">Manage the question bank</p>
+              </div>
+            </Link>
           </div>
         </div>
 

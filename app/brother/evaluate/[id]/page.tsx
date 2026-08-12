@@ -308,7 +308,7 @@ export default function EvaluateRushee() {
                   aria-pressed={professional === 'na'}
                   className={`py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
                     professional === 'na'
-                      ? 'bg-ink text-white border-ink'
+                      ? 'bg-inverse text-on-inverse border-inverse'
                       : 'bg-surface text-ink-muted border-line-strong hover:border-ink-faint'
                   }`}
                 >
@@ -325,7 +325,7 @@ export default function EvaluateRushee() {
                     aria-pressed={professional === num}
                     className={`py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
                       professional === num
-                        ? 'bg-ink text-white border-ink'
+                        ? 'bg-inverse text-on-inverse border-inverse'
                         : 'bg-surface text-ink-muted border-line-strong hover:border-ink-faint'
                     }`}
                   >
@@ -367,7 +367,7 @@ export default function EvaluateRushee() {
                     aria-pressed={personal === num}
                     className={`py-2.5 rounded-lg text-sm font-semibold border transition-colors ${
                       personal === num
-                        ? 'bg-ink text-white border-ink'
+                        ? 'bg-inverse text-on-inverse border-inverse'
                         : 'bg-surface text-ink-muted border-line-strong hover:border-ink-faint'
                     }`}
                   >
@@ -428,12 +428,12 @@ export default function EvaluateRushee() {
                 />
                 <span
                   className={`flex w-13 h-7 items-center rounded-full px-1 transition-colors ${
-                    knowsPersonally ? 'bg-ink' : 'bg-line-strong'
+                    knowsPersonally ? 'bg-inverse' : 'bg-line-strong'
                   }`}
                   style={{ width: '3.25rem' }}
                 >
                   <span
-                    className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                    className={`h-5 w-5 rounded-full bg-surface shadow-sm transition-transform ${
                       knowsPersonally ? 'translate-x-6' : 'translate-x-0'
                     }`}
                   />
@@ -454,7 +454,7 @@ export default function EvaluateRushee() {
                     key={quality}
                     className={`flex items-center justify-center px-3 py-2.5 rounded-lg border text-sm font-medium cursor-pointer transition-colors text-center ${
                       selected
-                        ? 'bg-ink text-white border-ink'
+                        ? 'bg-inverse text-on-inverse border-inverse'
                         : 'bg-surface text-ink-muted border-line-strong hover:border-ink-faint'
                     }`}
                   >

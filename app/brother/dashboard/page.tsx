@@ -140,7 +140,7 @@ export default function BrotherDashboard() {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white border border-line rounded-2xl p-6 shadow-sm">
+          <div className="bg-surface border border-line rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-ink-muted text-sm font-medium mb-1">Events Attended</p>
@@ -159,22 +159,22 @@ export default function BrotherDashboard() {
             className={`rounded-2xl p-6 shadow-sm w-full text-left transition-all hover:scale-[1.02] cursor-pointer ${
               brotherData.rusheesEvaluated >= 15
                 ? 'bg-emerald-600 border border-emerald-600 text-white'
-                : 'bg-ink border border-ink text-white'
+                : 'bg-inverse border border-inverse text-on-inverse'
             }`}
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/70 text-sm font-medium mb-1">Rushees Evaluated</p>
+                <p className="text-on-inverse/70 text-sm font-medium mb-1">Rushees Evaluated</p>
                 <div className="flex items-baseline gap-2">
-                  <p className="text-3xl font-semibold text-white">{brotherData.rusheesEvaluated}</p>
-                  <span className="text-sm text-white/70">/ 15 minimum</span>
+                  <p className="text-3xl font-semibold text-on-inverse">{brotherData.rusheesEvaluated}</p>
+                  <span className="text-sm text-on-inverse/70">/ 15 minimum</span>
                 </div>
                 {brotherData.rusheesEvaluated >= 15 && (
-                  <p className="text-xs text-white/90 mt-1">✓ Minimum met!</p>
+                  <p className="text-xs text-on-inverse/90 mt-1">✓ Minimum met!</p>
                 )}
-                <p className="text-xs text-white/60 mt-2">Click to view all →</p>
+                <p className="text-xs text-on-inverse/60 mt-2">Click to view all →</p>
               </div>
-              <div className="text-2xl text-white/70">
+              <div className="text-2xl text-on-inverse/70">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 9h6m-6 4h6M7 19h10a2 2 0 002-2V7l-4-4H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 15l2 2 4-4" />
@@ -183,7 +183,7 @@ export default function BrotherDashboard() {
             </div>
           </button>
 
-          <div className="bg-white border border-line rounded-2xl p-6 shadow-sm">
+          <div className="bg-surface border border-line rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-ink-muted text-sm font-medium mb-1">Rushees Starred</p>
@@ -202,7 +202,7 @@ export default function BrotherDashboard() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Events Attended */}
-            <div className="bg-white border border-line rounded-2xl p-6 shadow-sm">
+            <div className="bg-surface border border-line rounded-2xl p-6 shadow-sm">
               <h2 className="text-xl font-semibold text-ink mb-4">Events Attended</h2>
               <div className="space-y-3">
                 {attendedEvents.length === 0 ? (
@@ -222,7 +222,7 @@ export default function BrotherDashboard() {
                         </div>
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           event.type === 'Professional'
-                            ? 'bg-ink text-white'
+                            ? 'bg-inverse text-on-inverse'
                             : 'bg-line text-ink-muted'
                         }`}>
                           {event.type}
@@ -251,7 +251,7 @@ export default function BrotherDashboard() {
             )}
 
             {/* Tips */}
-            <div className="bg-white border border-line rounded-2xl p-5 shadow-sm">
+            <div className="bg-surface border border-line rounded-2xl p-5 shadow-sm">
               <h3 className="text-ink font-semibold mb-2 text-sm">💡 Tip</h3>
               <p className="text-sm text-ink-muted">
                 Your detailed feedback helps us make the best decisions! Make sure to evaluate at least 15 unique rushees throughout rush.
@@ -262,8 +262,8 @@ export default function BrotherDashboard() {
 
         {/* Evaluated Rushees Modal */}
         {showEvaluatedModal && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white border border-line rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+          <div className="fixed inset-0 bg-[var(--color-inverse-soft)]/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-surface border border-line rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h2 className="text-2xl font-semibold text-ink mb-2">Your Evaluated Rushees</h2>
@@ -291,7 +291,7 @@ export default function BrotherDashboard() {
                       <Link
                         key={rushee.id}
                         href={`/brother/evaluate/${rushee.id}?return=dashboard`}
-                        className="bg-white border border-line rounded-xl overflow-hidden hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+                        className="bg-surface border border-line rounded-xl overflow-hidden hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
                       >
                         {/* Profile Photo */}
                         <div className="relative aspect-square bg-surface-sunken">
@@ -329,7 +329,7 @@ export default function BrotherDashboard() {
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={() => setShowEvaluatedModal(false)}
-                  className="px-6 py-2 bg-ink text-white rounded-lg font-semibold hover:bg-inverse-soft transition-colors"
+                  className="px-6 py-2 bg-inverse text-on-inverse rounded-lg font-semibold hover:bg-inverse-soft transition-colors"
                 >
                   Close
                 </button>

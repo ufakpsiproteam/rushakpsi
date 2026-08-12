@@ -105,7 +105,7 @@ export default function BrotherAccount() {
         <BrotherNav />
         <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-ink"></div>
             <p className="mt-4 text-ink-muted">Loading profile...</p>
           </div>
         </main>
@@ -140,7 +140,7 @@ export default function BrotherAccount() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Personal Information */}
-          <div className="bg-white border border-line rounded-2xl p-6 shadow-sm">
+          <div className="bg-surface border border-line rounded-2xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-ink mb-4">Personal Information</h2>
             <div className="space-y-4">
               <div>
@@ -174,7 +174,7 @@ export default function BrotherAccount() {
           </div>
 
           {/* Account Information */}
-          <div className="bg-white border border-line rounded-2xl p-6 shadow-sm">
+          <div className="bg-surface border border-line rounded-2xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-ink mb-4">Account Information</h2>
             <div className="space-y-4">
               <div>
@@ -196,7 +196,7 @@ export default function BrotherAccount() {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 py-3 bg-ink text-white rounded-lg font-semibold hover:bg-inverse-soft transition-colors disabled:bg-line-strong disabled:cursor-not-allowed"
+              className="flex-1 py-3 bg-inverse text-on-inverse rounded-lg font-semibold hover:bg-inverse-soft transition-colors disabled:bg-line-strong disabled:cursor-not-allowed"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
