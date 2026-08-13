@@ -80,6 +80,31 @@ export async function POST(request: NextRequest) {
 
     const userId = created.user.id
 
+    // brothers.id has a FK to user_profiles(id) — that row has to exist
+    // first (there's no trigger on auth.users populating it). Missing
+    // this step is what was breaking every invite acceptance: createUser
+    // would succeed, then the brothers insert below would fail with
+    // "violates foreign key constraint brothers_id_fkey", and the
+    // rollback would delete the auth user again, so the failure looked
+    // like account creation itself failing.
+    const { error: userProfileError } = await service.from('user_profiles').insert({
+      id: userId,
+      email: invite.email,
+      name: invite.full_name,
+      account_type: 'brother',
+      access_level: 'basic',
+    })
+
+    if (userProfileError) {
+      // R54 — compensate, so no orphaned auth user is left behind.
+      // user_profiles(id) -> auth.users(id) is ON DELETE CASCADE, so
+      // deleting the auth user cleans this row up too.
+      await service.auth.admin.deleteUser(userId)
+      await service.from('brother_invites').update({ accepted_at: null }).eq('id', invite.id)
+      console.error('[invites/accept] user_profiles creation failed, rolled back')
+      return NextResponse.json({ error: 'Could not create the account.' }, { status: 500 })
+    }
+
     const { error: profileError } = await service.from('brothers').insert({
       id: userId,
       name: invite.full_name,
