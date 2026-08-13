@@ -177,9 +177,9 @@ export default function AdminEvents() {
 
   const getStatusColor = (status: EventStatus) => {
     switch (status) {
-      case 'locked': return 'bg-surface-sunken text-ink-muted'
+      case 'locked': return 'bg-red-100 text-red-700'
       case 'attendance': return 'bg-emerald-100 text-emerald-700'
-      case 'evaluation': return 'bg-surface-sunken text-ink'
+      case 'evaluation': return 'bg-blue-100 text-blue-700'
     }
   }
 
@@ -270,8 +270,8 @@ export default function AdminEvents() {
         <div className="bg-white border border-line rounded-2xl p-6 mb-6 shadow-sm">
           <h2 className="text-lg font-semibold text-ink mb-4">Event Status Guide</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-surface-alt border border-line rounded-xl p-4">
-              <div className="w-10 h-10 rounded-full bg-line text-ink-muted flex items-center justify-center mb-3">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div className="w-10 h-10 rounded-full bg-red-100 text-red-700 flex items-center justify-center mb-3">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 10-8 0v4h8z" />
                 </svg>
@@ -292,8 +292,8 @@ export default function AdminEvents() {
                 Rushees can check in with photo. Brothers cannot evaluate yet.
               </p>
             </div>
-            <div className="bg-surface-alt border border-line rounded-xl p-4">
-              <div className="w-10 h-10 rounded-full bg-surface-sunken text-ink flex items-center justify-center mb-3">
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mb-3">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m4-11.5V19a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2h5.5L17 4.5z" />
                 </svg>
@@ -386,7 +386,9 @@ export default function AdminEvents() {
                           active
                             ? status === 'attendance'
                               ? 'border-emerald-300 bg-emerald-50'
-                              : 'border-ink-muted bg-surface-sunken'
+                              : status === 'evaluation'
+                                ? 'border-blue-300 bg-blue-50'
+                                : 'border-red-300 bg-red-50'
                             : 'border-line bg-white hover:bg-surface-alt'
                         }`}
                       >

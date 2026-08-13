@@ -8,15 +8,18 @@ interface RusheePhotoProps {
   alt: string
   className?: string
   fallback: React.ReactNode
+  /** Bucket a bare storage path resolves against. Defaults to the
+   *  profile-picture bucket; pass 'attendance-photos' for check-in photos. */
+  bucket?: string
 }
 
 /**
- * Renders a rushee/pledge photo stored in the private profile-pictures
- * bucket. `photo` may be a bare storage path or a legacy public URL —
- * see lib/resolvePhotoUrl.ts. Shows `fallback` while resolving, if
+ * Renders a rushee/pledge photo stored in a private storage bucket.
+ * `photo` may be a bare storage path or a legacy public URL — see
+ * lib/resolvePhotoUrl.ts. Shows `fallback` while resolving, if
  * resolution fails, or if there's no photo at all.
  */
-export default function RusheePhoto({ photo, alt, className, fallback }: RusheePhotoProps) {
+export default function RusheePhoto({ photo, alt, className, fallback, bucket }: RusheePhotoProps) {
   const [url, setUrl] = useState<string | null>(null)
 
   useEffect(() => {
@@ -24,14 +27,14 @@ export default function RusheePhoto({ photo, alt, className, fallback }: RusheeP
     setUrl(null)
     if (!photo) return
 
-    resolvePhotoUrl(photo).then((resolved) => {
+    resolvePhotoUrl(photo, bucket).then((resolved) => {
       if (!cancelled) setUrl(resolved)
     })
 
     return () => {
       cancelled = true
     }
-  }, [photo])
+  }, [photo, bucket])
 
   if (!url) return <>{fallback}</>
 

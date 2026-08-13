@@ -652,10 +652,12 @@ export default function BrotherCuts() {
                         {attendancePhotos.map((photo: any, index: number) => (
                           <div key={index} className="bg-surface-alt border border-line rounded-2xl overflow-hidden">
                             <div className="aspect-square bg-surface-sunken flex items-center justify-center overflow-hidden">
-                              <img
-                                src={photo.photo_url}
+                              <RusheePhoto
+                                photo={photo.photo_url}
+                                bucket="attendance-photos"
                                 alt={`${photo.event?.title || 'Event'} attendance`}
                                 className="w-full h-full object-cover"
+                                fallback={<div className="w-full h-full flex items-center justify-center text-ink-faint text-sm">No photo</div>}
                               />
                             </div>
                             <div className="p-3">

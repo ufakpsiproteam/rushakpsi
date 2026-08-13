@@ -9,6 +9,8 @@ export default function ProfilePictureModal() {
   const [preview, setPreview] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [rusheeId, setRusheeId] = useState<string | null>(null)
+  const [faceVisible, setFaceVisible] = useState(false)
+  const [onlyOneFace, setOnlyOneFace] = useState(false)
 
   useEffect(() => {
     async function checkProfilePicture() {
@@ -55,6 +57,8 @@ export default function ProfilePictureModal() {
     }
 
     setSelectedFile(file)
+    setFaceVisible(false)
+    setOnlyOneFace(false)
 
     // Create preview
     const reader = new FileReader()
@@ -65,7 +69,7 @@ export default function ProfilePictureModal() {
   }
 
   const handleUpload = async () => {
-    if (!selectedFile || !rusheeId) return
+    if (!selectedFile || !rusheeId || !faceVisible || !onlyOneFace) return
 
     setUploading(true)
 
@@ -158,11 +162,35 @@ export default function ProfilePictureModal() {
           </p>
         </div>
 
+        {/* Consent checkboxes — same confirmation as event check-in */}
+        {selectedFile && (
+          <div className="mb-6 space-y-3 text-left">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={faceVisible}
+                onChange={(e) => setFaceVisible(e.target.checked)}
+                className="w-5 h-5 rounded border-line-strong text-inverse focus:ring-inverse mr-3"
+              />
+              <span className="text-ink-muted text-sm">Your face is clearly seen</span>
+            </label>
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={onlyOneFace}
+                onChange={(e) => setOnlyOneFace(e.target.checked)}
+                className="w-5 h-5 rounded border-line-strong text-inverse focus:ring-inverse mr-3"
+              />
+              <span className="text-ink-muted text-sm">Your face is the only one in view</span>
+            </label>
+          </div>
+        )}
+
         {/* Upload Button */}
         {selectedFile && (
           <button
             onClick={handleUpload}
-            disabled={uploading}
+            disabled={uploading || !faceVisible || !onlyOneFace}
             className="w-full px-6 py-4 bg-emerald-800 text-white font-black rounded-lg hover:bg-emerald-900 transition-colors disabled:bg-ink-faint disabled:cursor-not-allowed border-2 border-black uppercase tracking-wider"
           >
             {uploading ? 'Uploading...' : 'Upload & Continue'}

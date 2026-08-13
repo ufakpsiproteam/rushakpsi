@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { getEvents, getAttendanceForEvent, updateAttendanceStatus, createManualAttendance } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import RusheePhoto from '@/components/RusheePhoto'
 
 interface Event {
   id: string
@@ -560,15 +561,13 @@ export default function AdminAttendance() {
                             setSelectedRecord(record)
                           }}
                         >
-                          {record.photo_url ? (
-                            <img
-                              src={record.photo_url}
-                              alt={rusheeName}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <span className="text-ink-faint text-lg">No photo</span>
-                          )}
+                          <RusheePhoto
+                            photo={record.photo_url}
+                            bucket="attendance-photos"
+                            alt={rusheeName}
+                            className="w-full h-full object-cover"
+                            fallback={<span className="text-ink-faint text-lg">No photo</span>}
+                          />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
@@ -674,10 +673,12 @@ export default function AdminAttendance() {
                 </button>
               </div>
 
-              <img
-                src={photoModal}
+              <RusheePhoto
+                photo={photoModal}
+                bucket="attendance-photos"
                 alt="Attendance verification"
                 className="w-full h-auto rounded-2xl mb-4"
+                fallback={<p className="text-ink-muted mb-4">Photo unavailable</p>}
               />
 
               {/* Status and Action Buttons */}

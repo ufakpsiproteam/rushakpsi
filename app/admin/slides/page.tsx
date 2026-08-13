@@ -1109,10 +1109,12 @@ export default function RusheeSlidesPresentation() {
                   {attendancePhotos.map((photo: any, index: number) => (
                     <div key={index} className="group relative bg-surface-alt rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
                       <div className="aspect-square bg-surface-sunken overflow-hidden">
-                        <img
-                          src={photo.photo_url}
+                        <RusheePhoto
+                          photo={photo.photo_url}
+                          bucket="attendance-photos"
                           alt={`${photo.event?.title || 'Event'} attendance`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          fallback={<div className="w-full h-full flex items-center justify-center text-ink-faint text-sm">No photo</div>}
                         />
                       </div>
                       <div className="p-4 bg-white">

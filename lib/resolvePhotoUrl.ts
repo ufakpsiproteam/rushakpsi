@@ -17,7 +17,8 @@ import { supabase } from './supabase'
  * working without a data migration.
  */
 export async function resolvePhotoUrl(
-  rawPhoto: string | null | undefined
+  rawPhoto: string | null | undefined,
+  defaultBucket: string = 'profile-pictures'
 ): Promise<string | null> {
   if (!rawPhoto) return null
   const trimmed = rawPhoto.trim()
@@ -34,11 +35,11 @@ export async function resolvePhotoUrl(
     // Some other absolute URL this app doesn't manage — use as-is.
     return trimmed
   } else {
-    // Bare storage path. All new uploads land in 'profile-pictures'
-    // (see uploadProfilePhoto) — try that first, then fall back to the
-    // older 'profile-photos' bucket for photos uploaded before the
-    // bucket names were unified.
-    bucket = 'profile-pictures'
+    // Bare storage path. Caller says which bucket new uploads land in
+    // (defaults to 'profile-pictures' — see uploadProfilePhoto); falls
+    // back to 'profile-photos' for photos uploaded before the bucket
+    // names were unified.
+    bucket = defaultBucket
     path = trimmed
   }
 

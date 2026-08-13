@@ -134,12 +134,42 @@ function StartInterviewSheet({
   const [type, setType] = useState<InterviewType>('casual')
   const [selectedRushees, setSelectedRushees] = useState<string[]>([])
   const [selectedBrothers, setSelectedBrothers] = useState<string[]>([])
+  // Casual only: brother_id -> the single rushee they're assigned to score.
+  // Enforced as a dropdown (not checkboxes) so a brother can't end up with
+  // more than one — the casual rubric requires one rubric per PNM per brother.
+  const [casualAssignments, setCasualAssignments] = useState<Record<string, string>>({})
   const [error, setError] = useState<string | null>(null)
+
+  function toggleBrothers(ids: string[]) {
+    setSelectedBrothers(ids)
+    setCasualAssignments(prev => {
+      const next: Record<string, string> = {}
+      for (const id of ids) if (prev[id]) next[id] = prev[id]
+      return next
+    })
+  }
+
+  function toggleRushees(ids: string[]) {
+    setSelectedRushees(ids)
+    setCasualAssignments(prev => {
+      const next: Record<string, string> = {}
+      for (const [bid, rid] of Object.entries(prev)) if (ids.includes(rid)) next[bid] = rid
+      return next
+    })
+  }
+
+  const isCasual = type === 'casual'
+  const casualReady = !isCasual || selectedBrothers.every(bid => !!casualAssignments[bid])
 
   function handleSubmit() {
     setError(null)
     startTransition(async () => {
-      const { error: err } = await startInterview(type, selectedRushees, selectedBrothers)
+      const { error: err } = await startInterview(
+        type,
+        selectedRushees,
+        selectedBrothers,
+        isCasual ? casualAssignments : undefined
+      )
       if (err) {
         setError(err)
         return
@@ -189,27 +219,62 @@ function StartInterviewSheet({
             label="Rushees to interview"
             items={rusheeItems}
             selected={selectedRushees}
-            onChange={setSelectedRushees}
+            onChange={toggleRushees}
           />
 
           <MultiSelect
             label="Panelists (brothers)"
             items={brotherItems}
             selected={selectedBrothers}
-            onChange={setSelectedBrothers}
+            onChange={toggleBrothers}
           />
+
+          {isCasual && selectedBrothers.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-ink-muted mb-1">
+                Assign each panelist to one pledge
+              </p>
+              <p className="text-xs text-ink-subtle mb-2">
+                One rubric per pledge per brother — a brother can&apos;t be assigned more than one.
+              </p>
+              <div className="border border-line-strong rounded divide-y divide-line">
+                {selectedBrothers.map(bid => {
+                  const brother = brothers.find(b => b.id === bid)
+                  return (
+                    <div key={bid} className="flex items-center justify-between gap-2 px-3 py-1.5">
+                      <span className="text-sm">{brother?.name ?? bid}</span>
+                      <select
+                        value={casualAssignments[bid] ?? ''}
+                        onChange={e => setCasualAssignments(prev => ({ ...prev, [bid]: e.target.value }))}
+                        className="text-xs border border-line-strong rounded px-2 py-1"
+                      >
+                        <option value="">Select pledge…</option>
+                        {selectedRushees.map(rid => (
+                          <option key={rid} value={rid}>
+                            {rushees.find(r => r.id === rid)?.name ?? rid}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
         </div>
 
         <div className="px-5 py-4 border-t border-line">
           <p className="text-xs text-ink-subtle mb-3">
-            Each panelist will be assigned to each selected rushee. They can open their rubric
-            from the Interviews tab.
+            {isCasual
+              ? 'Each panelist scores only the pledge assigned to them above.'
+              : 'Each panelist will be assigned to each selected rushee.'}
+            {' '}They can open their rubric from the Interviews tab.
           </p>
           <button
             onClick={handleSubmit}
-            disabled={pending || selectedRushees.length === 0 || selectedBrothers.length === 0}
+            disabled={pending || selectedRushees.length === 0 || selectedBrothers.length === 0 || !casualReady}
             className="w-full bg-inverse hover:bg-inverse-soft text-on-inverse py-2.5 rounded font-medium text-sm disabled:opacity-40"
           >
             {pending

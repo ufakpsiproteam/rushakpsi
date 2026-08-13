@@ -61,6 +61,31 @@ function ScriptBlock({ lines }: { lines: string[] }) {
   )
 }
 
+// Some prompts (e.g. casual Q4) pack several numbered "(1) ... (2) ..."
+// choices into one string. Split those out into a bulleted list; prompts
+// without that pattern render as a single paragraph, unchanged.
+function splitNumberedPrompt(prompt: string): { intro: string; items: string[] } {
+  const match = prompt.match(/^([\s\S]*?)(\(1\)[\s\S]*)$/)
+  if (!match) return { intro: prompt, items: [] }
+  const items = match[2].split(/\(\d+\)\s*/).map(s => s.trim()).filter(Boolean)
+  return { intro: match[1].trim(), items: items.length > 1 ? items : [] }
+}
+
+function PromptText({ prompt, className }: { prompt: string; className?: string }) {
+  const { intro, items } = splitNumberedPrompt(prompt)
+  if (items.length === 0) {
+    return <p className={className}>{prompt}</p>
+  }
+  return (
+    <>
+      {intro && <p className={className}>{intro}</p>}
+      <ul className="list-disc list-inside space-y-1 text-ink-muted mb-2">
+        {items.map((item, i) => <li key={i}>{item}</li>)}
+      </ul>
+    </>
+  )
+}
+
 function TimerDisplay({ seconds }: { seconds: number }) {
   const [remaining, setRemaining] = useState(seconds)
   const [running, setRunning] = useState(true)
@@ -515,7 +540,7 @@ export default function InterviewModePage() {
             )}
 
             <div className="bg-surface rounded-lg shadow p-5">
-              <p className="text-ink font-medium leading-relaxed mb-2">{currentQuestion.prompt}</p>
+              <PromptText prompt={currentQuestion.prompt} className="text-ink font-medium leading-relaxed mb-2" />
               {currentQuestion.help_text && (
                 <p className="text-sm text-ink-subtle italic mb-4">{currentQuestion.help_text}</p>
               )}

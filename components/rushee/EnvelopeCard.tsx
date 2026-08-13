@@ -38,7 +38,7 @@ export default function EnvelopeCard({
   rusheeName,
   isLocked,
   rusheeId,
-  vpName = 'Christina Tsiboukis',
+  vpName = 'Halle Taylor',
   chapterName = 'Alpha Phi Chapter',
 }: EnvelopeCardProps) {
   const [isOpened, setIsOpened] = useState(false)

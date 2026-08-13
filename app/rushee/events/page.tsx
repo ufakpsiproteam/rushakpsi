@@ -376,13 +376,10 @@ export default function RusheeEvents() {
         return
       }
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('attendance-photos')
-        .getPublicUrl(fileName)
-
-      // Create attendance record (defaults to 'approved' status)
-      const { data: attendanceData, error: attendanceError } = await submitAttendance(selectedEvent, user.id, publicUrl)
+      // 'attendance-photos' is a private bucket — store the storage path,
+      // not a public URL (which 403s). Readers resolve a signed URL on
+      // display via lib/resolvePhotoUrl.ts.
+      const { data: attendanceData, error: attendanceError } = await submitAttendance(selectedEvent, user.id, uploadData.path)
       const isSelectBlocked =
         !!attendanceError &&
         ((attendanceError as any).code === 'PGRST116' ||
