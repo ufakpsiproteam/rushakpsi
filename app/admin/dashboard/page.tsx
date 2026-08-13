@@ -8,7 +8,14 @@ import { supabase } from '@/lib/supabase'
 export default function AdminDashboard() {
   const [adminName, setAdminName] = useState('')
   const [loading, setLoading] = useState(true)
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<{
+    totalRushees: number | null
+    applicationsSubmitted: number | null
+    inviteOnly: number | null
+    bidsExtended: number | null
+    totalEvents: number | null
+    completedEvents: number | null
+  }>({
     totalRushees: 0,
     applicationsSubmitted: 0,
     inviteOnly: 0,
@@ -47,52 +54,41 @@ export default function AdminDashboard() {
   }, [])
 
   async function loadStats() {
-    try {
-      // Count total rushees
-      const { count: totalRushees } = await supabase
-        .from('rushees')
-        .select('*', { count: 'exact', head: true })
+    // Each tile's count is fetched independently via Promise.allSettled
+    // instead of sequential awaits — was 6 round trips stacked one after
+    // another (very slow on congested rush-event wifi), and a single
+    // failed query used to blank the whole dashboard. Now a failed tile
+    // shows "—" instead of taking the rest of the stats down with it.
+    const [
+      totalRusheesResult,
+      applicationsSubmittedResult,
+      inviteOnlyResult,
+      bidsExtendedResult,
+      totalEventsResult,
+      completedEventsResult,
+    ] = await Promise.allSettled([
+      supabase.from('rushees').select('*', { count: 'exact', head: true }),
+      supabase.from('applications').select('*', { count: 'exact', head: true }).eq('is_submitted', true),
+      supabase.from('rushees').select('*', { count: 'exact', head: true }).eq('invite_only', true),
+      supabase.from('rushees').select('*', { count: 'exact', head: true }).eq('bid_status', true),
+      supabase.from('events').select('*', { count: 'exact', head: true }),
+      supabase.from('events').select('*', { count: 'exact', head: true }).lt('date', new Date().toISOString().split('T')[0]),
+    ])
 
-      // Count applications submitted
-      const { count: applicationsSubmitted } = await supabase
-        .from('applications')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_submitted', true)
-
-      // Count invite only rushees (published Yes)
-      const { count: inviteOnly } = await supabase
-        .from('rushees')
-        .select('*', { count: 'exact', head: true })
-        .eq('invite_only', true)
-
-      // Count bids extended (published Yes)
-      const { count: bidsExtended } = await supabase
-        .from('rushees')
-        .select('*', { count: 'exact', head: true })
-        .eq('bid_status', true)
-
-      // Count total events
-      const { count: totalEvents } = await supabase
-        .from('events')
-        .select('*', { count: 'exact', head: true })
-
-      // Count completed events (status = 'evaluation' or past events)
-      const { count: completedEvents } = await supabase
-        .from('events')
-        .select('*', { count: 'exact', head: true })
-        .lt('date', new Date().toISOString().split('T')[0])
-
-      setStats({
-        totalRushees: totalRushees || 0,
-        applicationsSubmitted: applicationsSubmitted || 0,
-        inviteOnly: inviteOnly || 0,
-        bidsExtended: bidsExtended || 0,
-        totalEvents: totalEvents || 0,
-        completedEvents: completedEvents || 0
-      })
-    } catch (error) {
-      console.error('Error loading stats:', error)
+    const countOf = (result: PromiseSettledResult<{ count: number | null }>, label: string) => {
+      if (result.status === 'fulfilled') return result.value.count ?? 0
+      console.error(`Error loading ${label}:`, result.reason)
+      return null
     }
+
+    setStats({
+      totalRushees: countOf(totalRusheesResult, 'totalRushees'),
+      applicationsSubmitted: countOf(applicationsSubmittedResult, 'applicationsSubmitted'),
+      inviteOnly: countOf(inviteOnlyResult, 'inviteOnly'),
+      bidsExtended: countOf(bidsExtendedResult, 'bidsExtended'),
+      totalEvents: countOf(totalEventsResult, 'totalEvents'),
+      completedEvents: countOf(completedEventsResult, 'completedEvents'),
+    })
   }
 
   const recentActivity = [
@@ -131,7 +127,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="stat-label">Total Rushees</p>
-                <p className="stat-value">{stats.totalRushees}</p>
+                <p className="stat-value">{stats.totalRushees ?? '—'}</p>
               </div>
               <div className="text-2xl text-ink-faint">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,7 +141,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="stat-label">Applications</p>
-                <p className="stat-value">{stats.applicationsSubmitted}</p>
+                <p className="stat-value">{stats.applicationsSubmitted ?? '—'}</p>
               </div>
               <div className="text-2xl text-positive">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +155,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="stat-label text-[var(--color-on-inverse)]/70">Invite Only</p>
-                <p className="stat-value text-[var(--color-on-inverse)]">{stats.inviteOnly}</p>
+                <p className="stat-value text-[var(--color-on-inverse)]">{stats.inviteOnly ?? '—'}</p>
               </div>
               <div className="text-2xl text-[var(--color-on-inverse)]/70">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,7 +170,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="stat-label">Bids Extended</p>
-                <p className="stat-value">{stats.bidsExtended}</p>
+                <p className="stat-value">{stats.bidsExtended ?? '—'}</p>
               </div>
               <div className="text-2xl text-ink-faint">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,7 +184,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="stat-label">Total Events</p>
-                <p className="stat-value">{stats.totalEvents}</p>
+                <p className="stat-value">{stats.totalEvents ?? '—'}</p>
               </div>
               <div className="text-2xl text-ink-faint">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,7 +198,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="stat-label">Completed Events</p>
-                <p className="stat-value">{stats.completedEvents}</p>
+                <p className="stat-value">{stats.completedEvents ?? '—'}</p>
               </div>
               <div className="text-2xl text-ink-faint">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">

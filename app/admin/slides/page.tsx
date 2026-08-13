@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import TypewriterText from '@/components/TypewriterText'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 import { isRejected } from '@/lib/policy'
 import { resolvePhotoUrl } from '@/lib/resolvePhotoUrl'
 import RusheePhoto from '@/components/RusheePhoto'
@@ -353,6 +351,14 @@ export default function RusheeSlidesPresentation() {
 
   async function exportToPDF() {
     try {
+      // Loaded on demand instead of at module scope — jspdf +
+      // jspdf-autotable otherwise ship in this page's initial JS bundle
+      // even though they're only needed once someone clicks Export PDF.
+      const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+        import('jspdf'),
+        import('jspdf-autotable'),
+      ])
+
       const doc = new jsPDF('portrait', 'mm', 'a4')
       const pageWidth = doc.internal.pageSize.getWidth()
       const pageHeight = doc.internal.pageSize.getHeight()

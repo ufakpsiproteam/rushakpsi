@@ -65,16 +65,22 @@ export async function signOut() {
   if (error) throw error
 }
 
-// Get the current user's profile
-export async function getCurrentUserProfile(): Promise<UserProfile | null> {
-  const { data: { user } } = await supabase.auth.getUser()
+// Get the current user's profile. Pass userId when the caller already has
+// it (e.g. from getSession()/onAuthStateChange) to skip a redundant
+// auth.getUser() round trip — falls back to resolving it here otherwise.
+export async function getCurrentUserProfile(userId?: string): Promise<UserProfile | null> {
+  let id = userId
 
-  if (!user) return null
+  if (!id) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    id = user.id
+  }
 
   const { data: profile, error } = await supabase
     .from('user_profiles')
     .select('*')
-    .eq('id', user.id)
+    .eq('id', id)
     .single()
 
   if (error) throw error

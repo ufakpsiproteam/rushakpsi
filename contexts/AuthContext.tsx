@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       if (session?.user) {
-        loadProfile()
+        loadProfile(session.user.id)
       } else {
         setLoading(false)
       }
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
       if (session?.user) {
-        loadProfile()
+        loadProfile(session.user.id)
       } else {
         setProfile(null)
         setRoles([])
@@ -61,9 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [profile])
 
-  async function loadProfile() {
+  async function loadProfile(userId?: string) {
     try {
-      const userProfile = await getCurrentUserProfile()
+      const userProfile = await getCurrentUserProfile(userId)
       setProfile(userProfile)
     } catch (error: any) {
       console.error('Error loading profile:', error)
@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signIn(email: string, password: string) {
     const data = await authSignIn(email, password)
     setUser(data.user)
-    await loadProfile()
+    await loadProfile(data.user.id)
   }
 
   async function signUp(
@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ) {
     const data = await authSignUp(email, password, name, accountType, accessLevel, additionalData)
     setUser(data.user)
-    await loadProfile()
+    await loadProfile(data.user.id)
   }
 
   async function signOut() {
