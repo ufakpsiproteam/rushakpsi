@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import PrivacyPolicyNote from '@/components/portal/PrivacyPolicyNote'
 
 function SignInForm() {
   const [email, setEmail] = useState('')
@@ -155,6 +156,11 @@ export default function SignIn() {
               }>
                 <SignInForm />
               </Suspense>
+
+              {/* Privacy notice */}
+              <div className="mt-3">
+                <PrivacyPolicyNote variant="signin" />
+              </div>
 
               {/* Sign Up Link */}
               <div className="mt-4">

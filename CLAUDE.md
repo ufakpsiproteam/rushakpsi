@@ -38,6 +38,11 @@ If another undocumented gap turns up, check `supabase/legacy/*.sql` fully before
 - `AdminNav.tsx` only has 8 links — Review Board (`/admin/cuts`), Bid Night Deck (`/admin/slides`), and Interview Questions (`/admin/interview-questions`) were deliberately moved off the top nav (11 links overflowed into a horizontal scrollbar) and now live as shortcut tiles under "More tools" on `/admin/dashboard`. Don't add them back to `AdminNav.tsx` without addressing the overflow.
 - The rushee decision-letter reveal (`components/rushee/DecisionLetter.tsx`, `EnvelopeCard.tsx`, the `letter-reveal` keyframe, `canvas-confetti` logic) was deliberately left alone — it inherits the new portal card colors as a byproduct but its animation/trigger logic is unchanged.
 
+## Privacy policy
+
+- `/privacy` is a public route (added to `publicRoutes` in `proxy.ts`) rendering the chapter's privacy policy, sourced verbatim from `ufakpsi-recruitment-privacy-policy.md`. It uses the `.portal-shell` token theme (own `app/privacy/layout.tsx`, same pattern as `app/auth/signin/layout.tsx`) even though it isn't behind auth — keeps it visually consistent with the authenticated app rather than the landing page's space theme.
+- `components/portal/PrivacyPolicyNote.tsx` is the shared low-emphasis link (`--color-ink-subtle`, `text-xs`, no border/background) used on `/auth/signin` (`variant="signin"`), `/rushee/account`, and `/brother/account` (`variant="account"`). If the policy content changes, edit `ufakpsi-recruitment-privacy-policy.md`'s prose then update `app/privacy/page.tsx` to match — the page hand-renders the sections rather than parsing the markdown file at runtime.
+
 ## Known non-bugs
 
 - Two browser tabs on `localhost` (any ports) share one session cookie — logging into a second account in one tab silently swaps the session for both. Not a server bug, not a data leak. Use separate browser profiles/incognito for simultaneous multi-account testing.

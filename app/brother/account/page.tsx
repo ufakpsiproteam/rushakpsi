@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { getBrotherProfile, updateBrotherProfile } from '@/lib/database'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import PrivacyPolicyNote from '@/components/portal/PrivacyPolicyNote'
 
 export default function BrotherAccount() {
   const [loading, setLoading] = useState(true)
@@ -209,6 +210,10 @@ export default function BrotherAccount() {
             Sign Out
           </button>
         </form>
+
+        <div className="mt-8 text-center">
+          <PrivacyPolicyNote variant="account" />
+        </div>
         </main>
       </PullToRefresh>
     </div>

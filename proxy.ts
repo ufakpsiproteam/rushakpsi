@@ -18,6 +18,7 @@ const publicRoutes = [
   '/splash',
   '/landing',
   '/brother-account-creation',
+  '/privacy',
 ]
 
 // Routes that use dynamic segments but are public. Token-scoped: they

@@ -7,6 +7,7 @@ import { getRusheeProfile, updateRusheeProfile, uploadProfilePhoto } from '@/lib
 import { resolvePhotoUrl } from '@/lib/resolvePhotoUrl'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import PrivacyPolicyNote from '@/components/portal/PrivacyPolicyNote'
 
 export default function RusheeAccount() {
   const [loading, setLoading] = useState(true)
@@ -317,6 +318,10 @@ export default function RusheeAccount() {
             Sign Out
           </button>
         </form>
+
+        <div className="mt-8 text-center">
+          <PrivacyPolicyNote variant="account" />
+        </div>
         </main>
       </PullToRefresh>
     </div>
