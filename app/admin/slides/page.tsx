@@ -7,6 +7,8 @@ import TypewriterText from '@/components/TypewriterText'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { isRejected } from '@/lib/policy'
+import { resolvePhotoUrl } from '@/lib/resolvePhotoUrl'
+import RusheePhoto from '@/components/RusheePhoto'
 
 interface RusheeData {
   id: string
@@ -400,7 +402,8 @@ export default function RusheeSlidesPresentation() {
 
         // Add photo if available (maintaining aspect ratio)
         if (rushee.photo) {
-          const imageInfo = await getImageData(rushee.photo)
+          const resolvedPhoto = await resolvePhotoUrl(rushee.photo)
+          const imageInfo = resolvedPhoto ? await getImageData(resolvedPhoto) : null
           if (imageInfo) {
             try {
               const maxWidth = 35
@@ -700,11 +703,12 @@ export default function RusheeSlidesPresentation() {
                     className="w-full flex items-center gap-4 p-3 hover:bg-surface-alt rounded-lg transition-colors text-left"
                   >
                     <div className="w-12 h-12 bg-surface-sunken rounded-full overflow-hidden flex-shrink-0">
-                      {rushee.photo ? (
-                        <img src={rushee.photo} alt={rushee.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-ink-faint">?</div>
-                      )}
+                      <RusheePhoto
+                        photo={rushee.photo}
+                        alt={rushee.name}
+                        className="w-full h-full object-cover"
+                        fallback={<div className="w-full h-full flex items-center justify-center text-ink-faint">?</div>}
+                      />
                     </div>
                     <div className="flex-1">
                       <p className="font-semibold text-ink">{rushee.name}</p>
@@ -731,13 +735,16 @@ export default function RusheeSlidesPresentation() {
               <div className="flex items-start gap-8">
                 <div className="relative w-72 h-72 flex-shrink-0">
                   <div className="w-full h-full bg-surface-sunken rounded-2xl overflow-hidden border-4 border-white shadow-lg">
-                    {currentRushee.photo ? (
-                      <img src={currentRushee.photo} alt={currentRushee.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <svg className="w-full h-full text-ink-faint p-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    )}
+                    <RusheePhoto
+                      photo={currentRushee.photo}
+                      alt={currentRushee.name}
+                      className="w-full h-full object-cover"
+                      fallback={
+                        <svg className="w-full h-full text-ink-faint p-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      }
+                    />
                   </div>
                   <button
                     onClick={() => {

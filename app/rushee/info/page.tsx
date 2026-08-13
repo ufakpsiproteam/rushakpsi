@@ -33,40 +33,38 @@ export default function RusheeInfo() {
   ]
 
   const executiveBoard = [
-    { title: 'President', name: 'Lizzie Myers' },
-    { title: 'Executive Vice President', name: 'Justin Hall' },
-    { title: 'VP of Finance', name: 'Brother Wadhwani' },
-    { title: 'VP of Alumni & External', name: 'Christina Tsiboukis' },
-    { title: 'VP of Community Service', name: 'Abby Kloss' },
-    { title: 'VP of Membership', name: 'Owen Steege' },
-    { title: 'VP of Diversity Equity & Inclusion', name: 'Camila Moreno' },
-    { title: 'VP of Professional Activities', name: 'Emily Jonas' },
-    { title: 'VP of Professional Development', name: 'Brother Jung' },
-    { title: 'VP of Public Relations', name: 'Nico Nasse' },
-    { title: 'VP of Social Affairs', name: 'Isa Goncalves' }
+    { title: 'President', name: 'Olivia Liu' },
+    { title: 'Executive Vice President', name: 'Rahul Karpur' },
+    { title: 'VP of Finance', name: 'Alejandro Peche' },
+    { title: 'VP of Alumni & External', name: 'Halle Taylor' },
+    { title: 'VP of Community Service', name: 'Pranay Singh' },
+    { title: 'VP of Membership', name: 'Ethan Wilson' },
+    { title: 'VP of Diversity Equity & Inclusion', name: 'Sherry Jiang' },
+    { title: 'VP of Professional Activities', name: 'Adrien Alfieri' },
+    { title: 'VP of Professional Development', name: 'Brother Nevins' },
+    { title: 'VP of Public Relations', name: 'Lydia Zhao' },
+    { title: 'VP of Social Affairs', name: 'Sebastian Wright' }
   ]
 
   const recruitmentTeam = [
-    { title: 'VP of Alumni & External', name: 'Christina Tsiboukis' },
-    { title: 'AVP of Recruitment', name: 'Domenick Paoli' },
-    { title: 'Director of Recruitment', name: 'Kush Mirchandani' },
-    { title: 'Director of Recruitment', name: 'Colby Whitty' },
-    { title: 'Director of Recruitment', name: 'Colton Swain' },
-    { title: 'Director of Recruitment', name: 'Jennifer Lynfatt' }
+    { title: 'VP of Alumni & External', name: 'Halle Taylor' },
+    { title: 'AVP of Recruitment', name: 'Greyson Payne' },
+    { title: 'Director of Recruitment', name: 'Rodrigo Leal' },
+    { title: 'Director of Recruitment', name: 'Braden Hoening' },
+    { title: 'Director of Recruitment', name: 'Ella Hermans' },
+    { title: 'Director of Recruitment', name: 'Annika Shauf' }
   ]
 
   const professionalAdvisors = [
-    { title: 'Director of Pledge Education', name: 'Brother Nevins' },
-    { title: 'Director of Career Development', name: 'Brother Gorewitz' },
-    { title: 'Director of Pledge Resources', name: 'Brother Liu' },
-    { title: 'Director of Leadership Development', name: 'Brother Starkman' },
-    { title: 'Director of Personal Branding', name: 'Brother Wadhwani' },
-    { title: 'Professional Administrative Assistant', name: 'Valeria Romero' },
-    { title: 'Professional Administrative Assistant', name: 'Valentina Thibault' },
-    { title: 'AVP of Logistics and Onboarding', name: 'Braden Doherty' },
-    { title: 'AVP of Logistics and Onboarding', name: 'Laura Almeida' },
-    { title: 'AVP of Professional Development', name: 'David Kraehmer' },
-    { title: 'Professional Opportunities Assistants', name: 'Jenna Fang' }
+    { title: 'Director of Pledge Education', name: 'Brother Nasse' },
+    { title: 'Director of Career Development', name: 'Brother Kloss' },
+    { title: 'Director of Pledge Resources', name: 'Brother Kumar' },
+    { title: 'Director of Leadership Development', name: 'Brother Hall' },
+    { title: 'Director of Personal Branding', name: 'Brother Thibault' },
+    { title: 'Professional Administrative Assistant', name: 'Braden Hoenig' },
+    { title: 'Professional Administrative Assistant', name: 'Michelle Potenza' },
+    { title: 'AVP of Logistics and Onboarding', name: 'Valeria Romero' },
+    { title: 'AVP of Early Career Research', name: 'Nicholas Baez' }
   ]
 
   return (

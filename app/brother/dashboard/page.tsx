@@ -2,6 +2,7 @@
 
 import BrotherNav from '@/components/brother/BrotherNav'
 import PullToRefresh from '@/components/PullToRefresh'
+import RusheePhoto from '@/components/RusheePhoto'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -295,19 +296,18 @@ export default function BrotherDashboard() {
                       >
                         {/* Profile Photo */}
                         <div className="relative aspect-square bg-surface-sunken">
-                          {rushee.photo && rushee.photo.startsWith('http') ? (
-                            <img
-                              src={rushee.photo}
-                              alt={rushee.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-surface-sunken to-line">
-                              <svg className="w-1/2 h-1/2 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                              </svg>
-                            </div>
-                          )}
+                          <RusheePhoto
+                            photo={rushee.photo}
+                            alt={rushee.name}
+                            className="w-full h-full object-cover"
+                            fallback={
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-surface-sunken to-line">
+                                <svg className="w-1/2 h-1/2 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                              </div>
+                            }
+                          />
                           {/* Checkmark Badge */}
                           <div className="absolute top-2 right-2 bg-emerald-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold shadow-lg">
                             ✓

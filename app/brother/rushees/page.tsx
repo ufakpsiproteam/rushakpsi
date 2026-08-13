@@ -2,6 +2,7 @@
 
 import BrotherNav from '@/components/brother/BrotherNav'
 import PullToRefresh from '@/components/PullToRefresh'
+import RusheePhoto from '@/components/RusheePhoto'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRusheesWithBrotherData, toggleStarRushee, updatePersonalNotes } from '@/lib/api'
@@ -194,19 +195,18 @@ export default function BrotherRushees() {
             >
               {/* Profile Photo */}
               <div className="relative aspect-square bg-surface-sunken">
-                {rushee.photo && rushee.photo.startsWith('http') ? (
-                  <img
-                    src={rushee.photo}
-                    alt={rushee.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-surface-sunken to-line">
-                    <svg className="w-1/3 h-1/3 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                )}
+                <RusheePhoto
+                  photo={rushee.photo}
+                  alt={rushee.name}
+                  className="w-full h-full object-cover"
+                  fallback={
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-surface-sunken to-line">
+                      <svg className="w-1/3 h-1/3 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                  }
+                />
                 {/* Star Badge */}
                 <button
                   onClick={(e) => {
@@ -250,19 +250,18 @@ export default function BrotherRushees() {
               <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-4">
                   {/* Profile Photo */}
-                  {selectedRusheeData.photo && selectedRusheeData.photo.startsWith('http') ? (
-                    <img
-                      src={selectedRusheeData.photo}
-                      alt={selectedRusheeData.name}
-                      className="w-24 h-24 object-cover rounded-lg border-2 border-line-strong"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 flex items-center justify-center bg-gradient-to-br from-surface-sunken to-line rounded-lg border-2 border-line-strong">
-                      <svg className="w-12 h-12 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                  )}
+                  <RusheePhoto
+                    photo={selectedRusheeData.photo}
+                    alt={selectedRusheeData.name}
+                    className="w-24 h-24 object-cover rounded-lg border-2 border-line-strong"
+                    fallback={
+                      <div className="w-24 h-24 flex items-center justify-center bg-gradient-to-br from-surface-sunken to-line rounded-lg border-2 border-line-strong">
+                        <svg className="w-12 h-12 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                    }
+                  />
                     <div>
                     <h2 className="text-2xl font-semibold text-ink">{selectedRusheeData.name}</h2>
                     <p className="text-ink-muted">{selectedRusheeData.major}</p>

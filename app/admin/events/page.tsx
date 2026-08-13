@@ -28,6 +28,7 @@ export default function AdminEvents() {
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [pendingStatusChange, setPendingStatusChange] = useState<{ event: Event; status: EventStatus } | null>(null)
 
   const [formData, setFormData] = useState({
     title: '',
@@ -75,6 +76,20 @@ export default function AdminEvents() {
       console.error('Error updating status:', error)
       setMessage({ type: 'error', text: 'Failed to update event status' })
     }
+  }
+
+  // Status changes are one click away from disrupting a live event
+  // (locking mid-attendance-window, say), so every change is confirmed
+  // before it's applied rather than firing immediately on click.
+  const requestStatusChange = (event: Event, status: EventStatus) => {
+    if (event.status === status) return
+    setPendingStatusChange({ event, status })
+  }
+
+  const confirmStatusChange = async () => {
+    if (!pendingStatusChange) return
+    await handleStatusChange(pendingStatusChange.event.id, pendingStatusChange.status)
+    setPendingStatusChange(null)
   }
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -173,6 +188,29 @@ export default function AdminEvents() {
       case 'locked': return 'Locked'
       case 'attendance': return 'Attendance Window'
       case 'evaluation': return 'Evaluation Window'
+    }
+  }
+
+  const getStatusIcon = (status: EventStatus) => {
+    switch (status) {
+      case 'locked':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 10-8 0v4h8z" />
+          </svg>
+        )
+      case 'attendance':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+          </svg>
+        )
+      case 'evaluation':
+        return (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m4-11.5V19a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2h5.5L17 4.5z" />
+          </svg>
+        )
     }
   }
 
@@ -330,48 +368,44 @@ export default function AdminEvents() {
                 </div>
               </div>
 
-              {/* Status Controls */}
+              {/* Status Controls — mirrors the Event Status Guide above:
+                  same three icons/colors, with this event's current
+                  stage highlighted. Clicking a different stage asks for
+                  confirmation (requestStatusChange) rather than
+                  switching immediately. */}
               <div className="border-t border-line pt-4 mt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-ink-muted mb-2 font-semibold">Event Status:</p>
-                    <div className={`inline-flex px-4 py-2 rounded-lg font-semibold ${getStatusColor(event.status)}`}>
-                      {getStatusLabel(event.status)}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleStatusChange(event.id, 'locked')}
-                      className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                        event.status === 'locked'
-                          ? 'bg-ink-muted text-white'
-                          : 'bg-white text-ink border border-line-strong hover:bg-surface-alt'
-                      }`}
-                    >
-                      Lock
-                    </button>
-                    <button
-                      onClick={() => handleStatusChange(event.id, 'attendance')}
-                      className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                        event.status === 'attendance'
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-white text-ink border border-line-strong hover:bg-surface-alt'
-                      }`}
-                    >
-                      Attendance
-                    </button>
-                    <button
-                      onClick={() => handleStatusChange(event.id, 'evaluation')}
-                      className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                        event.status === 'evaluation'
-                          ? 'bg-ink text-white'
-                          : 'bg-white text-ink border border-line-strong hover:bg-surface-alt'
-                      }`}
-                    >
-                      Evaluation
-                    </button>
-                  </div>
+                <p className="text-sm text-ink-muted mb-3 font-semibold">Event Status</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {(['locked', 'attendance', 'evaluation'] as EventStatus[]).map((status) => {
+                    const active = event.status === status
+                    return (
+                      <button
+                        key={status}
+                        onClick={() => requestStatusChange(event, status)}
+                        className={`flex items-center gap-3 rounded-xl border p-3 text-left transition-colors ${
+                          active
+                            ? status === 'attendance'
+                              ? 'border-emerald-300 bg-emerald-50'
+                              : 'border-ink-muted bg-surface-sunken'
+                            : 'border-line bg-white hover:bg-surface-alt'
+                        }`}
+                      >
+                        <div
+                          className={`w-9 h-9 shrink-0 rounded-full flex items-center justify-center ${
+                            active ? getStatusColor(status) : 'bg-line text-ink-muted'
+                          }`}
+                        >
+                          {getStatusIcon(status)}
+                        </div>
+                        <div>
+                          <p className={`font-semibold text-sm ${active ? 'text-ink' : 'text-ink-muted'}`}>
+                            {getStatusLabel(status)}
+                          </p>
+                          {active && <p className="text-xs text-ink-subtle">Current stage</p>}
+                        </div>
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             </div>
@@ -399,6 +433,46 @@ export default function AdminEvents() {
             Tip: Move events through states in order: Locked → Attendance Window (during event) → Evaluation Window (after event) → Locked (when complete)
           </p>
         </div>
+
+        {/* Status Change Confirmation */}
+        {pendingStatusChange && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white border border-line rounded-2xl p-6 max-w-sm w-full shadow-xl">
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${getStatusColor(pendingStatusChange.status)}`}
+              >
+                {getStatusIcon(pendingStatusChange.status)}
+              </div>
+              <h2 className="text-lg font-semibold text-ink mb-2">
+                Change status to {getStatusLabel(pendingStatusChange.status)}?
+              </h2>
+              <p className="text-sm text-ink-muted mb-6">
+                &ldquo;{pendingStatusChange.event.title}&rdquo; is currently{' '}
+                <strong className="text-ink">{getStatusLabel(pendingStatusChange.event.status)}</strong>.
+                {pendingStatusChange.event.status === 'attendance' && pendingStatusChange.status !== 'attendance' && (
+                  <> This closes check-in — rushees who haven&apos;t checked in yet won&apos;t be able to until you switch back.</>
+                )}
+                {pendingStatusChange.event.status === 'evaluation' && pendingStatusChange.status !== 'evaluation' && (
+                  <> This hides the evaluate option from brothers who haven&apos;t started yet — anyone already mid-evaluation can still submit.</>
+                )}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setPendingStatusChange(null)}
+                  className="flex-1 px-4 py-2 bg-white text-ink border border-line-strong rounded-lg font-semibold hover:bg-surface-alt transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmStatusChange}
+                  className="flex-1 px-4 py-2 bg-ink text-white rounded-lg font-semibold hover:bg-inverse-soft transition-colors"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Create Event Modal */}
         {showCreateModal && (

@@ -83,15 +83,12 @@ export default function ProfilePictureModal() {
         return
       }
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('profile-pictures')
-        .getPublicUrl(fileName)
-
-      // Update rushees table
+      // 'profile-pictures' is private — store the storage path, not a
+      // public URL (which 403s). Readers resolve a signed URL on
+      // display via lib/resolvePhotoUrl.ts.
       const { error: updateError } = await (supabase as any)
         .from('rushees')
-        .update({ photo: publicUrl })
+        .update({ photo: fileName })
         .eq('id', rusheeId)
 
       if (updateError) {

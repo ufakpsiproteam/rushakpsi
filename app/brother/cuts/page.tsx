@@ -1,6 +1,7 @@
 'use client'
 
 import BrotherNav from '@/components/brother/BrotherNav'
+import RusheePhoto from '@/components/RusheePhoto'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
@@ -465,13 +466,16 @@ export default function BrotherCuts() {
                 }}
               >
                 <div className="w-16 h-16 mr-3 bg-surface-sunken rounded-full overflow-hidden flex items-center justify-center flex-shrink-0">
-                  {rushee.photo && rushee.photo.startsWith('http') ? (
-                    <img src={rushee.photo} alt={rushee.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <svg className="w-8 h-8 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  )}
+                  <RusheePhoto
+                    photo={rushee.photo}
+                    alt={rushee.name}
+                    className="w-full h-full object-cover"
+                    fallback={
+                      <svg className="w-8 h-8 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    }
+                  />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-ink">{rushee.name}</h3>
@@ -542,13 +546,16 @@ export default function BrotherCuts() {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-center">
                   <div className="w-20 h-20 sm:w-24 sm:h-24 mr-4 bg-surface-sunken rounded-2xl overflow-hidden flex items-center justify-center flex-shrink-0">
-                    {selectedRusheeData.photo && selectedRusheeData.photo.startsWith('http') ? (
-                      <img src={selectedRusheeData.photo} alt={selectedRusheeData.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <svg className="w-12 h-12 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    )}
+                    <RusheePhoto
+                      photo={selectedRusheeData.photo}
+                      alt={selectedRusheeData.name}
+                      className="w-full h-full object-cover"
+                      fallback={
+                        <svg className="w-12 h-12 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      }
+                    />
                   </div>
                   <div>
                     <h2 className="text-2xl font-semibold text-ink">{selectedRusheeData.name}</h2>

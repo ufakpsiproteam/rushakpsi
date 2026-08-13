@@ -1,6 +1,7 @@
 'use client'
 
 import BrotherNav from '@/components/brother/BrotherNav'
+import RusheePhoto from '@/components/RusheePhoto'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect, useCallback } from 'react'
 import { getRushee, createOrUpdateEvaluation, getEvaluation, getPersonalNotes } from '@/lib/api'
@@ -259,12 +260,12 @@ export default function EvaluateRushee() {
 
         <div className="card card-pad flex items-center gap-4 mb-5">
           <div className="w-14 h-14 rounded-full overflow-hidden bg-surface-sunken flex items-center justify-center shrink-0">
-            {rushee?.photo ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={rushee.photo} alt="" className="w-full h-full object-cover rushee-photo" />
-            ) : (
-              <span className="text-ink-faint text-lg">{(rushee?.name || '?').slice(0, 1)}</span>
-            )}
+            <RusheePhoto
+              photo={rushee?.photo}
+              alt=""
+              className="w-full h-full object-cover rushee-photo"
+              fallback={<span className="text-ink-faint text-lg">{(rushee?.name || '?').slice(0, 1)}</span>}
+            />
           </div>
           <div className="min-w-0">
             <p className="section-title truncate">{rushee?.name}</p>

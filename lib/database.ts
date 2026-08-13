@@ -474,19 +474,22 @@ export async function uploadProfilePhoto(userId: string, file: File) {
 
   // Delete old profile photo if exists
   await supabase.storage
-    .from('profile-photos')
+    .from('profile-pictures')
     .remove([fileName])
 
   const { data, error } = await supabase.storage
-    .from('profile-photos')
+    .from('profile-pictures')
     .upload(fileName, file, {
       upsert: true
     })
 
   if (error) return { error }
 
+  // 'profile-pictures' is private (2026-08-11 security hardening) — the
+  // caller should store `path` and resolve a signed URL for display via
+  // lib/resolvePhotoUrl.ts, not this `url`, which will 403.
   const { data: { publicUrl } } = supabase.storage
-    .from('profile-photos')
+    .from('profile-pictures')
     .getPublicUrl(fileName)
 
   return { data: { path: fileName, url: publicUrl }, error: null }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import AdminNav from '@/components/admin/AdminNav'
+import RusheePhoto from '@/components/RusheePhoto'
 import { getPledges, getPledgeResumeUrl, type PledgeRecord } from './actions'
 
 /**
@@ -143,18 +144,16 @@ export default function PledgesPage() {
                     <tr key={pledge.id}>
                       <td>
                         <div className="w-10 h-10 rounded-full overflow-hidden bg-surface-sunken flex items-center justify-center">
-                          {pledge.photo ? (
-                            /* eslint-disable-next-line @next/next/no-img-element */
-                            <img
-                              src={pledge.photo}
-                              alt=""
-                              className="w-full h-full object-cover rushee-photo"
-                            />
-                          ) : (
-                            <span className="text-xs text-ink-faint">
-                              {pledge.name.slice(0, 1)}
-                            </span>
-                          )}
+                          <RusheePhoto
+                            photo={pledge.photo}
+                            alt=""
+                            className="w-full h-full object-cover rushee-photo"
+                            fallback={
+                              <span className="text-xs text-ink-faint">
+                                {pledge.name.slice(0, 1)}
+                              </span>
+                            }
+                          />
                         </div>
                       </td>
                       <td>
@@ -216,16 +215,12 @@ export default function PledgesPage() {
             <div className="modal-header">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-surface-sunken flex items-center justify-center shrink-0">
-                  {selected.photo ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={selected.photo}
-                      alt=""
-                      className="w-full h-full object-cover rushee-photo"
-                    />
-                  ) : (
-                    <span className="text-ink-faint">{selected.name.slice(0, 1)}</span>
-                  )}
+                  <RusheePhoto
+                    photo={selected.photo}
+                    alt=""
+                    className="w-full h-full object-cover rushee-photo"
+                    fallback={<span className="text-ink-faint">{selected.name.slice(0, 1)}</span>}
+                  />
                 </div>
                 <div className="min-w-0">
                   <h2 className="section-title truncate">{selected.name}</h2>

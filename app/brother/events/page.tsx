@@ -2,6 +2,7 @@
 
 import BrotherNav from '@/components/brother/BrotherNav'
 import PullToRefresh from '@/components/PullToRefresh'
+import RusheePhoto from '@/components/RusheePhoto'
 import Link from 'next/link'
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -411,19 +412,18 @@ function BrotherEventsContent() {
                         }`}
                       >
                         <div className="w-full aspect-square mb-2 flex items-center justify-center bg-surface-sunken rounded-lg overflow-hidden relative">
-                          {rushee.photo && rushee.photo.startsWith('http') ? (
-                            <img
-                              src={rushee.photo}
-                              alt={rushee.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-ink-faint text-4xl">
-                              <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                              </svg>
-                            </div>
-                          )}
+                          <RusheePhoto
+                            photo={rushee.photo}
+                            alt={rushee.name}
+                            className="w-full h-full object-cover"
+                            fallback={
+                              <div className="text-ink-faint text-4xl">
+                                <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                              </div>
+                            }
+                          />
                           {/* Selection checkmark */}
                           {isSelected && (
                             <div className="absolute top-2 right-2 bg-emerald-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg">
@@ -463,18 +463,33 @@ function BrotherEventsContent() {
                             />
                           )}
                           <div className="aspect-[3/4] bg-surface-sunken relative">
-                            {(revealAttendance ? currentSwipeRushee.attendancePhotoUrl : currentSwipeRushee.photo) ? (
-                              <img
-                                src={revealAttendance ? currentSwipeRushee.attendancePhotoUrl : currentSwipeRushee.photo}
+                            {revealAttendance ? (
+                              currentSwipeRushee.attendancePhotoUrl ? (
+                                <img
+                                  src={currentSwipeRushee.attendancePhotoUrl}
+                                  alt={currentSwipeRushee.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-ink-faint">
+                                  <svg className="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                  </svg>
+                                </div>
+                              )
+                            ) : (
+                              <RusheePhoto
+                                photo={currentSwipeRushee.photo}
                                 alt={currentSwipeRushee.name}
                                 className="w-full h-full object-cover"
+                                fallback={
+                                  <div className="w-full h-full flex items-center justify-center text-ink-faint">
+                                    <svg className="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                  </div>
+                                }
                               />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-ink-faint">
-                                <svg className="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                              </div>
                             )}
                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[var(--color-inverse)]/70 via-[var(--color-inverse)]/20 to-transparent p-4">
                               <p className="text-on-inverse text-xl font-semibold">{currentSwipeRushee.name}</p>
@@ -681,17 +696,16 @@ function BrotherEventsContent() {
                       >
                         <div className="flex items-center">
                           <div className="w-12 h-12 mr-3 bg-surface-sunken rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 relative">
-                            {rushee.photo && rushee.photo.startsWith('http') ? (
-                              <img
-                                src={rushee.photo}
-                                alt={rushee.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <svg className="w-6 h-6 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                              </svg>
-                            )}
+                            <RusheePhoto
+                              photo={rushee.photo}
+                              alt={rushee.name}
+                              className="w-full h-full object-cover"
+                              fallback={
+                                <svg className="w-6 h-6 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                              }
+                            />
                             {/* Status badge */}
                             {isComplete && (
                               <div className="absolute -top-1 -right-1 bg-emerald-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-lg">

@@ -4,6 +4,7 @@ import RusheeNav from '@/components/rushee/RusheeNav'
 import PullToRefresh from '@/components/PullToRefresh'
 import { useState, useEffect, useRef } from 'react'
 import { getRusheeProfile, updateRusheeProfile, uploadProfilePhoto } from '@/lib/database'
+import { resolvePhotoUrl } from '@/lib/resolvePhotoUrl'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -54,9 +55,12 @@ export default function RusheeAccount() {
           photo: profile.photo || ''
         })
 
-        // Set photo preview if exists
-        if (profile.photo && profile.photo.startsWith('http')) {
-          setPhotoPreview(profile.photo)
+        // Set photo preview if exists — 'profile-pictures' is a private
+        // bucket, so this needs a signed URL, not the raw stored value.
+        if (profile.photo) {
+          resolvePhotoUrl(profile.photo).then((url) => {
+            if (url) setPhotoPreview(url)
+          })
         }
       }
     } catch (error) {
@@ -94,9 +98,11 @@ export default function RusheeAccount() {
       const { data, error } = await uploadProfilePhoto(user.id, file)
       if (error) throw error
 
-      // Update form data with new photo URL
-      setFormData(prev => ({ ...prev, photo: data.url }))
-      setPhotoPreview(data.url)
+      // Store the storage path ('profile-pictures' is private — a
+      // public URL would 403). Preview from the local file immediately
+      // rather than round-tripping a signed URL.
+      setFormData(prev => ({ ...prev, photo: data.path }))
+      setPhotoPreview(URL.createObjectURL(file))
       setMessage({ type: 'success', text: 'Photo uploaded successfully!' })
     } catch (error) {
       console.error('Error uploading photo:', error)

@@ -4,6 +4,7 @@ import AdminNav from '@/components/admin/AdminNav'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { resolvePhotoUrl } from '@/lib/resolvePhotoUrl'
 import type { Database } from '@/lib/database.types'
 import { useAuth } from '@/contexts/AuthContext'
 import { POLICY, evaluateEligibility } from '@/lib/policy'
@@ -126,33 +127,43 @@ export default function AdminStanding() {
       return
     }
 
-    const photo = selectedRushee.photo
-    if (photo && photo.startsWith('http')) {
-      setResolvedPhotoUrl(photo)
-      return
-    }
+    let cancelled = false
+    setResolvedPhotoUrl(null)
 
-    if (photo && photo.includes('/')) {
-      const { data } = supabase.storage.from('profile-photos').getPublicUrl(photo)
-      setResolvedPhotoUrl(data.publicUrl)
-      return
-    }
-
-    async function resolveFromStorage() {
+    async function resolve() {
       if (!selectedRushee) return
-      setResolvedPhotoUrl(null)
-      const { data, error } = await supabase.storage
-        .from('profile-photos')
-        .list(selectedRushee.id, { limit: 1, sortBy: { column: 'name', order: 'asc' } })
 
-      if (error || !data || data.length === 0) return
+      if (selectedRushee.photo) {
+        const url = await resolvePhotoUrl(selectedRushee.photo)
+        if (!cancelled && url) {
+          setResolvedPhotoUrl(url)
+          return
+        }
+      }
 
-      const filePath = `${selectedRushee.id}/${data[0].name}`
-      const { data: urlData } = supabase.storage.from('profile-photos').getPublicUrl(filePath)
-      setResolvedPhotoUrl(urlData.publicUrl)
+      // No usable `photo` value on the row — fall back to listing the
+      // rushee's folder directly, in case a photo was uploaded but the
+      // DB write never landed.
+      for (const bucket of ['profile-pictures', 'profile-photos']) {
+        const { data, error } = await supabase.storage
+          .from(bucket)
+          .list(selectedRushee.id, { limit: 1, sortBy: { column: 'name', order: 'asc' } })
+
+        if (error || !data || data.length === 0) continue
+
+        const filePath = `${selectedRushee.id}/${data[0].name}`
+        const { data: signed } = await supabase.storage.from(bucket).createSignedUrl(filePath, 3600)
+        if (signed && !cancelled) {
+          setResolvedPhotoUrl(signed.signedUrl)
+          return
+        }
+      }
     }
 
-    resolveFromStorage()
+    resolve()
+    return () => {
+      cancelled = true
+    }
   }, [selectedRushee])
 
   async function loadRushees() {
