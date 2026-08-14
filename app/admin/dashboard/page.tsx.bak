@@ -1,0 +1,226 @@
+'use client'
+
+import AdminNav from '@/components/admin/AdminNav'
+import Link from 'next/link'
+
+export default function AdminDashboard() {
+  // TODO: Get from Supabase
+  const stats = {
+    totalRushees: 42,
+    applicationsSubmitted: 38,
+    inviteOnly: 0,
+    bidsExtended: 0,
+    totalEvents: 6,
+    completedEvents: 4
+  }
+
+  const recentActivity = [
+    { action: 'Application submitted', name: 'John Doe', time: '2 hours ago' },
+    { action: 'Photo check-in approved', name: 'Jane Smith', time: '3 hours ago' },
+    { action: 'Application submitted', name: 'Michael Brown', time: '5 hours ago' },
+    { action: 'Evaluation completed', name: 'Sarah Johnson (Brother)', time: '1 day ago' }
+  ]
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-akpsi-navy via-blue-900 to-akpsi-navy">
+      <AdminNav />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Admin Dashboard</h1>
+          <p className="text-gray-300">
+            Manage recruitment, review applications, and track progress
+          </p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="bg-gradient-to-br from-blue-600 to-blue-700 border border-blue-400/30 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-200 text-sm font-medium mb-1">Total Rushees</p>
+                <p className="text-3xl font-bold text-white">{stats.totalRushees}</p>
+              </div>
+              <div className="text-4xl">👥</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-green-600 to-green-700 border border-green-400/30 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-200 text-sm font-medium mb-1">Applications</p>
+                <p className="text-3xl font-bold text-white">{stats.applicationsSubmitted}</p>
+              </div>
+              <div className="text-4xl">📝</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-akpsi-gold to-yellow-600 border border-yellow-400/30 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-yellow-900 text-sm font-medium mb-1">Invite Only</p>
+                <p className="text-3xl font-bold text-akpsi-navy">{stats.inviteOnly}</p>
+              </div>
+              <div className="text-4xl">🎯</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-600 to-purple-700 border border-purple-400/30 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-200 text-sm font-medium mb-1">Bids Extended</p>
+                <p className="text-3xl font-bold text-white">{stats.bidsExtended}</p>
+              </div>
+              <div className="text-4xl">🎉</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-pink-600 to-pink-700 border border-pink-400/30 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-pink-200 text-sm font-medium mb-1">Total Events</p>
+                <p className="text-3xl font-bold text-white">{stats.totalEvents}</p>
+              </div>
+              <div className="text-4xl">📅</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-teal-600 to-teal-700 border border-teal-400/30 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-teal-200 text-sm font-medium mb-1">Completed Events</p>
+                <p className="text-3xl font-bold text-white">{stats.completedEvents}</p>
+              </div>
+              <div className="text-4xl">✓</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Quick Actions */}
+            <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-6">
+              <h2 className="text-2xl font-bold text-white mb-4">Quick Actions</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Link
+                  href="/admin/attendance"
+                  className="p-4 bg-akpsi-navy/50 border border-akpsi-gold/20 rounded-lg hover:border-akpsi-gold transition-colors"
+                >
+                  <div className="text-3xl mb-2">✓</div>
+                  <h3 className="font-semibold text-white mb-1">Manage Attendance</h3>
+                  <p className="text-sm text-gray-400">Review and edit event attendance</p>
+                </Link>
+                <Link
+                  href="/admin/cuts"
+                  className="p-4 bg-akpsi-navy/50 border border-akpsi-gold/20 rounded-lg hover:border-akpsi-gold transition-colors"
+                >
+                  <div className="text-3xl mb-2">📊</div>
+                  <h3 className="font-semibold text-white mb-1">Review for Cuts</h3>
+                  <p className="text-sm text-gray-400">View evaluations and applications</p>
+                </Link>
+                <Link
+                  href="/admin/standing"
+                  className="p-4 bg-akpsi-navy/50 border border-akpsi-gold/20 rounded-lg hover:border-akpsi-gold transition-colors"
+                >
+                  <div className="text-3xl mb-2">🎯</div>
+                  <h3 className="font-semibold text-white mb-1">Rushee Standing</h3>
+                  <p className="text-sm text-gray-400">Update statuses and send decisions</p>
+                </Link>
+                <Link
+                  href="/brother/rushees"
+                  className="p-4 bg-akpsi-navy/50 border border-akpsi-gold/20 rounded-lg hover:border-akpsi-gold transition-colors"
+                >
+                  <div className="text-3xl mb-2">👥</div>
+                  <h3 className="font-semibold text-white mb-1">All Rushees</h3>
+                  <p className="text-sm text-gray-400">Browse complete rushee list</p>
+                </Link>
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-6">
+              <h2 className="text-2xl font-bold text-white mb-4">Recent Activity</h2>
+              <div className="space-y-3">
+                {recentActivity.map((item, index) => (
+                  <div key={index} className="flex items-start bg-akpsi-navy/50 rounded-lg p-3">
+                    <div className="flex-1">
+                      <p className="text-white font-medium">{item.action}</p>
+                      <p className="text-sm text-gray-400">{item.name}</p>
+                    </div>
+                    <span className="text-xs text-gray-500">{item.time}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Timeline */}
+            <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-6">
+              <h2 className="text-xl font-bold text-white mb-4">Recruitment Timeline</h2>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-white font-semibold text-sm">Rush Period</span>
+                    <span className="text-green-400 text-xs">Complete</span>
+                  </div>
+                  <div className="bg-white/20 rounded-full h-2">
+                    <div className="bg-green-400 h-2 rounded-full" style={{ width: '100%' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-white font-semibold text-sm">Applications</span>
+                    <span className="text-yellow-400 text-xs">In Progress</span>
+                  </div>
+                  <div className="bg-white/20 rounded-full h-2">
+                    <div className="bg-yellow-400 h-2 rounded-full" style={{ width: '90%' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-white font-semibold text-sm">Invite Only</span>
+                    <span className="text-gray-400 text-xs">Upcoming</span>
+                  </div>
+                  <div className="bg-white/20 rounded-full h-2">
+                    <div className="bg-gray-400 h-2 rounded-full" style={{ width: '0%' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-white font-semibold text-sm">Bid Day</span>
+                    <span className="text-gray-400 text-xs">Upcoming</span>
+                  </div>
+                  <div className="bg-white/20 rounded-full h-2">
+                    <div className="bg-gray-400 h-2 rounded-full" style={{ width: '0%' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Important Dates */}
+            <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-6">
+              <h2 className="text-xl font-bold text-white mb-4">Important Dates</h2>
+              <div className="space-y-3 text-sm">
+                <div>
+                  <p className="text-akpsi-gold font-semibold">Jan 23, 2024</p>
+                  <p className="text-gray-300">Applications Due</p>
+                </div>
+                <div>
+                  <p className="text-akpsi-gold font-semibold">Jan 25, 2024</p>
+                  <p className="text-gray-300">Invite Only Decisions</p>
+                </div>
+                <div>
+                  <p className="text-akpsi-gold font-semibold">Jan 29, 2024</p>
+                  <p className="text-gray-300">Bid Day</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}

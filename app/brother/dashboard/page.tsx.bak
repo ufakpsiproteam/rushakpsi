@@ -1,0 +1,234 @@
+'use client'
+
+import BrotherNav from '@/components/brother/BrotherNav'
+import Link from 'next/link'
+
+export default function BrotherDashboard() {
+  // TODO: Get from Supabase
+  const brotherData = {
+    name: 'Sarah Johnson',
+    eventsEvaluated: 2,
+    totalEvaluations: 15,
+    rusheesStarred: 7
+  }
+
+  const upcomingEvents = [
+    {
+      id: 1,
+      title: 'Game Night',
+      type: 'Casual',
+      date: 'January 19, 2024',
+      time: '7:00 PM',
+      acceptingEvals: false
+    },
+    {
+      id: 2,
+      title: 'Corporate Tours',
+      type: 'Professional',
+      date: 'January 22, 2024',
+      time: '5:00 PM',
+      acceptingEvals: false
+    }
+  ]
+
+  const completedEvents = [
+    {
+      id: 3,
+      title: 'Professional Panel',
+      type: 'Professional',
+      date: 'January 17, 2024',
+      evaluated: true,
+      evaluationCount: 8
+    },
+    {
+      id: 4,
+      title: 'Meet the Chapter',
+      type: 'Casual',
+      date: 'January 15, 2024',
+      evaluated: true,
+      evaluationCount: 7
+    }
+  ]
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-akpsi-navy via-blue-900 to-akpsi-navy">
+      <BrotherNav />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Welcome, {brotherData.name}!
+          </h1>
+          <p className="text-gray-300">
+            Manage evaluations and track rushees throughout the recruitment process.
+          </p>
+        </div>
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+          <div className="bg-gradient-to-br from-blue-600 to-blue-700 border border-blue-400/30 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-200 text-sm font-medium mb-1">Events Evaluated</p>
+                <p className="text-3xl font-bold text-white">{brotherData.eventsEvaluated}</p>
+              </div>
+              <div className="text-4xl">📋</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-akpsi-gold to-yellow-600 border border-yellow-400/30 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-yellow-900 text-sm font-medium mb-1">Total Evaluations</p>
+                <p className="text-3xl font-bold text-akpsi-navy">{brotherData.totalEvaluations}</p>
+              </div>
+              <div className="text-4xl">✍️</div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-600 to-purple-700 border border-purple-400/30 rounded-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-200 text-sm font-medium mb-1">Rushees Starred</p>
+                <p className="text-3xl font-bold text-white">{brotherData.rusheesStarred}</p>
+              </div>
+              <div className="text-4xl">⭐</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Upcoming Events */}
+            <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-white">Upcoming Events</h2>
+                <Link href="/brother/events" className="text-akpsi-gold hover:text-yellow-400 text-sm font-semibold">
+                  View All →
+                </Link>
+              </div>
+              <div className="space-y-4">
+                {upcomingEvents.map((event) => (
+                  <div key={event.id} className="bg-akpsi-navy/50 border border-akpsi-gold/20 rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">{event.title}</h3>
+                        <p className="text-sm text-gray-400">{event.date} at {event.time}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        event.type === 'Professional'
+                          ? 'bg-akpsi-gold text-akpsi-navy'
+                          : 'bg-blue-500 text-white'
+                      }`}>
+                        {event.type}
+                      </span>
+                    </div>
+                    <div className="mt-3">
+                      {event.acceptingEvals ? (
+                        <button className="w-full py-2 bg-akpsi-gold text-akpsi-navy rounded-lg font-semibold hover:bg-yellow-400 transition-colors">
+                          Start Evaluation
+                        </button>
+                      ) : (
+                        <div className="py-2 bg-gray-600/50 text-gray-400 rounded-lg text-center text-sm">
+                          Evaluations Not Yet Available
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Completed Events */}
+            <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-6">
+              <h2 className="text-2xl font-bold text-white mb-4">Completed Events</h2>
+              <div className="space-y-3">
+                {completedEvents.map((event) => (
+                  <div key={event.id} className="bg-akpsi-navy/50 border border-green-500/30 rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">{event.title}</h3>
+                        <p className="text-sm text-gray-400">{event.date}</p>
+                        <p className="text-sm text-green-400 mt-1">
+                          ✓ {event.evaluationCount} evaluations submitted
+                        </p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        event.type === 'Professional'
+                          ? 'bg-akpsi-gold text-akpsi-navy'
+                          : 'bg-blue-500 text-white'
+                      }`}>
+                        {event.type}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Quick Actions */}
+            <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-6">
+              <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
+              <div className="space-y-3">
+                <Link
+                  href="/brother/rushees"
+                  className="block p-3 bg-akpsi-navy/50 border border-akpsi-gold/20 rounded-lg hover:border-akpsi-gold transition-colors text-center"
+                >
+                  <div className="text-2xl mb-1">👥</div>
+                  <p className="text-white font-semibold text-sm">View All Rushees</p>
+                </Link>
+                <Link
+                  href="/brother/events"
+                  className="block p-3 bg-akpsi-navy/50 border border-akpsi-gold/20 rounded-lg hover:border-akpsi-gold transition-colors text-center"
+                >
+                  <div className="text-2xl mb-1">📅</div>
+                  <p className="text-white font-semibold text-sm">Manage Events</p>
+                </Link>
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-6">
+              <h2 className="text-xl font-bold text-white mb-4">Recent Activity</h2>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-start">
+                  <span className="text-green-400 mr-2">•</span>
+                  <div>
+                    <p className="text-white">Evaluated John Doe</p>
+                    <p className="text-gray-400 text-xs">2 hours ago</p>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-yellow-400 mr-2">•</span>
+                  <div>
+                    <p className="text-white">Starred Emma Wilson</p>
+                    <p className="text-gray-400 text-xs">5 hours ago</p>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <span className="text-green-400 mr-2">•</span>
+                  <div>
+                    <p className="text-white">Updated evaluation for Michael Brown</p>
+                    <p className="text-gray-400 text-xs">1 day ago</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tips */}
+            <div className="bg-akpsi-gold/20 border border-akpsi-gold rounded-lg p-4">
+              <h3 className="text-akpsi-gold font-semibold mb-2 text-sm">💡 Tip</h3>
+              <p className="text-sm text-white">
+                Remember to evaluate at least 5 rushees per event. Your detailed feedback helps us make the best decisions!
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}

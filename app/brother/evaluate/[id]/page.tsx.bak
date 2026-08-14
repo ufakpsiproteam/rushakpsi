@@ -1,0 +1,185 @@
+'use client'
+
+import BrotherNav from '@/components/brother/BrotherNav'
+import { useParams, useRouter } from 'next/navigation'
+import { useState } from 'react'
+
+export default function EvaluateRushee() {
+  const params = useParams()
+  const router = useRouter()
+  const rusheeId = params.id
+
+  const [evaluation, setEvaluation] = useState({
+    professionalism: 5,
+    communication: 5,
+    engagement: 5,
+    cultureFit: 5,
+    leadership: 5,
+    comments: ''
+  })
+
+  // TODO: Get rushee data from Supabase
+  const rushee = {
+    id: rusheeId,
+    name: 'John Doe',
+    major: 'Business Administration',
+    year: 'Sophomore',
+    photo: '👤'
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    // TODO: Submit to Supabase
+    console.log('Evaluation submitted:', evaluation)
+    alert('Evaluation saved successfully!')
+    router.push('/brother/rushees')
+  }
+
+  const categories = [
+    {
+      key: 'professionalism',
+      label: 'Professionalism',
+      description: 'Appearance, demeanor, and professional presence'
+    },
+    {
+      key: 'communication',
+      label: 'Communication',
+      description: 'Articulation, active listening, and conversational skills'
+    },
+    {
+      key: 'engagement',
+      label: 'Engagement',
+      description: 'Interest shown, questions asked, and participation level'
+    },
+    {
+      key: 'cultureFit',
+      label: 'Culture Fit',
+      description: 'Alignment with AKΨ values and chapter culture'
+    },
+    {
+      key: 'leadership',
+      label: 'Leadership Potential',
+      description: 'Initiative, confidence, and leadership qualities'
+    }
+  ]
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-akpsi-navy via-blue-900 to-akpsi-navy">
+      <BrotherNav />
+
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <button
+            onClick={() => router.back()}
+            className="text-akpsi-gold hover:text-yellow-400 mb-4"
+          >
+            ← Back
+          </button>
+          <h1 className="text-3xl font-bold text-white mb-2">Evaluate Rushee</h1>
+          <div className="flex items-center">
+            <div className="text-4xl mr-3">{rushee.photo}</div>
+            <div>
+              <p className="text-xl text-white font-semibold">{rushee.name}</p>
+              <p className="text-gray-300">{rushee.major} • {rushee.year}</p>
+            </div>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          {/* Rating Categories */}
+          <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-6 mb-6">
+            <h2 className="text-xl font-bold text-white mb-6">Rate the Following Categories</h2>
+            <div className="space-y-6">
+              {categories.map((category) => (
+                <div key={category.key}>
+                  <div className="mb-2">
+                    <label className="block text-white font-semibold mb-1">
+                      {category.label}
+                    </label>
+                    <p className="text-sm text-gray-400">{category.description}</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="range"
+                      min="1"
+                      max="10"
+                      value={evaluation[category.key as keyof typeof evaluation]}
+                      onChange={(e) => setEvaluation({
+                        ...evaluation,
+                        [category.key]: parseInt(e.target.value)
+                      })}
+                      className="flex-1 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-akpsi-gold"
+                    />
+                    <div className="w-12 text-center">
+                      <span className="text-2xl font-bold text-akpsi-gold">
+                        {evaluation[category.key as keyof typeof evaluation]}
+                      </span>
+                      <p className="text-xs text-gray-400">/10</p>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>Poor</span>
+                    <span>Excellent</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Overall Score */}
+          <div className="bg-gradient-to-r from-akpsi-gold to-yellow-600 rounded-lg p-6 mb-6">
+            <div className="text-center">
+              <p className="text-akpsi-navy font-semibold mb-2">Overall Average</p>
+              <p className="text-5xl font-bold text-akpsi-navy">
+                {(
+                  (evaluation.professionalism +
+                  evaluation.communication +
+                  evaluation.engagement +
+                  evaluation.cultureFit +
+                  evaluation.leadership) / 5
+                ).toFixed(1)}
+              </p>
+              <p className="text-akpsi-navy opacity-80 text-sm">out of 10</p>
+            </div>
+          </div>
+
+          {/* Additional Comments */}
+          <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-6 mb-6">
+            <h2 className="text-xl font-bold text-white mb-4">Additional Comments</h2>
+            <textarea
+              value={evaluation.comments}
+              onChange={(e) => setEvaluation({ ...evaluation, comments: e.target.value })}
+              placeholder="Share any additional thoughts, observations, or specific examples..."
+              className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-akpsi-gold resize-none"
+              rows={6}
+            />
+          </div>
+
+          {/* Submit Buttons */}
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="flex-1 py-3 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-3 bg-akpsi-gold text-akpsi-navy rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
+            >
+              Save Evaluation
+            </button>
+          </div>
+        </form>
+
+        {/* Info Box */}
+        <div className="mt-6 bg-blue-500/20 border border-blue-500 rounded-lg p-4">
+          <p className="text-blue-300 text-sm">
+            💡 Your evaluation helps us make informed decisions. Be honest and thoughtful in your ratings and comments.
+          </p>
+        </div>
+      </main>
+    </div>
+  )
+}

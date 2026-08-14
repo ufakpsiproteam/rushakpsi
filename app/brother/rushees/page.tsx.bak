@@ -1,0 +1,261 @@
+'use client'
+
+import BrotherNav from '@/components/brother/BrotherNav'
+import { useState } from 'react'
+import Link from 'next/link'
+
+export default function BrotherRushees() {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterStarred, setFilterStarred] = useState(false)
+  const [selectedRushee, setSelectedRushee] = useState<number | null>(null)
+
+  // TODO: Get from Supabase
+  const rushees = [
+    {
+      id: 1,
+      name: 'John Doe',
+      major: 'Business Administration',
+      year: 'Sophomore',
+      photo: '👤',
+      starred: true,
+      casualEvents: 2,
+      professionalEvents: 1,
+      hasEvaluation: true,
+      personalNotes: 'Very engaged, asked great questions about consulting'
+    },
+    {
+      id: 2,
+      name: 'Jane Smith',
+      major: 'Finance',
+      year: 'Junior',
+      photo: '👤',
+      starred: false,
+      casualEvents: 2,
+      professionalEvents: 1,
+      hasEvaluation: false,
+      personalNotes: ''
+    },
+    {
+      id: 3,
+      name: 'Michael Brown',
+      major: 'Marketing',
+      year: 'Freshman',
+      photo: '👤',
+      starred: true,
+      casualEvents: 3,
+      professionalEvents: 2,
+      hasEvaluation: true,
+      personalNotes: 'Leadership experience, very personable'
+    },
+    {
+      id: 4,
+      name: 'Emily Davis',
+      major: 'Accounting',
+      year: 'Sophomore',
+      photo: '👤',
+      starred: false,
+      casualEvents: 2,
+      professionalEvents: 1,
+      hasEvaluation: true,
+      personalNotes: ''
+    },
+    {
+      id: 5,
+      name: 'David Wilson',
+      major: 'Economics',
+      year: 'Junior',
+      photo: '👤',
+      starred: true,
+      casualEvents: 2,
+      professionalEvents: 1,
+      hasEvaluation: false,
+      personalNotes: 'Interested in investment banking'
+    }
+  ]
+
+  const toggleStar = (rusheeId: number) => {
+    // TODO: Update in Supabase
+    console.log('Toggle star for rushee:', rusheeId)
+  }
+
+  const filteredRushees = rushees.filter(rushee => {
+    const matchesSearch = rushee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         rushee.major.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesStarred = !filterStarred || rushee.starred
+    return matchesSearch && matchesStarred
+  })
+
+  const selectedRusheeData = rushees.find(r => r.id === selectedRushee)
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-akpsi-navy via-blue-900 to-akpsi-navy">
+      <BrotherNav />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-3xl font-bold text-white mb-6">All Rushees</h1>
+
+        {/* Search and Filters */}
+        <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input
+              type="text"
+              placeholder="Search by name or major..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 px-4 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-akpsi-gold"
+            />
+            <button
+              onClick={() => setFilterStarred(!filterStarred)}
+              className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                filterStarred
+                  ? 'bg-akpsi-gold text-akpsi-navy'
+                  : 'bg-white/5 text-white border border-white/20 hover:bg-white/10'
+              }`}
+            >
+              ⭐ Starred Only
+            </button>
+          </div>
+        </div>
+
+        {/* Rushees Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredRushees.map((rushee) => (
+            <div
+              key={rushee.id}
+              className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-5 hover:border-akpsi-gold transition-colors cursor-pointer"
+              onClick={() => setSelectedRushee(rushee.id)}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center">
+                  <div className="text-4xl mr-3">{rushee.photo}</div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">{rushee.name}</h3>
+                    <p className="text-sm text-gray-400">{rushee.major}</p>
+                    <p className="text-xs text-gray-500">{rushee.year}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleStar(rushee.id)
+                  }}
+                  className="text-2xl hover:scale-110 transition-transform"
+                >
+                  {rushee.starred ? '⭐' : '☆'}
+                </button>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between text-gray-300">
+                  <span>Casual Events:</span>
+                  <span className="font-semibold text-white">{rushee.casualEvents}</span>
+                </div>
+                <div className="flex justify-between text-gray-300">
+                  <span>Professional Events:</span>
+                  <span className="font-semibold text-white">{rushee.professionalEvents}</span>
+                </div>
+                <div className="flex items-center gap-2 mt-3">
+                  {rushee.hasEvaluation && (
+                    <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs">
+                      ✓ Evaluated
+                    </span>
+                  )}
+                  {rushee.personalNotes && (
+                    <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs">
+                      📝 Has Notes
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {filteredRushees.length === 0 && (
+          <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-12 text-center">
+            <p className="text-gray-400">No rushees found matching your criteria.</p>
+          </div>
+        )}
+
+        {/* Rushee Detail Modal */}
+        {selectedRushee && selectedRusheeData && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-akpsi-navy border border-akpsi-gold rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-start mb-6">
+                <div className="flex items-center">
+                  <div className="text-6xl mr-4">{selectedRusheeData.photo}</div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-white">{selectedRusheeData.name}</h2>
+                    <p className="text-gray-300">{selectedRusheeData.major}</p>
+                    <p className="text-gray-400 text-sm">{selectedRusheeData.year}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedRushee(null)}
+                  className="text-gray-400 hover:text-white text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-white/10 rounded-lg p-4">
+                  <p className="text-gray-400 text-sm mb-1">Casual Events</p>
+                  <p className="text-2xl font-bold text-white">{selectedRusheeData.casualEvents}</p>
+                </div>
+                <div className="bg-white/10 rounded-lg p-4">
+                  <p className="text-gray-400 text-sm mb-1">Professional Events</p>
+                  <p className="text-2xl font-bold text-white">{selectedRusheeData.professionalEvents}</p>
+                </div>
+              </div>
+
+              {/* Personal Notes */}
+              <div className="bg-white/10 rounded-lg p-4 mb-6">
+                <h3 className="text-white font-semibold mb-2">Your Personal Notes</h3>
+                <textarea
+                  defaultValue={selectedRusheeData.personalNotes}
+                  placeholder="Add your personal notes about this rushee..."
+                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-akpsi-gold resize-none"
+                  rows={4}
+                />
+                <button className="mt-2 px-4 py-2 bg-akpsi-gold text-akpsi-navy rounded-lg font-semibold hover:bg-yellow-400 transition-colors text-sm">
+                  Save Notes
+                </button>
+              </div>
+
+              {/* Actions */}
+              <div className="space-y-3">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleStar(selectedRusheeData.id)
+                  }}
+                  className="w-full py-3 bg-white/10 border border-akpsi-gold/30 text-white rounded-lg font-semibold hover:bg-white/20 transition-colors"
+                >
+                  {selectedRusheeData.starred ? '⭐ Unstar' : '☆ Star'} Rushee
+                </button>
+
+                {selectedRusheeData.hasEvaluation ? (
+                  <Link
+                    href={`/brother/evaluate/${selectedRusheeData.id}`}
+                    className="block w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors text-center"
+                  >
+                    Update Evaluation
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/brother/evaluate/${selectedRusheeData.id}`}
+                    className="block w-full py-3 bg-akpsi-gold text-akpsi-navy rounded-lg font-semibold hover:bg-yellow-400 transition-colors text-center"
+                  >
+                    Create Evaluation
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  )
+}

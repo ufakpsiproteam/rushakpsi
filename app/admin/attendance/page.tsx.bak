@@ -1,0 +1,203 @@
+'use client'
+
+import AdminNav from '@/components/admin/AdminNav'
+import { useState } from 'react'
+
+export default function AdminAttendance() {
+  const [selectedEvent, setSelectedEvent] = useState<number | null>(null)
+
+  // TODO: Get from Supabase
+  const events = [
+    {
+      id: 1,
+      title: 'Meet the Chapter',
+      type: 'Casual',
+      date: 'January 15, 2024',
+      attendees: 35,
+      pending: 2
+    },
+    {
+      id: 2,
+      title: 'Professional Panel',
+      type: 'Professional',
+      date: 'January 17, 2024',
+      attendees: 28,
+      pending: 1
+    },
+    {
+      id: 3,
+      title: 'Game Night',
+      type: 'Casual',
+      date: 'January 19, 2024',
+      attendees: 32,
+      pending: 0
+    },
+    {
+      id: 4,
+      title: 'Corporate Tours',
+      type: 'Professional',
+      date: 'January 22, 2024',
+      attendees: 25,
+      pending: 3
+    }
+  ]
+
+  const attendanceRecords = [
+    { id: 1, name: 'John Doe', status: 'approved', photo: '👤', submittedAt: '7:15 PM' },
+    { id: 2, name: 'Jane Smith', status: 'approved', photo: '👤', submittedAt: '7:20 PM' },
+    { id: 3, name: 'Michael Brown', status: 'pending', photo: '👤', submittedAt: '7:45 PM' },
+    { id: 4, name: 'Emily Davis', status: 'approved', photo: '👤', submittedAt: '7:30 PM' },
+    { id: 5, name: 'David Wilson', status: 'pending', photo: '👤', submittedAt: '8:00 PM' }
+  ]
+
+  const handleApprove = (recordId: number) => {
+    // TODO: Update in Supabase
+    console.log('Approve:', recordId)
+  }
+
+  const handleReject = (recordId: number) => {
+    // TODO: Update in Supabase
+    console.log('Reject:', recordId)
+  }
+
+  const handleManualAdd = () => {
+    // TODO: Implement manual add modal
+    alert('Manual add functionality coming soon')
+  }
+
+  const selectedEventData = events.find(e => e.id === selectedEvent)
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-akpsi-navy via-blue-900 to-akpsi-navy">
+      <AdminNav />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-3xl font-bold text-white mb-6">Attendance Management</h1>
+
+        {/* Events List */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {events.map((event) => (
+            <div
+              key={event.id}
+              onClick={() => setSelectedEvent(event.id)}
+              className={`p-4 rounded-lg cursor-pointer transition-all ${
+                selectedEvent === event.id
+                  ? 'bg-akpsi-gold text-akpsi-navy border-2 border-akpsi-gold'
+                  : 'bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 hover:border-akpsi-gold'
+              }`}
+            >
+              <h3 className={`font-bold mb-1 ${selectedEvent === event.id ? 'text-akpsi-navy' : 'text-white'}`}>
+                {event.title}
+              </h3>
+              <p className={`text-sm mb-2 ${selectedEvent === event.id ? 'text-akpsi-navy/70' : 'text-gray-400'}`}>
+                {event.date}
+              </p>
+              <div className="flex items-center justify-between text-sm">
+                <span className={selectedEvent === event.id ? 'text-akpsi-navy' : 'text-white'}>
+                  {event.attendees} attended
+                </span>
+                {event.pending > 0 && (
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                    selectedEvent === event.id
+                      ? 'bg-akpsi-navy text-yellow-400'
+                      : 'bg-yellow-500 text-akpsi-navy'
+                  }`}>
+                    {event.pending} pending
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Attendance Details */}
+        {selectedEvent && selectedEventData && (
+          <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-6">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-1">{selectedEventData.title}</h2>
+                <p className="text-gray-300">{selectedEventData.date}</p>
+              </div>
+              <button
+                onClick={handleManualAdd}
+                className="px-4 py-2 bg-akpsi-gold text-akpsi-navy rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
+              >
+                + Manual Add
+              </button>
+            </div>
+
+            {/* Filters */}
+            <div className="flex gap-2 mb-6">
+              <button className="px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm hover:bg-white/20 transition-colors">
+                All ({attendanceRecords.length})
+              </button>
+              <button className="px-4 py-2 bg-yellow-500/20 border border-yellow-500 rounded-lg text-yellow-400 text-sm hover:bg-yellow-500/30 transition-colors">
+                Pending ({attendanceRecords.filter(r => r.status === 'pending').length})
+              </button>
+              <button className="px-4 py-2 bg-green-500/20 border border-green-500 rounded-lg text-green-400 text-sm hover:bg-green-500/30 transition-colors">
+                Approved ({attendanceRecords.filter(r => r.status === 'approved').length})
+              </button>
+            </div>
+
+            {/* Attendance Records */}
+            <div className="space-y-3">
+              {attendanceRecords.map((record) => (
+                <div
+                  key={record.id}
+                  className={`flex items-center justify-between p-4 rounded-lg ${
+                    record.status === 'pending'
+                      ? 'bg-yellow-500/10 border border-yellow-500/30'
+                      : 'bg-akpsi-navy/50 border border-green-500/30'
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <div className="text-3xl mr-3">{record.photo}</div>
+                    <div>
+                      <p className="text-white font-semibold">{record.name}</p>
+                      <p className="text-sm text-gray-400">Submitted at {record.submittedAt}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    {record.status === 'pending' ? (
+                      <>
+                        <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors">
+                          View Photo
+                        </button>
+                        <button
+                          onClick={() => handleApprove(record.id)}
+                          className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleReject(record.id)}
+                          className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors"
+                        >
+                          Reject
+                        </button>
+                      </>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <span className="text-green-400 text-sm font-semibold">✓ Approved</span>
+                        <button className="px-3 py-1 bg-red-600/50 text-white rounded text-sm hover:bg-red-700 transition-colors">
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!selectedEvent && (
+          <div className="bg-white/10 backdrop-blur-sm border border-akpsi-gold/30 rounded-lg p-12 text-center">
+            <p className="text-gray-400">Select an event above to view and manage attendance</p>
+          </div>
+        )}
+      </main>
+    </div>
+  )
+}

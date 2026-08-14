@@ -1,37 +1,38 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Cinzel, Manrope } from 'next/font/google'
+import { portalFontVariables } from '@/lib/portalFonts'
 import { formatDateInEST, getEventTimestampEST } from '@/lib/dateUtils'
 import { POLICY, loadPolicy, requirementSummary } from '@/lib/policy'
-
-const cinzel = Cinzel({ subsets: ['latin'], weight: ['400', '600', '700', '900'], display: 'swap' })
-const manrope = Manrope({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
-  display: 'swap',
-})
 
 /**
  * Public landing page — PRD §6.1.1.
  *
- * The cycle theme is a token/content layer, not a fork (§1.6, §10.1):
- * this cycle runs a space theme in place of the reference cycle's
- * Monopoly board. Everything below the hero — the process explainer, the
- * pillars, the FAQ, the events list — keeps the PRD's specified copy and
- * ordering. The requirements badge renders from the eligibility
- * configuration (R2) so the advertised rule is always the enforced rule.
+ * Visual system: the internal portal theme (oklch navy/blue/gold tokens,
+ * Bodoni Moda / Sora / Nunito, .portal-shell) carrying the cycle's nebula
+ * photo hero and starfield motif as the theme layer on top, per PRD §10.1
+ * and §1.6 — the theme is content/token dressing, not a fork. Everything
+ * below the hero keeps the PRD's specified copy, ordering, and live data.
  */
 
 const CYCLE = {
-  name: 'Chart Your Course',
-  eyebrow: 'Spring 2026 Recruitment',
-  tagline: 'Find your orbit. Build your trajectory. Go the distance.',
+  name: 'Rush ΑΚΨ',
+  eyebrow: "Fall '26 Recruitment",
+  subheading: 'Find your orbit',
   groupMeUrl: 'https://groupme.com',
-  processHeading: 'How the journey works',
+  processHeading: 'Liftoff in…',
+  instagramUrl: 'https://www.instagram.com/ufakpsi/',
+  instagramHandle: '@ufakpsi',
 }
+
+const HERO_DESKTOP = '/rush-hero-desktop.jpg'
+const HERO_MOBILE = '/rush-hero-mobile.jpg'
+
+const subheading = { fontFamily: 'var(--font-portal-subheading)' } as const
+const display = { fontFamily: 'var(--font-portal-display)', fontStyle: 'italic' as const }
 
 /**
  * Static star field. Positions are fixed rather than random so the server
@@ -47,9 +48,6 @@ const STARS = [
   [7, 78, 1.3, 0.65], [14, 88, 1, 0.4], [21, 70, 1.7, 0.85], [27, 93, 1.1, 0.5],
   [36, 82, 1.5, 0.75], [42, 96, 1, 0.45], [51, 86, 1.8, 0.9], [59, 91, 1.2, 0.55],
   [66, 79, 1, 0.4], [74, 95, 1.6, 0.8], [83, 84, 1.3, 0.65], [91, 76, 1, 0.45],
-  [2, 55, 1.4, 0.7], [9, 61, 1, 0.4], [19, 44, 1.2, 0.6], [31, 36, 1, 0.5],
-  [46, 24, 1.5, 0.75], [55, 57, 1, 0.4], [69, 52, 1.3, 0.65], [79, 31, 1, 0.45],
-  [87, 66, 1.6, 0.8], [95, 37, 1.1, 0.55], [64, 4, 1.2, 0.6], [26, 6, 1, 0.4],
 ] as const
 
 function StarField() {
@@ -71,6 +69,42 @@ function StarField() {
         />
       ))}
     </div>
+  )
+}
+
+/** Simple line-art Instagram glyph. */
+function InstagramIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="17.2" cy="6.8" r="1" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** Simple line-art rocket, decorative accent under the process cards. */
+function RocketIcon() {
+  return (
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="text-[var(--portal-gold-accent)]"
+    >
+      <path
+        d="M12 2.5c2.8 1.6 4.5 4.6 4.5 8.4 0 2-.5 3.7-1.2 5.1l-3.3 2.5-3.3-2.5C7.99 14.6 7.5 12.9 7.5 10.9c0-3.8 1.7-6.8 4.5-8.4Z"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="9.8" r="1.6" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M7.5 13.5c-1.6.3-2.7 1.4-3.2 3.4 1.9.3 3.3-.2 4.2-1.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M16.5 13.5c1.6.3 2.7 1.4 3.2 3.4-1.9.3-3.3-.2-4.2-1.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10.3 18.5l1.7 2 1.7-2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 }
 
@@ -97,9 +131,9 @@ const PROCESS = [
   },
   {
     step: 'Step 3',
-    title: 'Advance to Apply',
+    title: 'Application + Interviews',
     subtitle: 'Finish strong',
-    detail: 'Complete requirements and submit your application + interview.',
+    detail: 'Complete requirements and submit your application and interview.',
   },
 ]
 
@@ -136,9 +170,17 @@ export default function LandingDesignPage() {
   const [rushEvents, setRushEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [policy, setPolicy] = useState(POLICY)
+  const [navSolid, setNavSolid] = useState(false)
 
   useEffect(() => {
     loadPolicy().then(setPolicy)
+  }, [])
+
+  useEffect(() => {
+    const onScroll = () => setNavSolid(window.scrollY > window.innerHeight * 0.85)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => {
@@ -163,39 +205,51 @@ export default function LandingDesignPage() {
   }, [])
 
   return (
-    <div className={`${manrope.className} min-h-screen bg-space-void text-white overflow-x-hidden`}>
+    <div
+      className={`portal-shell ${portalFontVariables} min-h-screen bg-inverse-soft text-on-inverse`}
+    >
       {/* Announcement banner (§6.1.1 §1) */}
       <a
         href={CYCLE.groupMeUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="block w-full bg-gradient-to-r from-indigo-600/40 via-akpsi-gold/30 to-indigo-600/40 text-center text-xs sm:text-sm font-medium py-2.5 px-4 hover:brightness-125 transition-[filter]"
+        className="block w-full text-center text-xs sm:text-sm font-medium py-2.5 px-4 hover:brightness-110 transition-[filter]"
+        style={{
+          background:
+            'linear-gradient(90deg, color-mix(in oklch, var(--portal-blue-light) 35%, transparent), color-mix(in oklch, var(--portal-gold-accent) 30%, transparent), color-mix(in oklch, var(--portal-blue-light) 35%, transparent))',
+        }}
       >
-        Join The GroupMe &amp; Stay Up To Date →
+        Join The GroupMe &amp; Stay Up To Date &rarr;
       </a>
 
-      {/* Sticky navigation (§6.1.1 §2) */}
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-space-void/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
-          <Link href="/" className="flex items-baseline gap-3 min-w-0">
-            <span className={`${cinzel.className} text-xl font-bold tracking-[0.08em]`}>ΑΚΨ</span>
-            <span className="hidden sm:block text-[11px] leading-tight text-white/55">
+      {/* Sticky navigation (§6.1.1 §2) — transparent over the hero, gains its background once scrolled past it */}
+      <nav
+        className={`sticky top-0 z-50 transition-colors duration-300 ${
+          navSolid
+            ? 'border-b border-white/10 bg-inverse-soft/85 backdrop-blur-md'
+            : 'border-b border-transparent bg-transparent'
+        }`}
+      >
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5">
+          <Link href="/" className="flex items-baseline gap-2 sm:gap-3 min-w-0">
+            <span className="lettermark text-on-inverse text-lg sm:text-xl font-bold tracking-[0.08em]">ΑΚΨ</span>
+            <span className="hidden sm:block text-[11px] leading-tight text-on-inverse/55">
               Alpha Phi Chapter
               <br />
               University of Florida
             </span>
           </Link>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2">
             <a
               href="#events"
-              className="hidden sm:inline-flex rounded-lg px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+              className="rounded-none px-2.5 py-2 sm:px-3 text-xs sm:text-sm text-on-inverse/70 hover:text-on-inverse hover:bg-white/5 transition-colors"
             >
               Rush Events
             </a>
             <Link
               href="/auth/signin"
-              className="rounded-lg border border-white/25 px-4 py-2 text-sm font-semibold hover:bg-white hover:text-space-void transition-colors"
+              className="rounded-[8px] border border-white/25 px-3 py-2 sm:px-4 text-xs sm:text-sm font-semibold hover:bg-white hover:text-[var(--portal-navy-dark)] transition-colors"
             >
               Sign In
             </Link>
@@ -203,153 +257,173 @@ export default function LandingDesignPage() {
         </div>
       </nav>
 
-      {/* Hero (§6.1.1 §3) */}
-      <header className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-space-deep via-space-void to-space-void" />
-        <StarField />
-
-        {/* Nebula wash */}
+      {/* Hero (§6.1.1 §3) — nebula photo carried over from the cycle's design reference, kept structurally intact */}
+      <header
+        id="top"
+        className="relative flex min-h-[85svh] w-full flex-col justify-center overflow-hidden"
+      >
+        <style>{`
+          @keyframes gentle-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+          }
+        `}</style>
+        <Image
+          src={HERO_MOBILE}
+          alt="A deep navy nebula scattered with starlight above the curve of a distant planet"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover md:hidden"
+        />
+        <Image
+          src={HERO_DESKTOP}
+          alt="A deep navy nebula scattered with starlight above the curve of a distant planet"
+          fill
+          priority
+          sizes="100vw"
+          className="hidden object-cover md:block"
+        />
+        <div aria-hidden="true" className="absolute inset-0 bg-[var(--portal-navy-dark)]/15" />
         <div
-          className="pointer-events-none absolute -top-40 left-1/2 h-[46rem] w-[46rem] -translate-x-1/2 rounded-full blur-3xl animate-aurora"
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 h-[60%]"
           style={{
             background:
-              'radial-gradient(circle at 40% 40%, rgba(99,102,241,0.30), transparent 62%), radial-gradient(circle at 65% 55%, rgba(255,184,28,0.14), transparent 60%)',
+              'linear-gradient(to top, var(--portal-navy-dark) 12%, color-mix(in oklch, var(--portal-navy-dark) 78%, transparent) 45%, transparent 100%)',
           }}
-          aria-hidden="true"
         />
 
-        {/* Orbital rings */}
-        <div
-          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-orbit-spin"
-          aria-hidden="true"
-        >
-          <div className="h-[34rem] w-[34rem] rounded-full border border-white/[0.07]" />
-          <div className="absolute inset-8 rounded-full border border-white/[0.05]" />
-          <div className="absolute inset-20 rounded-full border border-akpsi-gold/[0.10]" />
-        </div>
-
-        <div className="relative mx-auto max-w-4xl px-5 pt-20 pb-24 sm:pt-28 sm:pb-32 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.34em] text-white/45">
+        <div className="relative mx-auto w-full max-w-4xl translate-y-2.5 px-5 py-16 sm:px-6 sm:py-24 text-center">
+          <p
+            className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[var(--portal-gold-accent)]"
+            style={subheading}
+          >
             {CYCLE.eyebrow}
           </p>
 
-          <h1
-            className={`${cinzel.className} mt-5 text-[2.6rem] leading-[1.04] sm:text-6xl lg:text-7xl font-bold`}
-          >
+          <h1 className="mt-5 text-[clamp(3rem,13vw,7rem)] leading-[0.98] text-on-inverse">
             {CYCLE.name}
           </h1>
 
-          <p className="mx-auto mt-5 max-w-xl text-base sm:text-lg text-white/65">
-            {CYCLE.tagline}
-          </p>
+          <p className="mx-auto mt-4 max-w-sm text-base text-on-inverse/70 sm:text-lg">{CYCLE.subheading}</p>
 
-          {/* Sign Up leads on mobile (§6.1.1 §3) */}
-          <div className="mt-9 flex flex-col-reverse sm:flex-row items-center justify-center gap-3">
-            <a
-              href="#events"
-              className="w-full sm:w-auto rounded-xl border border-white/25 px-7 py-3.5 text-sm font-semibold hover:bg-white/10 transition-colors"
-            >
-              View Rush Calendar
-            </a>
+          <div className="mt-10 flex flex-col items-center gap-3">
             <Link
               href="/auth/signup"
-              className="w-full sm:w-auto rounded-xl bg-white px-7 py-3.5 text-sm font-semibold text-space-void hover:bg-white/90 transition-colors"
+              className="w-full sm:w-auto rounded-[8px] border border-[var(--portal-gold-accent)] bg-transparent px-10 py-2.5 text-sm font-semibold text-[var(--portal-gold-accent)] hover:bg-[var(--portal-gold-accent)]/10 transition-colors"
             >
-              Sign Up For Rush
+              Sign Up
             </Link>
+            <p className="text-sm text-on-inverse/50">
+              Already have an account?{' '}
+              <Link href="/auth/signin" className="text-on-inverse/85 underline underline-offset-4 hover:text-on-inverse">
+                Sign in.
+              </Link>
+            </p>
           </div>
-
-          <p className="mt-5 text-sm text-white/45">
-            Already have an account?{' '}
-            <Link href="/auth/signin" className="text-white/80 underline underline-offset-4 hover:text-white">
-              Sign in.
-            </Link>
-          </p>
         </div>
 
-        {/* Horizon glow */}
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-40"
-          style={{
-            background:
-              'radial-gradient(120% 100% at 50% 100%, rgba(129,140,248,0.20), transparent 70%)',
-          }}
-          aria-hidden="true"
-        />
+        <div className="absolute inset-x-0 bottom-6 mx-auto flex w-full max-w-6xl justify-center px-6">
+          <span
+            className="flex flex-col items-center gap-1 text-[11px] uppercase tracking-[0.3em] text-on-inverse/40 animate-[gentle-bounce_2.2s_ease-in-out_infinite]"
+            style={subheading}
+          >
+            Scroll
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 4v16m0 0l-6-6m6 6l6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+        </div>
       </header>
 
       {/* Process explainer (§6.1.1 §4) */}
-      <section className="relative border-t border-white/10 bg-space-deep py-20">
-        <div className="mx-auto max-w-6xl px-5">
-          <h2 className={`${cinzel.className} text-center text-3xl sm:text-4xl font-bold`}>
-            {CYCLE.processHeading}
-          </h2>
+      <section className="relative bg-inverse py-16 sm:py-20">
+        <StarField />
+        <div className="relative mx-auto max-w-6xl px-5">
+          <h2 className="text-center text-3xl sm:text-4xl">{CYCLE.processHeading}</h2>
 
-          <div className="mt-12 grid gap-5 md:grid-cols-3">
+          <div className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-3 sm:gap-5">
             {PROCESS.map((item, i) => (
               <div
                 key={item.step}
-                className="relative rounded-2xl border border-white/10 bg-white/[0.03] p-7 transition-colors hover:border-white/20"
+                className="relative border border-white/10 bg-white/[0.03] p-6 sm:p-7 transition-colors hover:border-white/20"
               >
-                <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-akpsi-gold/80">
-                  {item.step}
-                </span>
-                <h3 className="mt-3 text-lg font-semibold">{item.title}</h3>
-                <p className="mt-1 text-sm font-medium text-white/70">{item.subtitle}</p>
-                <p className="mt-3 text-sm leading-relaxed text-white/50">{item.detail}</p>
+                <h3 className="text-lg font-semibold">{item.title}</h3>
+                <p className="mt-1 text-sm font-medium text-on-inverse/70">{item.subtitle}</p>
+                <p className="mt-3 text-sm leading-relaxed text-on-inverse/50">{item.detail}</p>
 
                 <span
-                  className={`${cinzel.className} pointer-events-none absolute right-5 top-4 text-5xl font-bold text-white/[0.05]`}
+                  className="pointer-events-none absolute right-5 top-4 text-5xl text-[var(--portal-gold-accent)]/25"
+                  style={display}
                   aria-hidden="true"
                 >
-                  {i + 1}
+                  {3 - i}
                 </span>
               </div>
             ))}
+          </div>
+
+          <div className="mt-10 flex justify-center sm:mt-12">
+            <RocketIcon />
           </div>
         </div>
       </section>
 
       {/* Five Pillars (§6.1.1 §5) */}
-      <section className="relative border-t border-white/10 py-20">
-        <StarField />
-        <div className="relative mx-auto max-w-6xl px-5">
-          <h2 className={`${cinzel.className} text-center text-3xl sm:text-4xl font-bold`}>
-            The Five Pillars
-          </h2>
+      <section className="relative bg-inverse-soft py-16 sm:py-20">
+        <div className="mx-auto max-w-6xl px-5">
+          <h2 className="text-center text-3xl sm:text-4xl">The Five Pillars</h2>
 
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 lg:grid-cols-5">
             {PILLARS.map((pillar) => (
               <div
                 key={pillar.name}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center transition-colors hover:border-akpsi-gold/30"
+                className="border border-white/10 bg-white/[0.03] p-6 text-center transition-colors hover:border-[var(--portal-gold-accent)]/30"
               >
-                <h3 className={`${cinzel.className} text-lg font-semibold`}>{pillar.name}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/50">{pillar.detail}</p>
+                <h3 className="text-lg font-semibold">{pillar.name}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-on-inverse/50">{pillar.detail}</p>
               </div>
             ))}
           </div>
+
+          <a
+            href={CYCLE.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 flex items-center justify-center gap-3 rounded-[8px] border border-[var(--portal-gold-accent)] bg-transparent p-6 text-center text-[var(--portal-gold-accent)] transition-colors hover:bg-[var(--portal-gold-accent)]/10"
+          >
+            <span
+              className="text-[11px] font-semibold uppercase tracking-[0.3em]"
+              style={subheading}
+            >
+              Follow Along
+            </span>
+            <InstagramIcon />
+          </a>
         </div>
       </section>
 
       {/* Rush events (§6.1.1 §6) */}
-      <section id="events" className="scroll-mt-20 border-t border-white/10 bg-space-deep py-20">
+      <section id="events" className="scroll-mt-20 bg-inverse py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-5">
           <div className="text-center">
-            <h2 className={`${cinzel.className} text-3xl sm:text-4xl font-bold`}>Rush Events</h2>
-            {/* Rendered from the eligibility configuration (R2). */}
-            <p className="mt-4 inline-flex rounded-full border border-akpsi-gold/30 bg-akpsi-gold/[0.08] px-4 py-1.5 text-xs font-semibold text-akpsi-gold">
+            <h2 className="text-3xl sm:text-4xl">Rush Events</h2>
+            <p
+              className="mt-4 inline-flex rounded-[8px] border border-[var(--portal-gold-accent)]/30 bg-[var(--portal-gold-accent)]/[0.08] px-4 py-1.5 text-xs font-semibold text-[var(--portal-gold-accent)]"
+              style={subheading}
+            >
               {requirementSummary(policy)}
             </p>
           </div>
 
-          <div className="mt-12">
+          <div className="mt-10 sm:mt-12">
             {loading ? (
               <div className="flex flex-col items-center py-16">
                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white" />
               </div>
             ) : rushEvents.length === 0 ? (
-              <p className="py-16 text-center text-white/50">
+              <p className="py-16 text-center text-on-inverse/50">
                 No events scheduled at this time. Check back soon!
               </p>
             ) : (
@@ -357,43 +431,43 @@ export default function LandingDesignPage() {
                 {rushEvents.map((event) => (
                   <article
                     key={event.id}
-                    className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition-colors hover:border-white/20"
+                    className="overflow-hidden rounded-[8px] border border-white/10 bg-white/[0.03] transition-colors hover:border-white/20"
                   >
                     <div
-                      className={`h-1 w-full ${
-                        event.type === 'Professional'
-                          ? 'bg-gradient-to-r from-indigo-400 to-indigo-200'
-                          : 'bg-gradient-to-r from-akpsi-gold to-amber-200'
-                      }`}
+                      className="h-1 w-full"
+                      style={{
+                        background:
+                          event.type === 'Professional'
+                            ? 'linear-gradient(90deg, var(--portal-blue-light), color-mix(in oklch, var(--portal-blue-light) 40%, white))'
+                            : 'linear-gradient(90deg, var(--portal-gold-accent), color-mix(in oklch, var(--portal-gold-accent) 40%, white))',
+                      }}
                     />
 
                     <div className="p-6">
                       <div className="flex items-start justify-between gap-3">
                         <h3 className="text-lg font-semibold leading-snug">{event.title}</h3>
-                        <span className="shrink-0 rounded-full border border-white/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/60">
+                        <span className="shrink-0 rounded-[8px] border border-white/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-on-inverse/60">
                           {event.type}
                         </span>
                       </div>
 
                       <dl className="mt-5 divide-y divide-white/10 border-y border-white/10 text-sm">
                         <div className="flex justify-between gap-4 py-2.5">
-                          <dt className="text-white/45">Date</dt>
-                          <dd className="text-right text-white/85">{formatDateInEST(event.date)}</dd>
+                          <dt className="text-on-inverse/45">Date</dt>
+                          <dd className="text-right text-on-inverse/85">{formatDateInEST(event.date)}</dd>
                         </div>
                         <div className="flex justify-between gap-4 py-2.5">
-                          <dt className="text-white/45">Time</dt>
-                          <dd className="text-right text-white/85">{event.time || 'TBA'}</dd>
+                          <dt className="text-on-inverse/45">Time</dt>
+                          <dd className="text-right text-on-inverse/85">{event.time || 'TBA'}</dd>
                         </div>
                         <div className="flex justify-between gap-4 py-2.5">
-                          <dt className="text-white/45">Location</dt>
-                          <dd className="text-right text-white/85">{event.location || 'TBA'}</dd>
+                          <dt className="text-on-inverse/45">Location</dt>
+                          <dd className="text-right text-on-inverse/85">{event.location || 'TBA'}</dd>
                         </div>
                       </dl>
 
                       {event.description && (
-                        <p className="mt-4 text-sm leading-relaxed text-white/50">
-                          {event.description}
-                        </p>
+                        <p className="mt-4 text-sm leading-relaxed text-on-inverse/50">{event.description}</p>
                       )}
                     </div>
                   </article>
@@ -405,13 +479,11 @@ export default function LandingDesignPage() {
       </section>
 
       {/* FAQ (§6.1.1 §7) */}
-      <section className="border-t border-white/10 py-20">
+      <section className="bg-inverse-soft py-16 sm:py-20">
         <div className="mx-auto max-w-3xl px-5">
-          <h2 className={`${cinzel.className} text-center text-3xl sm:text-4xl font-bold`}>
-            Frequently Asked Questions
-          </h2>
+          <h2 className="text-center text-3xl sm:text-4xl">Frequently Asked Questions</h2>
 
-          <div className="mt-10 divide-y divide-white/10 border-y border-white/10">
+          <div className="mt-8 divide-y divide-white/10 border-y border-white/10 sm:mt-10">
             {FAQS.map((faq, i) => {
               const open = faqOpen === i
               return (
@@ -422,16 +494,11 @@ export default function LandingDesignPage() {
                     className="flex w-full items-center justify-between gap-5 py-5 text-left"
                   >
                     <span className="text-base font-medium">{faq.question}</span>
-                    <span
-                      className="shrink-0 text-xl font-light text-white/50"
-                      aria-hidden="true"
-                    >
+                    <span className="shrink-0 text-xl font-light text-on-inverse/50" aria-hidden="true">
                       {open ? '−' : '+'}
                     </span>
                   </button>
-                  {open && (
-                    <p className="pb-6 text-sm leading-relaxed text-white/55">{faq.answer}</p>
-                  )}
+                  {open && <p className="pb-6 text-sm leading-relaxed text-on-inverse/55">{faq.answer}</p>}
                 </div>
               )
             })}
@@ -440,52 +507,43 @@ export default function LandingDesignPage() {
       </section>
 
       {/* Closing call to action (§6.1.1 §8) */}
-      <section className="relative overflow-hidden border-t border-white/10 bg-space-deep py-24">
+      <section className="relative overflow-hidden bg-inverse py-20 sm:py-24">
         <StarField />
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-56 animate-aurora"
-          style={{
-            background:
-              'radial-gradient(90% 100% at 50% 0%, rgba(99,102,241,0.22), transparent 70%)',
-          }}
-          aria-hidden="true"
-        />
 
         <div className="relative mx-auto max-w-2xl px-5 text-center">
-          <h2 className={`${cinzel.className} text-3xl sm:text-5xl font-bold leading-tight`}>
-            Where will your next move take you?
-          </h2>
-          <p className="mx-auto mt-5 max-w-lg text-white/60">
-            Every brother started exactly where you are now. Come to an event, meet the chapter, and
-            see where it goes.
+          <h2 className="text-3xl sm:text-5xl leading-tight">Launch yourself to the moon.</h2>
+          <p className="mx-auto mt-5 max-w-lg text-on-inverse/60">
+            Every brother started exactly where you are now. Come to an event, meet the chapter, and see where it
+            goes.
           </p>
 
-          <div className="mt-9 flex flex-col-reverse sm:flex-row items-center justify-center gap-3">
-            <a
-              href="#events"
-              className="w-full sm:w-auto rounded-xl border border-white/25 px-7 py-3.5 text-sm font-semibold hover:bg-white/10 transition-colors"
-            >
-              View Requirements
-            </a>
+          <div className="mt-8 flex justify-center">
             <Link
               href="/auth/signup"
-              className="w-full sm:w-auto rounded-xl bg-white px-7 py-3.5 text-sm font-semibold text-space-void hover:bg-white/90 transition-colors"
+              className="w-full sm:w-auto rounded-[8px] border border-[var(--portal-gold-accent)] bg-transparent px-10 py-2.5 text-sm font-semibold text-[var(--portal-gold-accent)] hover:bg-[var(--portal-gold-accent)]/10 transition-colors"
             >
-              Sign Up For Rush
+              Sign Up
             </Link>
           </div>
         </div>
       </section>
 
       {/* Footer (§6.1.1 §9) */}
-      <footer className="border-t border-white/10 py-12">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-5 text-center">
-          <span className={`${cinzel.className} text-2xl font-bold tracking-[0.08em]`}>ΑΚΨ</span>
-          <p className="text-sm text-white/50">
-            Alpha Kappa Psi · Alpha Phi Chapter · University of Florida
-          </p>
-          <p className="text-xs text-white/30">
-            © {new Date().getFullYear()} Alpha Kappa Psi, Alpha Phi Chapter. All rights reserved.
+      <footer className="relative overflow-hidden border-t border-white/10 bg-inverse-soft py-10 sm:py-12">
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-3 px-5 text-center">
+          <span className="lettermark text-on-inverse text-2xl font-bold tracking-[0.08em]">ΑΚΨ</span>
+          <p className="text-sm text-on-inverse/50">Alpha Kappa Psi &middot; Alpha Phi Chapter &middot; University of Florida</p>
+          <a
+            href={CYCLE.instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${CYCLE.instagramHandle} on Instagram`}
+            className="text-[var(--portal-gold-accent)] hover:brightness-110 transition-[filter]"
+          >
+            <InstagramIcon />
+          </a>
+          <p className="text-xs text-on-inverse/30">
+            &copy; {new Date().getFullYear()} Alpha Kappa Psi, Alpha Phi Chapter. All rights reserved.
           </p>
         </div>
       </footer>

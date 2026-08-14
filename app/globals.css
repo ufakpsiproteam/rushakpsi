@@ -15,17 +15,18 @@
    label and an icon or shape.
 
    A third expression lives at the bottom of this file: `.portal-shell`.
-   It is the AKΨ navy/blue/gold theme for the whole authenticated app —
-   admin, brother, rushee, and sign-in — applied by wrapping each of
-   those route groups in `<div className="portal-shell">` (see
+   It is the AKΨ navy/blue/gold theme, applied by wrapping content in
+   `<div className="portal-shell">` — the whole authenticated app (see
    app/admin/layout.tsx, app/brother/layout.tsx, app/rushee/layout.tsx,
-   app/auth/signin/layout.tsx). It works by re-declaring the SAME
-   custom-property names used above, so every existing component class
-   (.btn, .card, .nav-tab, .badge, …) recolors automatically for those
-   routes without being duplicated. Landing keeps its own space theme
-   untouched. The old flat-grey scheme is retired everywhere except the
-   public landing page — do not reintroduce raw grey/black Tailwind
-   literals in the authenticated app; consume the tokens instead.
+   app/auth/signin/layout.tsx) plus the public landing page
+   (app/landing/page.tsx), which carries its nebula-photo hero and
+   starfield motif as the theme layer on top, per PRD §10.1/§1.6. It
+   works by re-declaring the SAME custom-property names used above, so
+   every existing component class (.btn, .card, .nav-tab, .badge, …)
+   recolors automatically wherever it's applied, without being
+   duplicated. The old flat-grey scheme is retired everywhere — do not
+   reintroduce raw grey/black Tailwind literals; consume the tokens
+   instead.
    ===================================================================== */
 
 @theme {
@@ -58,21 +59,7 @@
   --color-negative: #b91c1c;
   --color-negative-soft: #fbf1f1;
 
-  /* Chapter accent — reserved for the public landing surface and the
-     decision-letter celebration. Not used in the authenticated app. */
-  --color-akpsi-gold: #ffb81c;
-  --color-akpsi-navy: #0b1f4b;
-
-  /* Space theme — landing only */
-  --color-space-void: #05060c;
-  --color-space-deep: #0a0d1c;
-  --color-space-haze: #141a33;
-  --color-space-star: #e8ecff;
-
   --radius-card: 14px;
-
-  --font-display: var(--font-cinzel), "Iowan Old Style", "Palatino Linotype",
-    Palatino, "Times New Roman", serif;
 }
 
 /* ---------------------------------------------------------------------
