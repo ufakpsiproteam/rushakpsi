@@ -37,6 +37,7 @@
   ],
   "exclude": [
     "node_modules",
-    "_to_delete"
+    "_to_delete",
+    "e10e5af8-ebc9-40fe-bdc2-bae77274f74f"
   ]
 }
