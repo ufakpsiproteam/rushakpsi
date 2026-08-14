@@ -19,20 +19,26 @@ import { POLICY, loadPolicy, requirementSummary } from '@/lib/policy'
  */
 
 const CYCLE = {
-  name: 'Rush ΑΚΨ',
-  eyebrow: "Fall '26 Recruitment",
+  name: 'AKΨ Fall Rush',
   subheading: 'Find your orbit',
   groupMeUrl: 'https://groupme.com',
   processHeading: 'Liftoff in…',
   instagramUrl: 'https://www.instagram.com/ufakpsi/',
   instagramHandle: '@ufakpsi',
+  linkedinUrl: 'https://www.linkedin.com/company/uf-alpha-kappa-psi-alpha-phi-chapter/posts/?feedView=all',
+  linkedinHandle: '@ufakpsi',
 }
 
 const HERO_DESKTOP = '/rush-hero-desktop.jpg'
 const HERO_MOBILE = '/rush-hero-mobile.jpg'
 
-const subheading = { fontFamily: 'var(--font-portal-subheading)' } as const
+const subheading = { fontFamily: 'var(--font-portal-display)' } as const
 const display = { fontFamily: 'var(--font-portal-display)', fontStyle: 'italic' as const }
+
+/** Shared "gold rounded" treatment — every Sign Up / Follow Along box uses this exact pill, text only differs. */
+const GOLD_PILL =
+  'inline-flex w-fit items-center gap-2 rounded-[8px] border border-[var(--portal-gold-accent)] bg-transparent px-6 py-2.5 text-[var(--portal-gold-accent)] hover:bg-[var(--portal-gold-accent)]/10 transition-colors'
+const GOLD_PILL_LABEL = 'text-[13px] font-semibold tracking-wide'
 
 /**
  * Static star field. Positions are fixed rather than random so the server
@@ -79,6 +85,27 @@ function InstagramIcon() {
       <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.4" />
       <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.4" />
       <circle cx="17.2" cy="6.8" r="1" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** Simple line-art LinkedIn glyph. */
+function LinkedInIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.4" />
+      <line x1="7.5" y1="10" x2="7.5" y2="16.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <circle cx="7.5" cy="7.3" r="1" fill="currentColor" />
+      <path d="M11.5 16.5v-4c0-1.4 1-2.5 2.4-2.5s2.1 1 2.1 2.5v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+/** Small arrow, used after "Sign Up" inside the gold pill buttons. */
+function ArrowIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 12h14m0 0l-6-6m6 6l-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
@@ -170,14 +197,19 @@ export default function LandingDesignPage() {
   const [rushEvents, setRushEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [policy, setPolicy] = useState(POLICY)
-  const [navSolid, setNavSolid] = useState(false)
+  const [navOpacity, setNavOpacity] = useState(0)
 
   useEffect(() => {
     loadPolicy().then(setPolicy)
   }, [])
 
   useEffect(() => {
-    const onScroll = () => setNavSolid(window.scrollY > window.innerHeight * 0.85)
+    // Fades in as soon as scrolling starts, fully opaque by roughly where the
+    // headline sits (headline is vertically centered in the hero).
+    const onScroll = () => {
+      const fadeDistance = window.innerHeight * 0.4
+      setNavOpacity(Math.min(1, Math.max(0, window.scrollY / fadeDistance)))
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
@@ -208,48 +240,33 @@ export default function LandingDesignPage() {
     <div
       className={`portal-shell ${portalFontVariables} min-h-screen bg-inverse-soft text-on-inverse`}
     >
-      {/* Announcement banner (§6.1.1 §1) */}
-      <a
-        href={CYCLE.groupMeUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block w-full text-center text-xs sm:text-sm font-medium py-2.5 px-4 hover:brightness-110 transition-[filter]"
-        style={{
-          background:
-            'linear-gradient(90deg, color-mix(in oklch, var(--portal-blue-light) 35%, transparent), color-mix(in oklch, var(--portal-gold-accent) 30%, transparent), color-mix(in oklch, var(--portal-blue-light) 35%, transparent))',
-        }}
-      >
-        Join The GroupMe &amp; Stay Up To Date &rarr;
-      </a>
-
-      {/* Sticky navigation (§6.1.1 §2) — transparent over the hero, gains its background once scrolled past it */}
-      <nav
-        className={`sticky top-0 z-50 transition-colors duration-300 ${
-          navSolid
-            ? 'border-b border-white/10 bg-inverse-soft/85 backdrop-blur-md'
-            : 'border-b border-transparent bg-transparent'
-        }`}
-      >
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5">
-          <Link href="/" className="flex items-baseline gap-2 sm:gap-3 min-w-0">
-            <span className="lettermark text-on-inverse text-lg sm:text-xl font-bold tracking-[0.08em]">ΑΚΨ</span>
-            <span className="hidden sm:block text-[11px] leading-tight text-on-inverse/55">
-              Alpha Phi Chapter
-              <br />
-              University of Florida
+      {/* Sticky navigation (§6.1.1 §2) — clear over the hero photo, fades in its background as soon as the page scrolls */}
+      <nav className="fixed inset-x-0 top-0 z-50">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 border-b border-white/10 bg-inverse-soft/85 backdrop-blur-md transition-opacity duration-150 ease-out"
+          style={{ opacity: navOpacity }}
+        />
+        <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5">
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <span className="lettermark text-on-inverse text-lg sm:text-xl font-bold tracking-[0.08em]">
+              ΑΚ<span className="text-[var(--portal-gold-accent)]">Ψ</span>
+            </span>
+            <span className="hidden sm:block whitespace-nowrap text-[11px] leading-tight text-on-inverse/55">
+              Alpha Phi Chapter &ndash; University of Florida
             </span>
           </Link>
 
-          <div className="flex items-center gap-2">
-            <a
-              href="#events"
-              className="rounded-none px-2.5 py-2 sm:px-3 text-xs sm:text-sm text-on-inverse/70 hover:text-on-inverse hover:bg-white/5 transition-colors"
-            >
-              Rush Events
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <a href={CYCLE.instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-[var(--portal-gold-accent)]/80 hover:text-[var(--portal-gold-accent)] transition-colors">
+              <InstagramIcon />
+            </a>
+            <a href={CYCLE.linkedinUrl} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-[var(--portal-gold-accent)]/80 hover:text-[var(--portal-gold-accent)] transition-colors">
+              <LinkedInIcon />
             </a>
             <Link
               href="/auth/signin"
-              className="rounded-[8px] border border-white/25 px-3 py-2 sm:px-4 text-xs sm:text-sm font-semibold hover:bg-white hover:text-[var(--portal-navy-dark)] transition-colors"
+              className="ml-1 rounded-[8px] border border-[var(--portal-gold-accent)] px-3 py-2 sm:px-4 text-xs sm:text-sm font-semibold hover:bg-white hover:text-[var(--portal-navy-dark)] transition-colors"
             >
               Sign In
             </Link>
@@ -260,7 +277,7 @@ export default function LandingDesignPage() {
       {/* Hero (§6.1.1 §3) — nebula photo carried over from the cycle's design reference, kept structurally intact */}
       <header
         id="top"
-        className="relative flex min-h-[85svh] w-full flex-col justify-center overflow-hidden"
+        className="relative flex min-h-[100svh] w-full flex-col justify-center overflow-hidden"
       >
         <style>{`
           @keyframes gentle-bounce {
@@ -294,26 +311,19 @@ export default function LandingDesignPage() {
           }}
         />
 
-        <div className="relative mx-auto w-full max-w-4xl translate-y-2.5 px-5 py-16 sm:px-6 sm:py-24 text-center">
-          <p
-            className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[var(--portal-gold-accent)]"
-            style={subheading}
-          >
-            {CYCLE.eyebrow}
-          </p>
+        <div className="relative mx-auto w-full max-w-4xl translate-y-10 px-5 py-16 sm:px-6 sm:py-24 text-center">
+          <div aria-hidden="true" className="mx-auto mb-6 h-px w-16 bg-[var(--portal-gold-accent)]" />
 
-          <h1 className="mt-5 text-[clamp(3rem,13vw,7rem)] leading-[0.98] text-on-inverse">
+          <h1 className="text-[clamp(3rem,13vw,7rem)] leading-[0.98] text-on-inverse">
             {CYCLE.name}
           </h1>
 
           <p className="mx-auto mt-4 max-w-sm text-base text-on-inverse/70 sm:text-lg">{CYCLE.subheading}</p>
 
           <div className="mt-10 flex flex-col items-center gap-3">
-            <Link
-              href="/auth/signup"
-              className="w-full sm:w-auto rounded-[8px] border border-[var(--portal-gold-accent)] bg-transparent px-10 py-2.5 text-sm font-semibold text-[var(--portal-gold-accent)] hover:bg-[var(--portal-gold-accent)]/10 transition-colors"
-            >
-              Sign Up
+            <Link href="/auth/signup" className={GOLD_PILL}>
+              <span className={GOLD_PILL_LABEL} style={subheading}>Sign Up</span>
+              <ArrowIcon />
             </Link>
             <p className="text-sm text-on-inverse/50">
               Already have an account?{' '}
@@ -326,7 +336,7 @@ export default function LandingDesignPage() {
 
         <div className="absolute inset-x-0 bottom-6 mx-auto flex w-full max-w-6xl justify-center px-6">
           <span
-            className="flex flex-col items-center gap-1 text-[11px] uppercase tracking-[0.3em] text-on-inverse/40 animate-[gentle-bounce_2.2s_ease-in-out_infinite]"
+            className="flex flex-col items-center gap-1 text-[13px] tracking-wide text-on-inverse/40 animate-[gentle-bounce_2.2s_ease-in-out_infinite]"
             style={subheading}
           >
             Scroll
@@ -336,6 +346,20 @@ export default function LandingDesignPage() {
           </span>
         </div>
       </header>
+
+      {/* Announcement banner (§6.1.1 §1) — normal document flow, between the hero and the process section */}
+      <a
+        href={CYCLE.groupMeUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block w-full text-center text-xs sm:text-sm font-medium py-2.5 px-4 hover:brightness-110 transition-[filter]"
+        style={{
+          background:
+            'linear-gradient(90deg, color-mix(in oklch, var(--portal-blue-light) 35%, transparent), color-mix(in oklch, var(--portal-gold-accent) 30%, transparent), color-mix(in oklch, var(--portal-blue-light) 35%, transparent))',
+        }}
+      >
+        Join The GroupMe &amp; Stay Up To Date &rarr;
+      </a>
 
       {/* Process explainer (§6.1.1 §4) */}
       <section className="relative bg-inverse py-16 sm:py-20">
@@ -387,30 +411,22 @@ export default function LandingDesignPage() {
             ))}
           </div>
 
-          <a
-            href={CYCLE.instagramUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 flex items-center justify-center gap-3 rounded-[8px] border border-[var(--portal-gold-accent)] bg-transparent p-6 text-center text-[var(--portal-gold-accent)] transition-colors hover:bg-[var(--portal-gold-accent)]/10"
-          >
-            <span
-              className="text-[11px] font-semibold uppercase tracking-[0.3em]"
-              style={subheading}
-            >
-              Follow Along
-            </span>
-            <InstagramIcon />
-          </a>
+          <div className="mt-6 flex justify-center">
+            <a href={CYCLE.instagramUrl} target="_blank" rel="noopener noreferrer" className={GOLD_PILL}>
+              <span className={GOLD_PILL_LABEL} style={subheading}>Follow Along</span>
+              <InstagramIcon />
+            </a>
+          </div>
         </div>
       </section>
 
       {/* Rush events (§6.1.1 §6) */}
-      <section id="events" className="scroll-mt-20 bg-inverse py-16 sm:py-20">
+      <section id="events" className="scroll-mt-24 bg-inverse py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-5">
           <div className="text-center">
             <h2 className="text-3xl sm:text-4xl">Rush Events</h2>
             <p
-              className="mt-4 inline-flex rounded-[8px] border border-[var(--portal-gold-accent)]/30 bg-[var(--portal-gold-accent)]/[0.08] px-4 py-1.5 text-xs font-semibold text-[var(--portal-gold-accent)]"
+              className="mt-4 inline-flex rounded-[8px] border border-[var(--portal-gold-accent)]/30 bg-[var(--portal-gold-accent)]/[0.08] px-4 py-1.5 text-sm font-semibold tracking-wide text-[var(--portal-gold-accent)]"
               style={subheading}
             >
               {requirementSummary(policy)}
@@ -475,6 +491,13 @@ export default function LandingDesignPage() {
               </div>
             )}
           </div>
+
+          <div className="mt-10 flex justify-center sm:mt-12">
+            <a href={CYCLE.groupMeUrl} target="_blank" rel="noopener noreferrer" className={GOLD_PILL}>
+              <span className={GOLD_PILL_LABEL} style={subheading}>Join the GroupMe for event updates</span>
+              <ArrowIcon />
+            </a>
+          </div>
         </div>
       </section>
 
@@ -518,11 +541,9 @@ export default function LandingDesignPage() {
           </p>
 
           <div className="mt-8 flex justify-center">
-            <Link
-              href="/auth/signup"
-              className="w-full sm:w-auto rounded-[8px] border border-[var(--portal-gold-accent)] bg-transparent px-10 py-2.5 text-sm font-semibold text-[var(--portal-gold-accent)] hover:bg-[var(--portal-gold-accent)]/10 transition-colors"
-            >
-              Sign Up
+            <Link href="/auth/signup" className={GOLD_PILL}>
+              <span className={GOLD_PILL_LABEL} style={subheading}>Sign Up</span>
+              <ArrowIcon />
             </Link>
           </div>
         </div>
@@ -533,15 +554,26 @@ export default function LandingDesignPage() {
         <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-3 px-5 text-center">
           <span className="lettermark text-on-inverse text-2xl font-bold tracking-[0.08em]">ΑΚΨ</span>
           <p className="text-sm text-on-inverse/50">Alpha Kappa Psi &middot; Alpha Phi Chapter &middot; University of Florida</p>
-          <a
-            href={CYCLE.instagramUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`${CYCLE.instagramHandle} on Instagram`}
-            className="text-[var(--portal-gold-accent)] hover:brightness-110 transition-[filter]"
-          >
-            <InstagramIcon />
-          </a>
+          <div className="flex items-center gap-5">
+            <a
+              href={CYCLE.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${CYCLE.instagramHandle} on Instagram`}
+              className="text-[var(--portal-gold-accent)] hover:brightness-110 transition-[filter]"
+            >
+              <InstagramIcon />
+            </a>
+            <a
+              href={CYCLE.linkedinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+              className="text-[var(--portal-gold-accent)] hover:brightness-110 transition-[filter]"
+            >
+              <LinkedInIcon />
+            </a>
+          </div>
           <p className="text-xs text-on-inverse/30">
             &copy; {new Date().getFullYear()} Alpha Kappa Psi, Alpha Phi Chapter. All rights reserved.
           </p>
