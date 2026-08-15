@@ -30,7 +30,7 @@ const MONTHS = [
 ]
 
 /** Split a YYYY-MM-DD string without constructing a Date. */
-function parseCalendarDate(dateString: string): { year: number; month: number; day: number } | null {
+export function parseCalendarDate(dateString: string): { year: number; month: number; day: number } | null {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(dateString)
   if (!match) return null
   const year = Number(match[1])
@@ -94,17 +94,43 @@ export function parseEventStartMinutes(timeString?: string | null): number | nul
 }
 
 /**
+ * Parse the *end* time out of a range string like "7:00 PM - 9:00 PM".
+ * Returns null when there's no second time to find (single time, or
+ * unparseable) so callers can fall back to a default duration.
+ */
+export function parseEventEndMinutes(timeString?: string | null): number | null {
+  if (!timeString) return null
+
+  const matches = [...timeString.matchAll(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi)]
+  if (matches.length < 2) return null
+
+  const match = matches[matches.length - 1]
+  let hours = parseInt(match[1], 10)
+  const minutes = parseInt(match[2], 10)
+  const isPM = match[3].toUpperCase() === 'PM'
+
+  if (isPM && hours !== 12) hours += 12
+  if (!isPM && hours === 12) hours = 0
+
+  return hours * 60 + minutes
+}
+
+/**
  * The UTC instant corresponding to a chapter-time wall-clock reading.
  * Returns null when the date can't be parsed, so callers can distinguish
  * "unknown" from "midnight".
  */
 export function chapterInstant(dateString: string, timeString?: string | null): number | null {
+  return chapterInstantAtMinutes(dateString, parseEventStartMinutes(timeString) ?? 0)
+}
+
+/** Same as chapterInstant, but takes minutes-past-midnight directly. */
+export function chapterInstantAtMinutes(dateString: string, minutes: number): number | null {
   const parts = parseCalendarDate(dateString)
   if (!parts) return null
 
-  const startMinutes = parseEventStartMinutes(timeString) ?? 0
-  const hh = String(Math.floor(startMinutes / 60)).padStart(2, '0')
-  const mm = String(startMinutes % 60).padStart(2, '0')
+  const hh = String(Math.floor(minutes / 60)).padStart(2, '0')
+  const mm = String(minutes % 60).padStart(2, '0')
 
   const wallClock = `${parts.year}-${String(parts.month).padStart(2, '0')}-${String(
     parts.day

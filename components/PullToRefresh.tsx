@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, ReactNode } from 'react'
+import { useState, useRef, useCallback, useEffect, ReactNode } from 'react'
 
 interface PullToRefreshProps {
   onRefresh: () => Promise<void>
@@ -11,12 +11,34 @@ interface PullToRefreshProps {
 const PULL_THRESHOLD = 80
 const MAX_PULL = 120
 
+// Matches the `lg:` breakpoint used everywhere else in the portal — below
+// this, pull-to-refresh applies; at/above it, the page just scrolls
+// natively with no touch handlers or scroll-container CSS attached at all.
+const MOBILE_QUERY = '(max-width: 1023.98px)'
+
 export default function PullToRefresh({ onRefresh, children, className = '' }: PullToRefreshProps) {
   const [pullDistance, setPullDistance] = useState(0)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  // Defaults to false (desktop) so server and first client render match;
+  // flips true after mount if the viewport is actually narrow. Previously
+  // this was decided per-render by a `lg:overflow-visible` CSS class on a
+  // div that *always* carried overflow-auto, overscroll-behavior: none,
+  // and -webkit-overflow-scrolling: touch — scroll-affecting properties
+  // that desktop never needed and that stayed attached to the DOM node
+  // regardless of viewport. Deciding in JS means desktop gets a plain,
+  // unstyled wrapper with none of that.
+  const [isMobile, setIsMobile] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const startY = useRef(0)
   const isPulling = useRef(false)
+
+  useEffect(() => {
+    const mql = window.matchMedia(MOBILE_QUERY)
+    setIsMobile(mql.matches)
+    const handleChange = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mql.addEventListener('change', handleChange)
+    return () => mql.removeEventListener('change', handleChange)
+  }, [])
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const container = containerRef.current
@@ -62,12 +84,16 @@ export default function PullToRefresh({ onRefresh, children, className = '' }: P
     }
   }, [pullDistance, isRefreshing, onRefresh])
 
+  if (!isMobile) {
+    return <div className={className}>{children}</div>
+  }
+
   const progress = Math.min(pullDistance / PULL_THRESHOLD, 1)
 
   return (
     <div
       ref={containerRef}
-      className={`overflow-auto lg:overflow-visible ${className}`}
+      className={`overflow-auto ${className}`}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}

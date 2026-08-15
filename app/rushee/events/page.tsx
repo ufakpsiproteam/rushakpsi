@@ -4,6 +4,8 @@ import RusheeNav from '@/components/rushee/RusheeNav'
 import StatusBanner from '@/components/rushee/StatusBanner'
 import ProfilePictureModal from '@/components/rushee/ProfilePictureModal'
 import PullToRefresh from '@/components/PullToRefresh'
+import CalendarExportButton from '@/components/portal/CalendarExportButton'
+import AddToGoogleCalendarButton from '@/components/portal/AddToGoogleCalendarButton'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { getEvents } from '@/lib/api'
 import { getEventById, submitAttendance, getRusheeAttendance } from '@/lib/database'
@@ -460,10 +462,21 @@ export default function RusheeEvents() {
         >
           <div className="mb-6 pt-2 lg:pt-0">
             <div className="rounded-2xl border border-line bg-white/90 px-6 py-6 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.35em] text-ink-subtle">Rush Calendar</p>
-              <h1 className={`${sora.className} mt-3 text-3xl sm:text-4xl font-semibold text-ink`}>
-                Rushee Events
-              </h1>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.35em] text-ink-subtle">Rush Calendar</p>
+                  <h1 className={`${sora.className} mt-3 text-3xl sm:text-4xl font-semibold text-ink`}>
+                    Rushee Events
+                  </h1>
+                </div>
+                {!loading && (
+                  <CalendarExportButton
+                    events={events}
+                    label="Download (.ics)"
+                    buttonClassName="btn btn-secondary btn-sm whitespace-nowrap"
+                  />
+                )}
+              </div>
               <p className="mt-2 text-sm text-ink-muted max-w-2xl">
                 Track requirements, check in when attendance opens, and keep your progress in one place.
               </p>
@@ -537,6 +550,13 @@ export default function RusheeEvents() {
                       >
                         {event.type}
                       </span>
+                    </div>
+
+                    <div className="mt-4">
+                      <AddToGoogleCalendarButton
+                        event={event}
+                        className="btn btn-secondary btn-sm btn-block"
+                      />
                     </div>
 
                     <div className="mt-5 grid gap-3 text-sm text-ink-muted">
@@ -614,6 +634,13 @@ export default function RusheeEvents() {
                   <p className="text-ink-muted text-lg">No events scheduled yet.</p>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Calendar Export (bulk, below list) */}
+          {!loading && events.length > 0 && (
+            <div className="mt-6 flex flex-col items-center text-center">
+              <CalendarExportButton events={events} showNote />
             </div>
           )}
 

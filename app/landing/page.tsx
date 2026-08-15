@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { portalFontVariables } from '@/lib/portalFonts'
 import { formatDateInEST, getEventTimestampEST } from '@/lib/dateUtils'
@@ -21,7 +22,7 @@ import { POLICY, loadPolicy, requirementSummary } from '@/lib/policy'
 const CYCLE = {
   name: 'AKΨ Fall Rush',
   subheading: 'Find your orbit',
-  groupMeUrl: 'https://groupme.com',
+  groupMeUrl: 'https://groupme.com/join_group/116593082/z1Vs4Ej3',
   processHeading: 'Liftoff in…',
   instagramUrl: 'https://www.instagram.com/ufakpsi/',
   instagramHandle: '@ufakpsi',
@@ -32,7 +33,7 @@ const CYCLE = {
 const HERO_DESKTOP = '/rush-hero-desktop.jpg'
 const HERO_MOBILE = '/rush-hero-mobile.jpg'
 
-const subheading = { fontFamily: 'var(--font-portal-display)' } as const
+const subheading = { fontFamily: '"Times New Roman", Times, Georgia, serif', fontStyle: 'normal' as const }
 const display = { fontFamily: 'var(--font-portal-display)', fontStyle: 'italic' as const }
 
 /** Shared "gold rounded" treatment — every Sign Up / Follow Along box uses this exact pill, text only differs. */
@@ -75,6 +76,206 @@ function StarField() {
         />
       ))}
     </div>
+  )
+}
+
+const GALAXY_STARS_FAR = [
+  [6, 4, 1, 0.35], [18, 6, 1.4, 0.5], [31, 9, 1, 0.3], [44, 3, 1.6, 0.55],
+  [57, 11, 1, 0.35], [69, 5, 1.3, 0.45], [78, 8, 1, 0.3], [88, 6, 1.5, 0.5],
+  [12, 16, 1, 0.3], [37, 18, 1.2, 0.4], [63, 15, 1, 0.35], [92, 17, 1.3, 0.45],
+  [8, 26, 1.2, 0.4], [24, 30, 1, 0.35], [46, 27, 1.4, 0.5], [70, 32, 1, 0.3],
+  [15, 40, 1.3, 0.45], [40, 44, 1, 0.35], [60, 41, 1.5, 0.55], [85, 45, 1, 0.3],
+  [5, 55, 1.2, 0.4], [30, 58, 1, 0.35], [55, 54, 1.4, 0.5], [80, 59, 1, 0.3],
+  [20, 68, 1.3, 0.45], [45, 70, 1, 0.35], [68, 66, 1.5, 0.5], [92, 71, 1, 0.3],
+  [10, 80, 1.2, 0.4], [35, 82, 1, 0.35], [58, 79, 1.4, 0.5], [82, 83, 1, 0.3],
+  [15, 92, 1.3, 0.45], [42, 94, 1, 0.35], [65, 90, 1.5, 0.5], [88, 95, 1, 0.3],
+  [1, 12, 1, 0.3], [25, 2, 1.3, 0.4], [51, 7, 1, 0.35], [74, 1, 1.4, 0.45],
+  [96, 10, 1, 0.3], [3, 21, 1.2, 0.35], [29, 23, 1, 0.3], [50, 19, 1.5, 0.5],
+  [75, 22, 1, 0.3], [98, 25, 1.2, 0.4], [2, 35, 1, 0.35], [22, 37, 1.4, 0.45],
+  [52, 33, 1, 0.3], [77, 38, 1.3, 0.4], [96, 41, 1, 0.35], [4, 48, 1.2, 0.4],
+  [27, 51, 1, 0.3], [48, 46, 1.4, 0.45], [72, 49, 1, 0.3], [95, 53, 1.3, 0.4],
+  [7, 62, 1, 0.35], [26, 65, 1.2, 0.4], [51, 61, 1, 0.3], [76, 63, 1.4, 0.45],
+  [97, 67, 1, 0.3], [2, 75, 1.2, 0.35], [24, 73, 1, 0.3], [49, 77, 1.5, 0.5],
+  [73, 74, 1, 0.3], [96, 78, 1.2, 0.4], [4, 88, 1, 0.35], [27, 86, 1.3, 0.4],
+  [51, 89, 1, 0.3], [75, 85, 1.4, 0.45], [98, 91, 1, 0.3], [12, 97, 1.2, 0.4],
+] as const
+
+const GALAXY_STARS_NEAR = [
+  [10, 8, 1.8, 0.7], [26, 4, 2.2, 0.85], [41, 10, 1.6, 0.6], [55, 5, 2, 0.9],
+  [72, 9, 1.8, 0.65], [84, 3, 2.4, 0.8], [20, 14, 1.6, 0.55], [48, 16, 2, 0.75],
+  [66, 13, 1.8, 0.6], [90, 15, 2.2, 0.85], [6, 22, 2, 0.7], [33, 24, 1.6, 0.6],
+  [58, 20, 2.2, 0.8], [78, 25, 1.8, 0.65], [95, 21, 2, 0.75], [14, 34, 1.8, 0.6],
+  [38, 36, 2.4, 0.85], [62, 33, 1.6, 0.55], [86, 37, 2, 0.75], [10, 48, 2, 0.7],
+  [30, 50, 1.8, 0.6], [52, 47, 2.2, 0.8], [74, 51, 1.6, 0.6], [92, 49, 2, 0.75],
+  [18, 62, 1.8, 0.65], [42, 64, 2.2, 0.8], [64, 61, 1.6, 0.55], [88, 65, 2, 0.7],
+  [8, 76, 2, 0.7], [28, 78, 1.8, 0.6], [50, 75, 2.4, 0.85], [72, 79, 1.6, 0.6],
+  [94, 77, 2, 0.75], [16, 90, 1.8, 0.65], [40, 92, 2.2, 0.8], [62, 89, 1.6, 0.55],
+  [1, 3, 1.8, 0.6], [17, 1, 2, 0.7], [35, 6, 1.6, 0.55], [63, 2, 2.2, 0.75],
+  [80, 7, 1.8, 0.65], [98, 4, 2, 0.7], [3, 17, 1.6, 0.55], [22, 19, 2, 0.7],
+  [46, 21, 1.8, 0.6], [70, 18, 2.2, 0.75], [92, 23, 1.6, 0.6], [1, 30, 2, 0.7],
+  [25, 28, 1.8, 0.65], [50, 31, 2.2, 0.8], [76, 29, 1.6, 0.55], [97, 33, 2, 0.7],
+  [4, 42, 1.8, 0.6], [23, 45, 2, 0.7], [47, 41, 2.2, 0.75], [71, 44, 1.6, 0.6],
+  [96, 46, 2, 0.7], [2, 56, 1.8, 0.65], [21, 58, 2.2, 0.8], [45, 55, 1.6, 0.55],
+  [69, 57, 2, 0.7], [93, 59, 1.8, 0.65], [5, 68, 2, 0.7], [24, 70, 1.6, 0.6],
+  [48, 67, 2.2, 0.75], [70, 71, 1.8, 0.65], [95, 69, 2, 0.7], [3, 82, 1.8, 0.6],
+  [20, 84, 2.2, 0.8], [44, 81, 1.6, 0.55], [68, 83, 2, 0.7], [90, 87, 1.8, 0.65],
+] as const
+
+/**
+ * Scroll-cue label, fixed to the viewport (so it's visible immediately on
+ * load regardless of the hero's total height) — fades out once the user has
+ * scrolled roughly past the first screen, since it'd otherwise stay pinned
+ * on-screen through the whole extended hero and into the sections below.
+ */
+function ScrollCue() {
+  const [opacity, setOpacity] = useState(1)
+
+  useEffect(() => {
+    const onScroll = () => setOpacity(Math.max(0, 1 - window.scrollY / (window.innerHeight * 0.5)))
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  return (
+    <div
+      aria-hidden="true"
+      className="fixed inset-x-0 bottom-6 z-40 mx-auto flex w-full max-w-6xl justify-center px-6 transition-opacity duration-150"
+      style={{ opacity }}
+    >
+      <span
+        className="flex flex-row items-center gap-2 text-[13px] tracking-wide text-on-inverse/40 animate-[gentle-bounce_2.2s_ease-in-out_infinite]"
+        style={subheading}
+      >
+        Scroll
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 4v16m0 0l-6-6m6 6l6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </span>
+    </div>
+  )
+}
+
+/**
+ * Two-tier scroll-reactive star field, hero-scoped only — separate from
+ * StarField (untouched, still used in Process/Closing CTA). Owns its own
+ * ref + useScroll target so rotation tracks progress across the hero's own
+ * height, not the whole document.
+ */
+function GalaxyStars() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const reduceMotion = useReducedMotion()
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end start'],
+  })
+
+  const farRotate = useTransform(scrollYProgress, [0, 1], [0, 18])
+  const nearRotate = useTransform(scrollYProgress, [0, 1], [0, 36])
+
+  return (
+    <div ref={containerRef} className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <motion.div
+        className="absolute inset-0"
+        style={{ rotate: reduceMotion ? 0 : farRotate, willChange: 'transform' }}
+      >
+        {GALAXY_STARS_FAR.map(([left, top, size, opacity], i) => (
+          <span
+            key={i}
+            className="absolute rounded-full bg-white animate-twinkle"
+            style={{
+              left: `${left}%`,
+              top: `${top}%`,
+              width: `${size}px`,
+              height: `${size}px`,
+              opacity,
+              animationDelay: `${(i % 9) * 0.6}s`,
+              animationDuration: `${5 + (i % 5)}s`,
+            }}
+          />
+        ))}
+      </motion.div>
+
+      <motion.div
+        className="absolute inset-0"
+        style={{ rotate: reduceMotion ? 0 : nearRotate, willChange: 'transform' }}
+      >
+        {GALAXY_STARS_NEAR.map(([left, top, size, opacity], i) => (
+          <span
+            key={i}
+            className="absolute rounded-full bg-white animate-twinkle"
+            style={{
+              left: `${left}%`,
+              top: `${top}%`,
+              width: `${size}px`,
+              height: `${size}px`,
+              opacity,
+              animationDelay: `${(i % 9) * 0.4}s`,
+              animationDuration: `${4 + (i % 5)}s`,
+            }}
+          />
+        ))}
+      </motion.div>
+    </div>
+  )
+}
+
+/**
+ * The 3/2/1 process cards. Each number brightens once a LATER milestone has
+ * fully scrolled into view, not its own card: "3" brightens when card 2 is
+ * fully in view, "2" brightens when card 3 is fully in view, and "1"
+ * brightens once the end of the whole panel (past the rocket) is fully in
+ * view. Each of the three trackers uses offset ['start end', 'end end'] —
+ * progress 0 as the target first appears at the bottom of the viewport,
+ * progress 1 exactly when its bottom edge reaches the viewport's bottom
+ * edge (i.e. the moment it's "fully rendered in") — so opacity ramps to
+ * full brightness right at that trigger and stays there (useTransform
+ * clamps past 1).
+ */
+function ProcessCards() {
+  const card2Ref = useRef<HTMLDivElement>(null)
+  const card3Ref = useRef<HTMLDivElement>(null)
+  const endRef = useRef<HTMLDivElement>(null)
+
+  const { scrollYProgress: card2Progress } = useScroll({ target: card2Ref, offset: ['start end', 'end end'] })
+  const { scrollYProgress: card3Progress } = useScroll({ target: card3Ref, offset: ['start end', 'end end'] })
+  const { scrollYProgress: endProgress } = useScroll({ target: endRef, offset: ['start end', 'end end'] })
+
+  const opacities = [
+    useTransform(card2Progress, [0, 1], [0.25, 0.95]), // "3" — flashes when card 2 is fully in
+    useTransform(card3Progress, [0, 1], [0.25, 0.95]), // "2" — flashes when card 3 is fully in
+    useTransform(endProgress, [0, 1], [0.25, 0.95]), // "1" — flashes when the panel's end is fully in
+  ]
+  const cardRefs = [undefined, card2Ref, card3Ref]
+
+  return (
+    <>
+      <div className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-3 sm:gap-5">
+        {PROCESS.map((item, i) => (
+          <div
+            key={item.step}
+            ref={cardRefs[i]}
+            className="relative border border-white/10 bg-white/[0.03] p-6 sm:p-7 transition-colors hover:border-white/20"
+          >
+            <h3 className="text-lg font-semibold">{item.title}</h3>
+            <p className="mt-1 text-sm font-medium text-on-inverse/70">{item.subtitle}</p>
+            <p className="mt-3 text-sm leading-relaxed text-on-inverse/50">{item.detail}</p>
+
+            <motion.span
+              className="pointer-events-none absolute right-5 top-4 text-5xl text-[var(--portal-gold-accent)]"
+              style={{ ...display, opacity: opacities[i] }}
+              aria-hidden="true"
+            >
+              {3 - i}
+            </motion.span>
+          </div>
+        ))}
+      </div>
+
+      <div ref={endRef} className="mt-10 flex justify-center sm:mt-12">
+        <RocketIcon />
+      </div>
+    </>
   )
 }
 
@@ -274,10 +475,14 @@ export default function LandingDesignPage() {
         </div>
       </nav>
 
-      {/* Hero (§6.1.1 §3) — nebula photo carried over from the cycle's design reference, kept structurally intact */}
+      {/* Hero (§6.1.1 §3) — nebula photo carried over from the cycle's design reference, kept structurally intact.
+          Extended well past 100svh so the nebula/star rotation has real scroll distance to play out; the photo
+          itself stays confined to the first screen (stretching it across the extra height would distort it) and
+          the extended zone below is flat navy carrying just the nebula cloud + stars. */}
       <header
         id="top"
-        className="relative flex min-h-[100svh] w-full flex-col justify-center overflow-hidden"
+        className="relative w-full overflow-hidden bg-[var(--portal-navy-dark)]"
+        style={{ minHeight: '100svh' }}
       >
         <style>{`
           @keyframes gentle-bounce {
@@ -285,33 +490,38 @@ export default function LandingDesignPage() {
             50% { transform: translateY(-5px); }
           }
         `}</style>
-        <Image
-          src={HERO_MOBILE}
-          alt="A deep navy nebula scattered with starlight above the curve of a distant planet"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover md:hidden"
-        />
-        <Image
-          src={HERO_DESKTOP}
-          alt="A deep navy nebula scattered with starlight above the curve of a distant planet"
-          fill
-          priority
-          sizes="100vw"
-          className="hidden object-cover md:block"
-        />
-        <div aria-hidden="true" className="absolute inset-0 bg-[var(--portal-navy-dark)]/15" />
-        <div
-          aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 h-[60%]"
-          style={{
-            background:
-              'linear-gradient(to top, var(--portal-navy-dark) 12%, color-mix(in oklch, var(--portal-navy-dark) 78%, transparent) 45%, transparent 100%)',
-          }}
-        />
 
-        <div className="relative mx-auto w-full max-w-4xl translate-y-10 px-5 py-16 sm:px-6 sm:py-24 text-center">
+        <div className="absolute inset-x-0 top-0 h-[100svh]">
+          <Image
+            src={HERO_MOBILE}
+            alt="A deep navy nebula scattered with starlight above the curve of a distant planet"
+            fill
+            priority
+            sizes="(min-width: 768px) 0px, 100vw"
+            className="object-cover object-[center_20%] md:hidden"
+          />
+          <Image
+            src={HERO_DESKTOP}
+            alt="A deep navy nebula scattered with starlight above the curve of a distant planet"
+            fill
+            priority
+            sizes="(min-width: 768px) 100vw, 0px"
+            className="hidden object-cover object-[center_20%] md:block"
+          />
+          <div aria-hidden="true" className="absolute inset-0 bg-[var(--portal-navy-dark)]/15" />
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-[60%]"
+            style={{
+              background:
+                'linear-gradient(to top, var(--portal-navy-dark) 12%, color-mix(in oklch, var(--portal-navy-dark) 78%, transparent) 45%, transparent 100%)',
+            }}
+          />
+        </div>
+
+        <GalaxyStars />
+
+        <div className="relative mx-auto w-full max-w-4xl px-5 sm:px-6 text-center" style={{ marginTop: '58vh' }}>
           <div aria-hidden="true" className="mx-auto mb-6 h-px w-16 bg-[var(--portal-gold-accent)]" />
 
           <h1 className="text-[clamp(3rem,13vw,7rem)] leading-[0.98] text-on-inverse">
@@ -334,17 +544,7 @@ export default function LandingDesignPage() {
           </div>
         </div>
 
-        <div className="absolute inset-x-0 bottom-6 mx-auto flex w-full max-w-6xl justify-center px-6">
-          <span
-            className="flex flex-col items-center gap-1 text-[13px] tracking-wide text-on-inverse/40 animate-[gentle-bounce_2.2s_ease-in-out_infinite]"
-            style={subheading}
-          >
-            Scroll
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M12 4v16m0 0l-6-6m6 6l6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-        </div>
+        <ScrollCue />
       </header>
 
       {/* Announcement banner (§6.1.1 §1) — normal document flow, between the hero and the process section */}
@@ -367,30 +567,7 @@ export default function LandingDesignPage() {
         <div className="relative mx-auto max-w-6xl px-5">
           <h2 className="text-center text-3xl sm:text-4xl">{CYCLE.processHeading}</h2>
 
-          <div className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-3 sm:gap-5">
-            {PROCESS.map((item, i) => (
-              <div
-                key={item.step}
-                className="relative border border-white/10 bg-white/[0.03] p-6 sm:p-7 transition-colors hover:border-white/20"
-              >
-                <h3 className="text-lg font-semibold">{item.title}</h3>
-                <p className="mt-1 text-sm font-medium text-on-inverse/70">{item.subtitle}</p>
-                <p className="mt-3 text-sm leading-relaxed text-on-inverse/50">{item.detail}</p>
-
-                <span
-                  className="pointer-events-none absolute right-5 top-4 text-5xl text-[var(--portal-gold-accent)]/25"
-                  style={display}
-                  aria-hidden="true"
-                >
-                  {3 - i}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 flex justify-center sm:mt-12">
-            <RocketIcon />
-          </div>
+          <ProcessCards />
         </div>
       </section>
 

@@ -3,6 +3,8 @@
 import BrotherNav from '@/components/brother/BrotherNav'
 import PullToRefresh from '@/components/PullToRefresh'
 import RusheePhoto from '@/components/RusheePhoto'
+import CalendarExportButton from '@/components/portal/CalendarExportButton'
+import AddToGoogleCalendarButton from '@/components/portal/AddToGoogleCalendarButton'
 import Link from 'next/link'
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -815,8 +817,19 @@ function BrotherEventsContent() {
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen lg:min-h-0">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
-          <p className="text-xs uppercase tracking-[0.35em] text-ink-subtle">Brother Events</p>
-          <h1 className="mt-2 text-3xl font-semibold text-ink">Rush Events</h1>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-ink-subtle">Brother Events</p>
+              <h1 className="mt-2 text-3xl font-semibold text-ink">Rush Events</h1>
+            </div>
+            {events.length > 0 && (
+              <CalendarExportButton
+                events={events}
+                label="Download (.ics)"
+                buttonClassName="btn btn-secondary btn-sm whitespace-nowrap"
+              />
+            )}
+          </div>
           <p className="mt-2 text-sm text-ink-muted">
             Review attendance and launch evaluations when the window opens.
           </p>
@@ -850,6 +863,13 @@ function BrotherEventsContent() {
                 </span>
               </div>
 
+              <div className="mb-4">
+                <AddToGoogleCalendarButton
+                  event={event}
+                  className="btn btn-secondary btn-sm btn-block"
+                />
+              </div>
+
               <div className="space-y-2 text-ink-muted mb-4 text-sm">
                 <p>📅 {formatDateInEST(event.date)}</p>
                 <p>🕐 {event.time || 'TBA'}</p>
@@ -875,6 +895,13 @@ function BrotherEventsContent() {
             </div>
           ))}
         </div>
+
+        {/* Calendar Export (bulk, below list) */}
+        {events.length > 0 && (
+          <div className="mt-6 flex flex-col items-center text-center">
+            <CalendarExportButton events={events} showNote />
+          </div>
+        )}
         </main>
       </PullToRefresh>
     </div>
