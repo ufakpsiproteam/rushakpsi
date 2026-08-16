@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServiceClient, logAudit } from '@/lib/server-auth'
 import { hashInviteToken, tokenLooksValid } from '@/lib/invite-tokens'
 import { POLICY_DEFAULTS, validatePassword } from '@/lib/policy'
+import { areBrotherInvitesEnabled, BROTHER_INVITES_DISABLED_MESSAGE } from '@/lib/inviteToggle'
 
 /**
  * Accept a brother invitation — PRD §6.2.2, R51, R54.
@@ -12,6 +13,10 @@ import { POLICY_DEFAULTS, validatePassword } from '@/lib/policy'
  */
 export async function POST(request: NextRequest) {
   try {
+    if (!(await areBrotherInvitesEnabled())) {
+      return NextResponse.json({ error: BROTHER_INVITES_DISABLED_MESSAGE }, { status: 403 })
+    }
+
     const { token, password } = await request.json()
 
     if (!tokenLooksValid(token)) {

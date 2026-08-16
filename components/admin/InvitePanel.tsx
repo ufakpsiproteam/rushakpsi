@@ -31,7 +31,7 @@ function inviteState(invite: Invite): { label: string; className: string } {
   return { label: 'Pending', className: 'badge badge-warning' }
 }
 
-export default function InvitePanel() {
+export default function InvitePanel({ enabled = true }: { enabled?: boolean }) {
   const [invites, setInvites] = useState<Invite[]>([])
   const [loading, setLoading] = useState(true)
   const [fullName, setFullName] = useState('')
@@ -125,6 +125,12 @@ export default function InvitePanel() {
         person, works once, and expires in 14 days.
       </p>
 
+      {!enabled && (
+        <div className="alert alert-negative mt-4" role="alert">
+          New brother account creation is turned off. Turn it back on above to invite someone.
+        </div>
+      )}
+
       <form onSubmit={issue} className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <div>
           <label className="field-label" htmlFor="invite-full-name">
@@ -136,6 +142,7 @@ export default function InvitePanel() {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Jordan Reyes"
+            disabled={!enabled}
             required
           />
         </div>
@@ -151,11 +158,12 @@ export default function InvitePanel() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="jordan@ufl.edu"
+            disabled={!enabled}
             required
           />
         </div>
 
-        <button type="submit" disabled={submitting} className="btn btn-primary">
+        <button type="submit" disabled={submitting || !enabled} className="btn btn-primary">
           {submitting ? 'Creating…' : 'Create invite'}
         </button>
       </form>

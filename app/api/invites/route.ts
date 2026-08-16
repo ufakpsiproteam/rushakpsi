@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireBearer, unwrapAuth, getServiceClient, logAudit } from '@/lib/server-auth'
 import { generateInviteToken, hashInviteToken } from '@/lib/invite-tokens'
 import { POLICY_DEFAULTS } from '@/lib/policy'
+import { areBrotherInvitesEnabled, BROTHER_INVITES_DISABLED_MESSAGE } from '@/lib/inviteToggle'
 
 /**
  * Issue and revoke brother invitations — PRD §6.2.2, S7.
@@ -47,6 +48,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: failure?.error ?? 'Unauthorized' }, {
         status: failure?.status ?? 401,
       })
+    }
+
+    if (!(await areBrotherInvitesEnabled())) {
+      return NextResponse.json({ error: BROTHER_INVITES_DISABLED_MESSAGE }, { status: 403 })
     }
 
     const { email, fullName } = await request.json()

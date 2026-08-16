@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceClient } from '@/lib/server-auth'
 import { hashInviteToken, tokenLooksValid } from '@/lib/invite-tokens'
+import { areBrotherInvitesEnabled } from '@/lib/inviteToggle'
 
 /**
  * Validate an invitation token so /invite/[token] can pre-fill the name
@@ -12,6 +13,10 @@ export async function POST(request: NextRequest) {
     const { token } = await request.json()
 
     if (!tokenLooksValid(token)) {
+      return NextResponse.json({ valid: false }, { status: 200 })
+    }
+
+    if (!(await areBrotherInvitesEnabled())) {
       return NextResponse.json({ valid: false }, { status: 200 })
     }
 

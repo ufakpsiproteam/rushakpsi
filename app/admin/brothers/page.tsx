@@ -2,6 +2,7 @@
 
 import AdminNav from '@/components/admin/AdminNav'
 import InvitePanel from '@/components/admin/InvitePanel'
+import InviteToggle from '@/components/admin/InviteToggle'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
@@ -20,6 +21,7 @@ export default function AdminBrothers() {
   const [showRoleModal, setShowRoleModal] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [saving, setSaving] = useState(false)
+  const [invitesEnabled, setInvitesEnabled] = useState(true)
 
   useEffect(() => {
     loadBrothers()
@@ -183,7 +185,8 @@ export default function AdminBrothers() {
           </p>
         </div>
 
-        <InvitePanel />
+        <InviteToggle onChange={setInvitesEnabled} />
+        <InvitePanel enabled={invitesEnabled} />
 
         {/* Search Bar */}
         {!loading && brothers.length > 0 && (
