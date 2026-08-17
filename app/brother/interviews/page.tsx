@@ -85,25 +85,50 @@ function MultiSelect({
   selected,
   onChange,
   renderLabel,
+  singleSelect,
 }: {
   label: string
   items: { id: string; label: string }[]
   selected: string[]
   onChange: (ids: string[]) => void
   renderLabel?: (item: { id: string; label: string }) => React.ReactNode
+  singleSelect?: boolean
 }) {
+  const [search, setSearch] = useState('')
+
   function toggle(id: string) {
+    if (singleSelect) {
+      onChange([id])
+      return
+    }
     onChange(selected.includes(id) ? selected.filter(s => s !== id) : [...selected, id])
   }
+
+  const filtered = items.filter(item =>
+    !search || item.label.toLowerCase().includes(search.toLowerCase())
+  )
+
   return (
     <div>
       <p className="text-sm font-medium text-ink-muted mb-1">{label}</p>
+      <input
+        type="text"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        placeholder={`Search ${label.toLowerCase()}…`}
+        className="w-full border border-line-strong rounded px-3 py-1.5 text-sm mb-1.5 focus:outline-none focus:ring-2 focus:ring-ink"
+      />
       <div className="border border-line-strong rounded max-h-48 overflow-y-auto divide-y divide-line">
-        {items.length === 0 && <p className="text-xs text-ink-subtle px-3 py-2">None available</p>}
-        {items.map(item => (
+        {filtered.length === 0 && (
+          <p className="text-xs text-ink-subtle px-3 py-2">
+            {items.length === 0 ? 'None available' : 'No matches'}
+          </p>
+        )}
+        {filtered.map(item => (
           <label key={item.id} className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-alt cursor-pointer">
             <input
-              type="checkbox"
+              type={singleSelect ? 'radio' : 'checkbox'}
+              name={singleSelect ? `single-select-${label}` : undefined}
               checked={selected.includes(item.id)}
               onChange={() => toggle(item.id)}
               className="rounded"
@@ -159,7 +184,27 @@ function StartInterviewSheet({
   }
 
   const isCasual = type === 'casual'
-  const casualReady = !isCasual || selectedBrothers.every(bid => !!casualAssignments[bid])
+  // Casual uses a 1 brother : 1 rushee model, so every selected rushee
+  // needs a grader — that's only achievable if there are at least as
+  // many panelists as rushees.
+  const ratioOk = !isCasual || selectedBrothers.length >= selectedRushees.length
+  const unassignedRushees = isCasual
+    ? selectedRushees.filter(rid => !Object.values(casualAssignments).includes(rid))
+    : []
+  const casualReady = !isCasual || (
+    ratioOk &&
+    selectedBrothers.every(bid => !!casualAssignments[bid]) &&
+    unassignedRushees.length === 0
+  )
+
+  function handleTypeChange(t: InterviewType) {
+    setType(t)
+    // Professional is single-rushee; trim a stale multi-selection so
+    // switching type doesn't silently carry over an invalid selection.
+    if (t === 'professional' && selectedRushees.length > 1) {
+      toggleRushees(selectedRushees.slice(0, 1))
+    }
+  }
 
   function handleSubmit() {
     setError(null)
@@ -202,7 +247,7 @@ function StartInterviewSheet({
               {(['casual', 'professional'] as InterviewType[]).map(t => (
                 <button
                   key={t}
-                  onClick={() => setType(t)}
+                  onClick={() => handleTypeChange(t)}
                   className={`flex-1 py-2 rounded border text-sm font-medium capitalize transition-colors ${
                     type === t
                       ? 'bg-inverse text-on-inverse border-inverse'
@@ -220,6 +265,7 @@ function StartInterviewSheet({
             items={rusheeItems}
             selected={selectedRushees}
             onChange={toggleRushees}
+            singleSelect={!isCasual}
           />
 
           <MultiSelect
@@ -228,6 +274,13 @@ function StartInterviewSheet({
             selected={selectedBrothers}
             onChange={toggleBrothers}
           />
+
+          {isCasual && selectedRushees.length > 0 && !ratioOk && (
+            <p className="text-xs text-amber-600">
+              Need at least {selectedRushees.length} panelist{selectedRushees.length !== 1 ? 's' : ''} for{' '}
+              {selectedRushees.length} rushee{selectedRushees.length !== 1 ? 's' : ''} (currently {selectedBrothers.length}).
+            </p>
+          )}
 
           {isCasual && selectedBrothers.length > 0 && (
             <div>
@@ -259,6 +312,11 @@ function StartInterviewSheet({
                   )
                 })}
               </div>
+              {ratioOk && unassignedRushees.length > 0 && (
+                <p className="text-xs text-amber-600 mt-1.5">
+                  Not yet assigned: {unassignedRushees.map(rid => rushees.find(r => r.id === rid)?.name ?? rid).join(', ')}
+                </p>
+              )}
             </div>
           )}
 

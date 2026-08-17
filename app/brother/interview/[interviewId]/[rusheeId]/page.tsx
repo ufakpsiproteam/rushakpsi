@@ -481,16 +481,13 @@ export default function InterviewModePage() {
               </div>
             )}
 
-            {/* Casual: conflict */}
+            {/* Casual: conflict — noted, not blocking (R4) */}
             {interviewType === 'casual' && (
-              <div className={`rounded-lg p-4 border ${casualConflictFlagged ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
+              <div className="rounded-lg p-4 border bg-amber-50 border-amber-200">
                 {casualConflictFlagged ? (
-                  <>
-                    <p className="text-sm text-red-700 font-medium">Conflict of interest flagged</p>
-                    <p className="text-sm text-red-600 mt-1">
-                      You cannot score this rushee. Contact the recruitment director to be reassigned.
-                    </p>
-                  </>
+                  <p className="text-xs text-amber-700">
+                    Conflict of interest noted for this rushee. You may still complete the interview.
+                  </p>
                 ) : (
                   <>
                     <p className="text-sm text-amber-800 font-medium mb-2">Conflict of interest?</p>
@@ -509,14 +506,12 @@ export default function InterviewModePage() {
               </div>
             )}
 
-            {!casualConflictFlagged && (
-              <button
-                onClick={() => { setCurrentQIdx(0); setStep('question') }}
-                className="w-full bg-inverse hover:bg-inverse-soft text-on-inverse py-3 rounded-lg font-medium"
-              >
-                Begin Interview
-              </button>
-            )}
+            <button
+              onClick={() => { setCurrentQIdx(0); setStep('question') }}
+              className="w-full bg-inverse hover:bg-inverse-soft text-on-inverse py-3 rounded-lg font-medium"
+            >
+              Begin Interview
+            </button>
           </div>
         )}
 

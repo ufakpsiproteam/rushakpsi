@@ -4,7 +4,7 @@ import BrotherNav from '@/components/brother/BrotherNav'
 import RusheePhoto from '@/components/RusheePhoto'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect, useCallback } from 'react'
-import { getRushee, createOrUpdateEvaluation, getEvaluation, getPersonalNotes } from '@/lib/api'
+import { getRushee, createOrUpdateEvaluation, getEvaluation, getPersonalNotes, hasMetRusheeAtEvent } from '@/lib/api'
 import { getEventById } from '@/lib/database'
 import {
   POLICY,
@@ -69,9 +69,23 @@ export default function EvaluateRushee() {
 
     async function loadData() {
       try {
-        // R31 — the evaluation window. Checked here for a fast, clear
-        // message; the authoritative check is server-side on write.
-        if (eventId) {
+        const [rusheeData, notes, existing] = await Promise.all([
+          getRushee(rusheeId),
+          getPersonalNotes(rusheeId),
+          getEvaluation(rusheeId),
+        ])
+
+        if (cancelled) return
+
+        // A brother may only create a first-time evaluation for a rushee
+        // they've met during an event currently in its evaluation phase.
+        // Editing an existing evaluation is unrestricted — allowed anytime.
+        if (!existing) {
+          if (!eventId) {
+            setError('You can only create a new evaluation through the Events flow — mark this rushee as met first.')
+            setLoading(false)
+            return
+          }
           const { data: event, error: eventError } = await getEventById(eventId)
           if (eventError || !event) {
             setError('Could not load this event.')
@@ -83,15 +97,13 @@ export default function EvaluateRushee() {
             setLoading(false)
             return
           }
+          const met = await hasMetRusheeAtEvent(rusheeId, eventId)
+          if (!met) {
+            setError('Mark this rushee as met at this event before evaluating them.')
+            setLoading(false)
+            return
+          }
         }
-
-        const [rusheeData, notes, existing] = await Promise.all([
-          getRushee(rusheeId),
-          getPersonalNotes(rusheeId),
-          getEvaluation(rusheeId),
-        ])
-
-        if (cancelled) return
 
         setRushee(rusheeData)
         setPersonalNotes(notes || '')
@@ -179,11 +191,24 @@ export default function EvaluateRushee() {
     setSaving(true)
 
     try {
-      // R31 — re-verify the window immediately before writing.
-      if (eventId) {
+      // R31 — re-verify the window immediately before writing. Only
+      // applies to first-time creation; updating an existing evaluation
+      // is allowed anytime regardless of event phase.
+      if (!isUpdate) {
+        if (!eventId) {
+          setError('You can only create a new evaluation through the Events flow — mark this rushee as met first.')
+          setSaving(false)
+          return
+        }
         const { data: event, error: eventError } = await getEventById(eventId)
         if (eventError || !event || (event as any).status !== 'evaluation') {
           setError('Evaluations are no longer open for this event.')
+          setSaving(false)
+          return
+        }
+        const met = await hasMetRusheeAtEvent(rusheeId, eventId)
+        if (!met) {
+          setError('Mark this rushee as met at this event before evaluating them.')
           setSaving(false)
           return
         }

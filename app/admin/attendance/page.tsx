@@ -22,7 +22,7 @@ interface AttendanceRecord {
   rushee_id: string
   event_id: string
   photo_url: string
-  status: 'pending' | 'approved' | 'rejected'
+  status: 'pending' | 'approved' | 'rejected' | 'removed'
   created_at: string
   group_number?: number
   rushee: {
@@ -39,7 +39,8 @@ export default function AdminAttendance() {
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([])
   const [allAttendanceRecords, setAllAttendanceRecords] = useState<AttendanceRecord[]>([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved'>('all')
+  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'removed'>('all')
+  const [groupCountInput, setGroupCountInput] = useState<number | ''>('')
   const [searchQuery, setSearchQuery] = useState('')
   const [photoModal, setPhotoModal] = useState<string | null>(null)
   const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null)
@@ -103,6 +104,7 @@ export default function AdminAttendance() {
       }
     }
 
+    setGroupCountInput('')
     fetchAttendance()
   }, [selectedEvent])
 
@@ -110,7 +112,7 @@ export default function AdminAttendance() {
     if (!currentUser) return
 
     try {
-      const { error } = await updateAttendanceStatus(recordId, 'approved', currentUser)
+      const { error } = await updateAttendanceStatus(recordId, 'approved')
       if (error) throw error
 
       // Update local state
@@ -144,7 +146,7 @@ export default function AdminAttendance() {
     if (!currentUser) return
 
     try {
-      const { error } = await updateAttendanceStatus(recordId, 'rejected', currentUser)
+      const { error } = await updateAttendanceStatus(recordId, 'rejected')
       if (error) throw error
 
       // Update local state
@@ -171,6 +173,40 @@ export default function AdminAttendance() {
     } catch (error) {
       console.error('Error rejecting attendance:', error)
       alert('Failed to reject attendance')
+    }
+  }
+
+  const handleRemove = async (recordId: string) => {
+    if (!currentUser) return
+    if (!confirm('Remove this rushee\'s attendance for this event?')) return
+
+    try {
+      const { error } = await updateAttendanceStatus(recordId, 'removed')
+      if (error) throw error
+
+      // Update local state
+      setAttendanceRecords(prev =>
+        prev.map(record =>
+          record.id === recordId
+            ? { ...record, status: 'removed' }
+            : record
+        )
+      )
+      setAllAttendanceRecords(prev =>
+        prev.map(record =>
+          record.id === recordId
+            ? { ...record, status: 'removed' }
+            : record
+        )
+      )
+
+      if (photoModal) {
+        setPhotoModal(null)
+        setSelectedRecord(null)
+      }
+    } catch (error) {
+      console.error('Error removing attendance:', error)
+      alert('Failed to remove attendance')
     }
   }
 
@@ -289,6 +325,41 @@ export default function AdminAttendance() {
     }
   }
 
+  const handleChangeGroupCount = async () => {
+    if (!selectedEvent || groupCountInput === '') return
+
+    if (!confirm(`Change to ${groupCountInput} groups and redistribute all attendees? Every rushee's group number will be reassigned.`)) {
+      return
+    }
+
+    try {
+      const { setEventGroupCount } = await import('@/lib/database')
+      const { error } = await setEventGroupCount(selectedEvent, Number(groupCountInput))
+
+      if (error) throw error
+
+      // Reflect the new count on the selected event and reload attendance records
+      setEvents(prev =>
+        prev.map(event =>
+          event.id === selectedEvent
+            ? { ...event, number_of_groups: Number(groupCountInput) }
+            : event
+        )
+      )
+
+      const { data } = await getAttendanceForEvent(selectedEvent)
+      if (data) {
+        setAttendanceRecords(data as AttendanceRecord[])
+      }
+
+      setGroupCountInput('')
+      alert('Group count updated and attendees redistributed!')
+    } catch (error) {
+      console.error('Error changing group count:', error)
+      alert('Failed to change group count')
+    }
+  }
+
   const selectedEventData = events.find(e => e.id === selectedEvent)
 
   // Calculate counts using all attendance records
@@ -307,7 +378,8 @@ export default function AdminAttendance() {
     const matchesFilter =
       filter === 'all' ||
       (filter === 'pending' && record.status === 'pending') ||
-      (filter === 'approved' && record.status === 'approved')
+      (filter === 'approved' && record.status === 'approved') ||
+      (filter === 'removed' && record.status === 'removed')
 
     // Filter by group
     const matchesGroup = groupFilter === null || record.group_number === groupFilter
@@ -403,7 +475,7 @@ export default function AdminAttendance() {
             {/* Group Distribution Info */}
             {selectedEventData && selectedEventData.number_of_groups && (
               <div className="bg-surface-alt border border-line rounded-2xl p-4 mb-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
                     <p className="text-ink text-sm font-semibold mb-1">
                       Group Configuration
@@ -417,8 +489,30 @@ export default function AdminAttendance() {
                       Distribution
                     </p>
                     <p className="text-inverse-soft text-sm">
-                      ~{Math.ceil(attendanceRecords.filter(r => r.status !== 'rejected').length / selectedEventData.number_of_groups)} attendees per group
+                      ~{Math.ceil(attendanceRecords.filter(r => r.status === 'pending' || r.status === 'approved').length / selectedEventData.number_of_groups)} attendees per group
                     </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="group-count-input" className="text-ink text-sm font-semibold">
+                      Change to
+                    </label>
+                    <input
+                      id="group-count-input"
+                      type="number"
+                      min={1}
+                      max={20}
+                      placeholder={String(selectedEventData.number_of_groups)}
+                      value={groupCountInput}
+                      onChange={(e) => setGroupCountInput(e.target.value === '' ? '' : Number(e.target.value))}
+                      className="w-20 px-2 py-1 bg-white border border-line rounded-lg text-ink text-sm focus:outline-none focus:ring-2 focus:ring-ink focus:border-ink"
+                    />
+                    <button
+                      onClick={handleChangeGroupCount}
+                      disabled={groupCountInput === '' || groupCountInput === selectedEventData.number_of_groups}
+                      className="px-3 py-1 bg-ink text-white rounded-lg text-sm font-semibold hover:bg-inverse-soft transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      Update &amp; Redistribute
+                    </button>
                   </div>
                 </div>
               </div>
@@ -492,6 +586,16 @@ export default function AdminAttendance() {
                 >
                   Approved ({attendanceRecords.filter(r => r.status === 'approved').length})
                 </button>
+                <button
+                  onClick={() => setFilter('removed')}
+                  className={`px-4 py-2 border rounded-lg text-sm transition-colors ${
+                    filter === 'removed'
+                      ? 'bg-ink text-white border-ink'
+                      : 'bg-surface-alt border-line text-ink-muted hover:bg-surface-sunken'
+                  }`}
+                >
+                  Removed ({attendanceRecords.filter(r => r.status === 'removed').length})
+                </button>
               </div>
             </div>
 
@@ -550,6 +654,8 @@ export default function AdminAttendance() {
                           ? 'bg-amber-50 border-amber-200'
                           : record.status === 'approved'
                           ? 'bg-emerald-50 border-emerald-200'
+                          : record.status === 'removed'
+                          ? 'bg-surface-alt border-line'
                           : 'bg-rose-50 border-rose-200'
                       }`}
                     >
@@ -611,12 +717,14 @@ export default function AdminAttendance() {
                           <div className="flex items-center gap-2">
                             <span className="text-emerald-700 text-sm font-semibold">Approved</span>
                             <button
-                              onClick={() => handleReject(record.id)}
+                              onClick={() => handleRemove(record.id)}
                               className="px-3 py-1 bg-rose-100 text-rose-700 rounded-lg text-sm font-semibold hover:bg-rose-200 transition-colors"
                             >
                               Remove
                             </button>
                           </div>
+                        ) : record.status === 'removed' ? (
+                          <span className="text-ink-muted text-sm font-semibold">Removed</span>
                         ) : (
                           <span className="text-rose-700 text-sm font-semibold">Rejected</span>
                         )}
@@ -692,6 +800,9 @@ export default function AdminAttendance() {
                   )}
                   {selectedRecord.status === 'rejected' && (
                     <span className="text-rose-700 font-semibold">Rejected</span>
+                  )}
+                  {selectedRecord.status === 'removed' && (
+                    <span className="text-ink-muted font-semibold">Removed</span>
                   )}
                 </div>
 

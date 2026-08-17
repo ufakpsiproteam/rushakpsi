@@ -264,6 +264,24 @@ export async function getEvaluation(rusheeId: string, eventId?: string, brotherI
   return data
 }
 
+// True when the given brother has a recorded "met" interaction with this
+// rushee at this event — the gate for creating a first-time evaluation.
+export async function hasMetRusheeAtEvent(rusheeId: string, eventId: string, brotherId?: string): Promise<boolean> {
+  if (!brotherId) {
+    brotherId = await getCurrentUserId()
+  }
+  const { data, error } = await supabase
+    .from('brother_rushee_interactions')
+    .select('brother_id')
+    .eq('brother_id', brotherId)
+    .eq('rushee_id', rusheeId)
+    .eq('event_id', eventId)
+    .maybeSingle()
+
+  if (error && error.code !== 'PGRST116') throw error
+  return Boolean(data)
+}
+
 export async function createOrUpdateEvaluation(
   rusheeId: string,
   evaluation: {

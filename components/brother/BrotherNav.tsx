@@ -65,6 +65,7 @@ export default function BrotherNav({ onBeforeNavigate }: BrotherNavProps = {}) {
   const mobileNavItems = [
     navItems[0], // dashboard
     navItems[1], // events
+    navItems[2], // rushees
     navItems[3], // interviews
     {
       href: '/brother/account',

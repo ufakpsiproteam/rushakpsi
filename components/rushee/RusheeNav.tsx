@@ -12,11 +12,12 @@ import { useAuth } from '@/contexts/AuthContext'
  * Dashboard · Events · Application · Info · Status, an account icon and
  * Sign Out.
  *
- * Mobile: a floating bottom tab bar with FIVE tabs —
- * Dashboard · Events · Status · Info · Account. Status is one of the
- * most-visited pages during decision windows and must be reachable in one
- * tap. It previously had three tabs and neither Status nor Info was among
- * them, leaving both unreachable on a phone.
+ * Mobile: a floating bottom tab bar with SIX tabs —
+ * Dashboard · Events · Application · Status · Info · Account, mirroring
+ * the desktop tab set. Status is one of the most-visited pages during
+ * decision windows and must be reachable in one tap. It previously had
+ * three tabs and neither Status nor Info was among them, leaving both
+ * unreachable on a phone.
  */
 
 interface NavItem {
@@ -69,6 +70,7 @@ const DESKTOP_TABS: NavItem[] = [
 const MOBILE_TABS: NavItem[] = [
   { href: '/rushee/dashboard', label: 'Home', icon: ICON.dashboard },
   { href: '/rushee/events', label: 'Events', icon: ICON.events },
+  { href: '/rushee/application', label: 'Application', icon: ICON.application },
   { href: '/rushee/status', label: 'Status', icon: ICON.status },
   { href: '/rushee/info', label: 'Info', icon: ICON.info },
   { href: '/rushee/account', label: 'Account', icon: ICON.account },

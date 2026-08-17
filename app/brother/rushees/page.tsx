@@ -305,10 +305,16 @@ export default function BrotherRushees() {
                   Save Notes
                 </button>
                 <button
-                  onClick={() => router.push(`/brother/evaluate/${selectedRusheeData.id}`)}
-                  className="mt-3 w-full px-4 py-2 border border-line-strong text-ink rounded-lg font-semibold hover:bg-surface-sunken transition-colors text-sm"
+                  onClick={() => selectedRusheeData.hasEvaluation && router.push(`/brother/evaluate/${selectedRusheeData.id}`)}
+                  disabled={!selectedRusheeData.hasEvaluation}
+                  title={!selectedRusheeData.hasEvaluation ? 'Mark this rushee as met during an event\'s evaluation phase to create an evaluation.' : undefined}
+                  className={`mt-3 w-full px-4 py-2 border rounded-lg font-semibold transition-colors text-sm ${
+                    selectedRusheeData.hasEvaluation
+                      ? 'border-line-strong text-ink hover:bg-surface-sunken cursor-pointer'
+                      : 'border-line text-ink-subtle cursor-not-allowed opacity-60'
+                  }`}
                 >
-                  Update Evaluation
+                  {selectedRusheeData.hasEvaluation ? 'Update Evaluation' : 'Not Yet Evaluated'}
                 </button>
               </div>
 

@@ -804,10 +804,10 @@ export default function AdminStanding() {
                       <select
                         value={toTriState(rushee.stagedInviteOnly !== undefined ? rushee.stagedInviteOnly : rushee.inviteOnly)}
                         onChange={(e) => handleInviteOnlyChange(rushee.id, e.target.value)}
-                        disabled={userAccessLevel === 'pro' || rushee.inviteOnly === false}
+                        disabled={userAccessLevel === 'pro'}
                         aria-label={`Staged Invite Only decision for ${rushee.name}`}
                         className={`px-3 py-2 rounded-lg font-semibold text-sm border focus:outline-none focus:ring-2 focus:ring-ink ${
-                          userAccessLevel === 'pro' || rushee.inviteOnly === false
+                          userAccessLevel === 'pro'
                             ? 'cursor-not-allowed opacity-60 border-transparent'
                             : 'cursor-pointer'
                         } ${
@@ -827,14 +827,12 @@ export default function AdminStanding() {
                         onChange={(e) => handleBidStatusChange(rushee.id, e.target.value)}
                         disabled={
                           userAccessLevel === 'pro' ||
-                          rushee.bidStatus === false ||
                           (rushee.stagedInviteOnly !== undefined ? rushee.stagedInviteOnly !== true : rushee.inviteOnly !== true)
                         }
                         aria-label={`Staged Bid decision for ${rushee.name}`}
                         title={rushee.inviteOnly !== true ? 'Invite Only must be published Yes first' : undefined}
                         className={`px-3 py-2 rounded-lg font-semibold text-sm border focus:outline-none focus:ring-2 focus:ring-ink ${
                           userAccessLevel === 'pro' ||
-                          rushee.bidStatus === false ||
                           (rushee.stagedInviteOnly !== undefined ? rushee.stagedInviteOnly !== true : rushee.inviteOnly !== true)
                             ? 'cursor-not-allowed opacity-60 border-transparent'
                             : 'cursor-pointer'

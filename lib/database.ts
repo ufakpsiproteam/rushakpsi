@@ -181,16 +181,15 @@ export async function getRusheeAttendance(rusheeId: string) {
     .order('created_at', { ascending: false })
 }
 
-export async function updateAttendanceStatus(attendanceId: string, status: 'approved' | 'rejected', reviewerId: string) {
-  return await supabase
-    .from('event_attendance')
-    // @ts-ignore - Supabase type inference issue
-    .update({
-      status,
-      reviewed_by: reviewerId,
-      reviewed_at: new Date().toISOString(),
+export async function updateAttendanceStatus(attendanceId: string, status: 'approved' | 'rejected' | 'removed', rejectReason?: string) {
+  const { data, error } = await (supabase as any)
+    .rpc('update_attendance_status', {
+      p_attendance_id: attendanceId,
+      p_status: status,
+      p_reject_reason: rejectReason ?? null,
     })
-    .eq('id', attendanceId)
+
+  return { data, error }
 }
 
 /**
@@ -200,6 +199,17 @@ export async function updateAttendanceStatus(attendanceId: string, status: 'appr
 export async function refreshEventGroups(eventId: string) {
   const { data, error } = await (supabase as any)
     .rpc('redistribute_event_groups', { p_event_id: eventId })
+
+  return { data, error }
+}
+
+/**
+ * Change the total number of groups for an event and redistribute all
+ * pending/approved attendees across the new group count.
+ */
+export async function setEventGroupCount(eventId: string, numberOfGroups: number) {
+  const { data, error } = await (supabase as any)
+    .rpc('set_event_group_count', { p_event_id: eventId, p_number_of_groups: numberOfGroups })
 
   return { data, error }
 }

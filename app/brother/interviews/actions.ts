@@ -38,6 +38,9 @@ export async function startInterview(
   if (!canManageInterviews(caller)) return { interviewId: null, error: 'Not authorized to start interviews.' }
   if (rusheeIds.length === 0) return { interviewId: null, error: 'Select at least one rushee.' }
   if (brotherIds.length === 0) return { interviewId: null, error: 'Select at least one panelist.' }
+  if (type === 'professional' && rusheeIds.length !== 1) {
+    return { interviewId: null, error: 'Professional interviews are for a single rushee.' }
+  }
 
   let assignments: { brother_id: string; rushee_ids: string[] }[]
 
@@ -47,6 +50,17 @@ export async function startInterview(
     if (missing.length > 0) return { interviewId: null, error: 'Every panelist needs exactly one assigned pledge.' }
     const invalid = brotherIds.filter(bid => !rusheeIds.includes(casualAssignments[bid]))
     if (invalid.length > 0) return { interviewId: null, error: 'A panelist is assigned to a pledge outside this session.' }
+    // Casual is a 1 brother : 1 rushee model — every selected rushee
+    // still needs at least one grader, which requires at least as many
+    // panelists as rushees.
+    if (brotherIds.length < rusheeIds.length) {
+      return { interviewId: null, error: 'Need at least as many panelists as rushees.' }
+    }
+    const covered = new Set(Object.values(casualAssignments))
+    const uncovered = rusheeIds.filter(rid => !covered.has(rid))
+    if (uncovered.length > 0) {
+      return { interviewId: null, error: 'Every rushee needs at least one assigned panelist.' }
+    }
     assignments = brotherIds.map(bid => ({ brother_id: bid, rushee_ids: [casualAssignments[bid]] }))
   } else {
     assignments = brotherIds.map(bid => ({ brother_id: bid, rushee_ids: rusheeIds }))
