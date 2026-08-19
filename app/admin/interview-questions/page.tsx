@@ -43,14 +43,14 @@ function ScoreOptionsEditor({
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">Score options (JSON)</label>
+      <label className="field-label">Score options (JSON)</label>
       <textarea
         rows={8}
         value={raw}
         onChange={e => handleChange(e.target.value)}
-        className="w-full font-mono text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="textarea font-mono text-xs"
       />
-      {parseError && <p className="text-red-600 text-xs mt-1">{parseError}</p>}
+      {parseError && <p className="field-error">{parseError}</p>}
     </div>
   )
 }
@@ -114,15 +114,15 @@ function QuestionEditForm({
   return (
     <div className="space-y-4">
       {question.needs_human_review && (
-        <div className="bg-amber-50 border border-amber-300 rounded p-3">
-          <p className="text-amber-800 text-sm font-medium">Needs human review</p>
+        <div className="alert alert-warning flex-col items-start">
+          <p className="text-sm font-medium">Needs human review</p>
           {question.review_reason && (
-            <p className="text-amber-700 text-xs mt-1">{question.review_reason}</p>
+            <p className="text-xs mt-1 opacity-90">{question.review_reason}</p>
           )}
           <button
             onClick={handleMarkReviewed}
             disabled={reviewPending}
-            className="mt-2 text-xs bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded disabled:opacity-50"
+            className="btn btn-secondary btn-sm mt-2"
           >
             {reviewPending ? 'Saving…' : 'Mark as reviewed'}
           </button>
@@ -130,27 +130,27 @@ function QuestionEditForm({
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Prompt</label>
+        <label className="field-label">Prompt</label>
         <textarea
           rows={4}
           value={fields.prompt}
           onChange={e => setFields(f => ({ ...f, prompt: e.target.value }))}
-          className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="textarea text-sm"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Help text (optional)</label>
+        <label className="field-label">Help text (optional)</label>
         <textarea
           rows={2}
           value={fields.help_text ?? ''}
           onChange={e => setFields(f => ({ ...f, help_text: e.target.value || null }))}
-          className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="textarea text-sm"
         />
       </div>
 
       <div className="flex gap-6 flex-wrap">
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm text-ink">
           <input
             type="checkbox"
             checked={fields.notes_required}
@@ -160,7 +160,7 @@ function QuestionEditForm({
           Notes required
         </label>
 
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm text-ink">
           <input
             type="checkbox"
             checked={fields.is_active}
@@ -172,13 +172,13 @@ function QuestionEditForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Timer (seconds, optional)</label>
+        <label className="field-label">Timer (seconds, optional)</label>
         <input
           type="number"
           min={0}
           value={fields.timer_seconds ?? ''}
           onChange={e => setFields(f => ({ ...f, timer_seconds: e.target.value ? Number(e.target.value) : null }))}
-          className="w-32 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="input w-32 text-sm"
         />
       </div>
 
@@ -189,7 +189,7 @@ function QuestionEditForm({
         />
       )}
 
-      <div className="text-xs text-gray-500">
+      <div className="text-xs text-ink-faint">
         <span className="font-medium">Type:</span> {question.type} &nbsp;|&nbsp;
         <span className="font-medium">Field:</span> {question.field_type} &nbsp;|&nbsp;
         <span className="font-medium">Order:</span> {question.order_index} &nbsp;|&nbsp;
@@ -197,7 +197,7 @@ function QuestionEditForm({
       </div>
 
       {message && (
-        <p className={`text-sm ${message.type === 'error' ? 'text-red-600' : 'text-green-700'}`}>
+        <p className={`text-sm ${message.type === 'error' ? 'text-negative' : 'text-positive'}`}>
           {message.text}
         </p>
       )}
@@ -205,7 +205,7 @@ function QuestionEditForm({
       <button
         onClick={handleSave}
         disabled={pending}
-        className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded disabled:opacity-50"
+        className="btn btn-primary"
       >
         {pending ? 'Saving…' : 'Save changes'}
       </button>
@@ -246,32 +246,32 @@ function ScriptEditForm({
   return (
     <div className="space-y-4">
       {warn && (
-        <div className="bg-amber-50 border border-amber-300 rounded p-3">
-          <p className="text-amber-800 text-sm font-medium">Unfilled placeholder detected</p>
-          <p className="text-amber-700 text-xs mt-1">
+        <div className="alert alert-warning flex-col items-start">
+          <p className="text-sm font-medium">Unfilled placeholder detected</p>
+          <p className="text-xs mt-1 opacity-90">
             Replace <code className="font-mono">{'{placeholder}'}</code> tokens with real dates/text before use.
           </p>
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+        <label className="field-label">Content</label>
         <textarea
           rows={10}
           value={content}
           onChange={e => setContent(e.target.value)}
-          className="w-full border border-gray-300 rounded px-2 py-1 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="textarea text-sm font-mono"
         />
       </div>
 
-      <div className="text-xs text-gray-500">
+      <div className="text-xs text-ink-faint">
         <span className="font-medium">Type:</span> {script.type} &nbsp;|&nbsp;
         <span className="font-medium">Kind:</span> {script.kind} &nbsp;|&nbsp;
         <span className="font-medium">Position:</span> {script.position}
       </div>
 
       {message && (
-        <p className={`text-sm ${message.type === 'error' ? 'text-red-600' : 'text-green-700'}`}>
+        <p className={`text-sm ${message.type === 'error' ? 'text-negative' : 'text-positive'}`}>
           {message.text}
         </p>
       )}
@@ -279,7 +279,7 @@ function ScriptEditForm({
       <button
         onClick={handleSave}
         disabled={pending}
-        className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded disabled:opacity-50"
+        className="btn btn-primary"
       >
         {pending ? 'Saving…' : 'Save changes'}
       </button>
@@ -323,28 +323,28 @@ export default function AdminInterviewQuestionsPage() {
   const tabScripts = scripts.filter(s => s.type === tab)
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-canvas">
       <AdminNav />
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Interview Questions &amp; Scripts</h1>
+        <h1 className="text-2xl font-bold text-ink mb-6">Interview Questions &amp; Scripts</h1>
 
-        {loading && <p className="text-gray-500">Loading…</p>}
-        {loadError && <p className="text-red-600">{loadError}</p>}
+        {loading && <p className="text-ink-muted">Loading…</p>}
+        {loadError && <p className="text-negative">{loadError}</p>}
 
         {!loading && !loadError && (
           <div className="flex gap-6 h-[calc(100vh-160px)]">
             {/* Left panel — list */}
-            <div className="w-72 flex-shrink-0 flex flex-col bg-white rounded-lg shadow overflow-hidden">
+            <div className="w-72 flex-shrink-0 flex flex-col card overflow-hidden">
               {/* Tab switcher */}
-              <div className="flex border-b">
+              <div className="flex border-b border-line">
                 {(['casual', 'professional'] as Tab[]).map(t => (
                   <button
                     key={t}
                     onClick={() => { setTab(t); setSelected(null) }}
                     className={`flex-1 py-2 text-sm font-medium capitalize ${
                       tab === t
-                        ? 'border-b-2 border-blue-600 text-blue-600'
-                        : 'text-gray-500 hover:text-gray-700'
+                        ? 'border-b-2 border-ink text-ink'
+                        : 'text-ink-muted hover:text-ink'
                     }`}
                   >
                     {t}
@@ -355,7 +355,7 @@ export default function AdminInterviewQuestionsPage() {
               <div className="overflow-y-auto flex-1">
                 {/* Questions section */}
                 <div className="px-3 pt-3 pb-1">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Questions</p>
+                  <p className="text-xs font-semibold text-ink-faint uppercase tracking-wide">Questions</p>
                 </div>
                 {tabQuestions.map(q => {
                   const isSelected = selected?.kind === 'question' && selected.record.id === q.id
@@ -363,14 +363,14 @@ export default function AdminInterviewQuestionsPage() {
                     <button
                       key={q.id}
                       onClick={() => setSelected({ kind: 'question', record: q })}
-                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-start gap-2 ${
-                        isSelected ? 'bg-blue-50' : ''
+                      className={`w-full text-left px-3 py-2 text-sm text-ink hover:bg-surface-alt flex items-start gap-2 ${
+                        isSelected ? 'bg-surface-sunken' : ''
                       } ${!q.is_active ? 'opacity-50' : ''}`}
                     >
-                      <span className="text-gray-400 text-xs mt-0.5 shrink-0">Q{q.order_index}</span>
+                      <span className="text-ink-faint text-xs mt-0.5 shrink-0">Q{q.order_index}</span>
                       <span className="flex-1 line-clamp-2">{q.prompt}</span>
                       {q.needs_human_review && (
-                        <span className="shrink-0 w-2 h-2 rounded-full bg-amber-400 mt-1.5" title="Needs review" />
+                        <span className="shrink-0 w-2 h-2 rounded-full bg-warning mt-1.5" title="Needs review" />
                       )}
                     </button>
                   )
@@ -378,7 +378,7 @@ export default function AdminInterviewQuestionsPage() {
 
                 {/* Scripts section */}
                 <div className="px-3 pt-4 pb-1">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Scripts</p>
+                  <p className="text-xs font-semibold text-ink-faint uppercase tracking-wide">Scripts</p>
                 </div>
                 {tabScripts.map(s => {
                   const isSelected = selected?.kind === 'script' && selected.record.id === s.id
@@ -387,13 +387,13 @@ export default function AdminInterviewQuestionsPage() {
                     <button
                       key={s.id}
                       onClick={() => setSelected({ kind: 'script', record: s })}
-                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-start gap-2 ${
-                        isSelected ? 'bg-blue-50' : ''
+                      className={`w-full text-left px-3 py-2 text-sm text-ink hover:bg-surface-alt flex items-start gap-2 ${
+                        isSelected ? 'bg-surface-sunken' : ''
                       }`}
                     >
                       <span className="flex-1 capitalize">{s.kind.replace('_', ' ')} {s.position > 0 ? `(${s.position})` : ''}</span>
                       {warn && (
-                        <span className="shrink-0 w-2 h-2 rounded-full bg-amber-400 mt-1.5" title="Unfilled placeholder" />
+                        <span className="shrink-0 w-2 h-2 rounded-full bg-warning mt-1.5" title="Unfilled placeholder" />
                       )}
                     </button>
                   )
@@ -402,13 +402,13 @@ export default function AdminInterviewQuestionsPage() {
             </div>
 
             {/* Right panel — editor */}
-            <div className="flex-1 bg-white rounded-lg shadow overflow-y-auto p-6">
+            <div className="flex-1 card overflow-y-auto p-6">
               {!selected && (
-                <p className="text-gray-400 text-sm">Select a question or script to edit.</p>
+                <p className="text-ink-faint text-sm">Select a question or script to edit.</p>
               )}
               {selected?.kind === 'question' && (
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                  <h2 className="text-lg font-semibold text-ink mb-4">
                     Q{selected.record.order_index} — {selected.record.type}
                   </h2>
                   <QuestionEditForm
@@ -420,7 +420,7 @@ export default function AdminInterviewQuestionsPage() {
               )}
               {selected?.kind === 'script' && (
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-800 mb-4 capitalize">
+                  <h2 className="text-lg font-semibold text-ink mb-4 capitalize">
                     {selected.record.kind.replace('_', ' ')} script — {selected.record.type}
                   </h2>
                   <ScriptEditForm

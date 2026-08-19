@@ -1,0 +1,26 @@
+-- =====================================================================
+-- Close the applications read leak — a regular brother could read every
+-- rushee's full application.
+--
+-- 20260811_security_hardening.sql §6 intended to restrict `applications`
+-- SELECT to leadership only, and dropped a policy it named "Brothers can
+-- view all applications". The actual permissive policy live in the
+-- database is named "Brothers can view submitted applications"
+-- (supabase/legacy/supabase-applications-migration.sql) — a different
+-- name, so that DROP silently no-opped and the real policy survived.
+-- Its USING clause has no leadership check and, despite the name, no
+-- is_submitted filter either:
+--
+--   EXISTS (SELECT 1 FROM brothers WHERE brothers.id = auth.uid())
+--
+-- Postgres OR's every matching SELECT policy together, so this one
+-- policy alone granted any brother account read access to every
+-- application row (legal name, phone, address, GPA, essays), regardless
+-- of the tighter "Leadership can view applications" policy also present.
+-- Same failure shape as the event_attendance leak in §2.4 of that same
+-- migration — a DROP that referenced a policy name that was never there.
+--
+-- Safe to re-run.
+-- =====================================================================
+
+DROP POLICY IF EXISTS "Brothers can view submitted applications" ON applications;

@@ -48,7 +48,7 @@ interface RusheeData {
 }
 
 export default function BrotherCuts() {
-  const { profile } = useAuth()
+  const { profile, loading: authLoading } = useAuth()
   const [hasAccess, setHasAccess] = useState(false)
   const [selectedRushee, setSelectedRushee] = useState<string | null>(null)
   const [showApplication, setShowApplication] = useState(false)
@@ -66,6 +66,13 @@ export default function BrotherCuts() {
 
   // Check access permissions
   useEffect(() => {
+    // The auth context resolves `profile` asynchronously; while it's still
+    // loading, `profile` is null and would read as "not authorized". Wait
+    // for it to settle (one way or the other) before deciding access, so a
+    // fresh page load doesn't briefly render "Access Denied" for a user who
+    // actually has access.
+    if (authLoading) return
+
     async function checkAccess() {
       const access = await hasCutsAccess(profile)
       setHasAccess(access)
@@ -77,7 +84,7 @@ export default function BrotherCuts() {
     }
 
     checkAccess()
-  }, [profile])
+  }, [profile, authLoading])
 
   // Fetch rushees data
   async function fetchRusheesData() {

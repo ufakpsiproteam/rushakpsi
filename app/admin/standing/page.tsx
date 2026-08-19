@@ -522,58 +522,34 @@ export default function AdminStanding() {
     try {
       const rusheeId = rusheeToDelete.id
 
-      // Delete all related data first (due to foreign key constraints)
-      // Delete evaluations
-      await supabase
-        .from('evaluations')
-        .delete()
-        .eq('rushee_id', rusheeId)
-
-      // Delete event attendance
-      await supabase
-        .from('event_attendance')
-        .delete()
-        .eq('rushee_id', rusheeId)
-
-      // Delete brother-rushee interactions
-      await supabase
-        .from('brother_rushee_interactions')
-        .delete()
-        .eq('rushee_id', rusheeId)
-
-      // Delete application
-      await supabase
-        .from('applications')
-        .delete()
-        .eq('rushee_id', rusheeId)
-
-      // Delete the rushee profile
-      const { error: deleteRusheeError } = await supabase
-        .from('rushees')
-        .delete()
-        .eq('id', rusheeId)
-
-      if (deleteRusheeError) throw deleteRusheeError
-
-      // Delete the auth user via API route (requires service role key)
+      // `/api/admin/delete-user` owns the entire deletion — related rows,
+      // the rushees row, the auth user, and the audit entry — as one
+      // server-side sequence with an error check at every step (PRD
+      // §6.7.4: "a single transactional server-side operation ... or
+      // fails entirely. Audited."). It must run first and untouched:
+      // its own first check confirms the target is still a rushee, so if
+      // the rushees row were deleted client-side ahead of it (as this
+      // used to do), that check 404s and the route aborts before ever
+      // reaching the auth user — silently orphaning it forever and
+      // skipping the audit entry. Do nothing client-side but call it.
       const { data: { session } } = await supabase.auth.getSession()
-      if (session?.access_token) {
-        const response = await fetch('/api/admin/delete-user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
-          },
-          body: JSON.stringify({ rusheeId })
-        })
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          console.error('Error deleting auth user:', errorData)
-          throw new Error(`Failed to delete auth user: ${errorData.error || 'Unknown error'}`)
-        }
-      } else {
+      if (!session?.access_token) {
         throw new Error('No active session found')
+      }
+
+      const response = await fetch('/api/admin/delete-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ rusheeId })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Error deleting rushee account:', errorData)
+        throw new Error(errorData.error || 'Failed to delete account')
       }
 
       alert(`Successfully deleted ${rusheeToDelete.name}'s account`)
