@@ -54,7 +54,7 @@ export default function DecisionLetter({ type, rusheeName, vpName }: DecisionLet
       <>
         Sign up for interviews using the following {' '}
         <a
-          href="https://docs.google.com/spreadsheets/d/1NZALbBX7Ms--pSbQDV-V1cORUWJ5SIHPFOCwh0P_zlQ/edit?gid=0#gid=0"
+          href="https://docs.google.com/spreadsheets/d/1n2wDxGgNxCdOsXMeARDI8x791CWhSpid-4M4dIdite0/edit?usp=sharing"
           target="_blank"
           rel="noreferrer"
           className="underline"

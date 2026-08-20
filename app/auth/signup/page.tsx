@@ -37,6 +37,11 @@ export default function SignUp() {
       return
     }
 
+    if (!formData.email.trim().toLowerCase().endsWith('@ufl.edu')) {
+      setError('Please use your UF email address (example@ufl.edu)')
+      return
+    }
+
     if (!formData.major || !formData.year) {
       setError('Please provide your major and year')
       return
@@ -81,6 +86,10 @@ export default function SignUp() {
     setError('')
     if (step === 0 && (!formData.name || !formData.email)) {
       setError('Please provide your name and email')
+      return
+    }
+    if (step === 0 && !formData.email.trim().toLowerCase().endsWith('@ufl.edu')) {
+      setError('Please use your UF email address (example@ufl.edu)')
       return
     }
     if (step === 1 && (!formData.major || !formData.year)) {
@@ -171,6 +180,7 @@ export default function SignUp() {
                           className="input"
                           placeholder="your.email@ufl.edu"
                         />
+                        <p className="field-help">Must be a UF email (example@ufl.edu)</p>
                       </div>
                     </>
                   )}

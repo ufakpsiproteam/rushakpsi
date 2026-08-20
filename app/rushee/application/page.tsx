@@ -249,12 +249,9 @@ export default function RusheeApplication() {
 
       if (uploadError) throw uploadError
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('resumes')
-        .getPublicUrl(fileName)
-
-      setFormData(prev => ({ ...prev, resumeUrl: urlData.publicUrl }))
+      // Store the storage path — the `resumes` bucket is private, so it's
+      // exchanged for a signed URL at view time rather than linked directly.
+      setFormData(prev => ({ ...prev, resumeUrl: fileName }))
       alert('Resume uploaded successfully!')
     } catch (error) {
       console.error('Error uploading resume:', error)

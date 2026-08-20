@@ -28,6 +28,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid account type' }, { status: 400 })
     }
 
+    if (accountType === 'rushee' && !String(email).trim().toLowerCase().endsWith('@ufl.edu')) {
+      return NextResponse.json({ error: 'Please use your UF email address (example@ufl.edu)' }, { status: 400 })
+    }
+
     const passwordError = validatePassword(String(password), POLICY_DEFAULTS)
     if (passwordError) {
       return NextResponse.json({ error: passwordError }, { status: 400 })

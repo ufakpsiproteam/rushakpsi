@@ -4,6 +4,7 @@ import AdminNav from '@/components/admin/AdminNav'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import RusheePhoto from '@/components/RusheePhoto'
+import { getRusheeResumeUrl } from '@/app/brother/cuts/actions'
 
 type ColorStatus = 'normal' | 'green' | 'yellow' | 'red'
 
@@ -1193,15 +1194,6 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                 <p className="text-white/50 text-xs mt-1">Click to view comments</p>
               </button>
 
-              {/* AI Overview */}
-              <div className="relative overflow-hidden bg-white border border-line rounded-2xl p-3 mb-4">
-                <div className="absolute -inset-20 opacity-80 blur-2xl pointer-events-none ai-overview-glow" />
-                <p className="text-xs uppercase tracking-[0.35em] text-ink-subtle mb-1">AI Overview</p>
-                <p className="text-sm text-ink-muted">
-                  Coming soon: summarized evaluation themes and highlights for this rushee.
-                </p>
-              </div>
-
               {/* Evaluation Summary */}
               {selectedRusheeData.evaluations > 0 && (
               <div className="bg-surface-alt border border-line rounded-2xl p-3 mb-4">
@@ -1291,14 +1283,20 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                       <div>
                         <p className="text-ink font-semibold text-sm mb-1">Resume</p>
                         {selectedRusheeData.application.resumeUrl ? (
-                          <a
-                            href={selectedRusheeData.application.resumeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const { url, error } = await getRusheeResumeUrl(selectedRusheeData.id)
+                              if (url) {
+                                window.open(url, '_blank', 'noopener,noreferrer')
+                              } else {
+                                alert(error || 'Could not open resume.')
+                              }
+                            }}
                             className="text-ink text-sm hover:underline"
                           >
                             View Resume
-                          </a>
+                          </button>
                         ) : (
                           <p className="text-ink-muted text-sm">Not uploaded</p>
                         )}
@@ -1439,29 +1437,6 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
             </div>
           </div>
         )}
-        <style jsx>{`
-          .ai-overview-glow {
-            background: radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.35), transparent 55%),
-              radial-gradient(circle at 80% 30%, rgba(16, 185, 129, 0.3), transparent 50%),
-              radial-gradient(circle at 50% 80%, rgba(244, 63, 94, 0.28), transparent 55%);
-            animation: aiGlowShift 10s ease-in-out infinite;
-          }
-
-          @keyframes aiGlowShift {
-            0% {
-              transform: translate(-6%, -4%) scale(1);
-              opacity: 0.6;
-            }
-            50% {
-              transform: translate(4%, 6%) scale(1.08);
-              opacity: 0.9;
-            }
-            100% {
-              transform: translate(-4%, 2%) scale(1);
-              opacity: 0.7;
-            }
-          }
-        `}</style>
       </main>
     </div>
   )

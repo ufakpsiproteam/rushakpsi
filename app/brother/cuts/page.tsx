@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { hasCutsAccess } from '@/lib/auth'
+import { getRusheeResumeUrl } from './actions'
 
 interface RusheeData {
   id: string
@@ -863,14 +864,20 @@ export default function BrotherCuts() {
                       <div>
                         <p className="text-ink font-semibold text-sm mb-1">Resume</p>
                         {selectedRusheeData.application.resumeUrl ? (
-                          <a
-                            href={selectedRusheeData.application.resumeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const { url, error } = await getRusheeResumeUrl(selectedRusheeData.id)
+                              if (url) {
+                                window.open(url, '_blank', 'noopener,noreferrer')
+                              } else {
+                                alert(error || 'Could not open resume.')
+                              }
+                            }}
                             className="text-ink text-sm hover:underline"
                           >
                             View Resume
-                          </a>
+                          </button>
                         ) : (
                           <p className="text-ink-muted text-sm">Not uploaded</p>
                         )}
