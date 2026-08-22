@@ -459,28 +459,6 @@ export default function InterviewModePage() {
               </div>
             )}
 
-            {/* Professional: knows_personally */}
-            {interviewType === 'professional' && !assignment?.knows_personally && conflictScript && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                <p className="text-sm text-amber-800 font-medium mb-2">Do you know this person personally?</p>
-                <p className="text-sm text-amber-700 mb-3">
-                  If you have a personal relationship with the rushee, please disclose it.
-                </p>
-                <button
-                  onClick={() => setShowConflictScript(true)}
-                  className="text-sm bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1.5 rounded"
-                >
-                  Yes, I know them personally
-                </button>
-              </div>
-            )}
-
-            {assignment?.knows_personally && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <p className="text-xs text-amber-700">Noted: personal relationship disclosed.</p>
-              </div>
-            )}
-
             {/* Casual: conflict — noted, not blocking (R4) */}
             {interviewType === 'casual' && (
               <div className="rounded-lg p-4 border bg-amber-50 border-amber-200">
@@ -734,6 +712,28 @@ export default function InterviewModePage() {
         {step === 'confirm' && (
           <div className="space-y-5">
             <h2 className="text-lg font-semibold text-ink">Confirm submission</h2>
+
+            {/* Professional: knows_personally */}
+            {interviewType === 'professional' && !assignment?.knows_personally && conflictScript && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <p className="text-sm text-amber-800 font-medium mb-2">Do you know this person personally?</p>
+                <p className="text-sm text-amber-700 mb-3">
+                  If you have a personal relationship with the rushee, please disclose it.
+                </p>
+                <button
+                  onClick={() => setShowConflictScript(true)}
+                  className="text-sm bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1.5 rounded"
+                >
+                  Yes, I know them personally
+                </button>
+              </div>
+            )}
+
+            {assignment?.knows_personally && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs text-amber-700">Noted: personal relationship disclosed.</p>
+              </div>
+            )}
 
             <div className="bg-surface rounded-lg shadow divide-y divide-line">
               <div className="px-4 py-3">

@@ -8,6 +8,33 @@ import { useAuth } from '@/contexts/AuthContext'
 import { hasCutsAccess } from '@/lib/auth'
 import { getRusheeResumeUrl } from './actions'
 
+interface InterviewPanelistAnswer {
+  question_id: string
+  order_index: number
+  prompt: string
+  field_type: string
+  score: number | null
+  maxScore: number | null
+  yes_no: boolean | null
+  notes: string | null
+}
+
+interface InterviewPanelist {
+  brother_id: string
+  brother_name: string
+  recommendation: number | null
+  recommendation_notes: string | null
+  knows_personally: boolean
+  answers: InterviewPanelistAnswer[]
+}
+
+interface InterviewBreakdownItem {
+  type: 'casual' | 'professional'
+  panelists: InterviewPanelist[]
+}
+
+type InterviewBreakdownData = InterviewBreakdownItem[]
+
 interface RusheeData {
   id: string
   name: string
@@ -57,6 +84,9 @@ export default function BrotherCuts() {
   const [showGallery, setShowGallery] = useState(false)
   const [evaluations, setEvaluations] = useState<any[]>([])
   const [loadingEvaluations, setLoadingEvaluations] = useState(false)
+  const [interviewBreakdown, setInterviewBreakdown] = useState<InterviewBreakdownData | null>(null)
+  const [loadingBreakdown, setLoadingBreakdown] = useState(false)
+  const [showBreakdown, setShowBreakdown] = useState(false)
   const [attendancePhotos, setAttendancePhotos] = useState<any[]>([])
   const [loadingPhotos, setLoadingPhotos] = useState(false)
   const [rushees, setRushees] = useState<RusheeData[]>([])
@@ -64,6 +94,15 @@ export default function BrotherCuts() {
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<'name' | 'rating'>('name')
   const [showFilters, setShowFilters] = useState(false)
+
+  // Load per-panelist interview breakdown whenever a rushee is selected
+  useEffect(() => {
+    setShowBreakdown(false)
+    setInterviewBreakdown(null)
+    if (selectedRushee) {
+      loadInterviewBreakdown(selectedRushee)
+    }
+  }, [selectedRushee])
 
   // Check access permissions
   useEffect(() => {
@@ -238,7 +277,7 @@ export default function BrotherCuts() {
     try {
       const { data, error } = await supabase
         .from('evaluations')
-        .select('comments, professional_score, personal_score, created_at')
+        .select('comments, professional_score, personal_score, created_at, knows_personally')
         .eq('rushee_id', rusheeId)
         .order('created_at', { ascending: false })
 
@@ -248,6 +287,105 @@ export default function BrotherCuts() {
       console.error('Error loading evaluations:', error)
     } finally {
       setLoadingEvaluations(false)
+    }
+  }
+
+  const loadInterviewBreakdown = async (rusheeId: string) => {
+    setLoadingBreakdown(true)
+    setInterviewBreakdown(null)
+    try {
+      // Fetch submitted assignments for this rushee
+      const { data: assignments } = await (supabase as any)
+        .from('interview_assignments')
+        .select(`
+          interview_id, brother_id, recommendation, recommendation_notes, knows_personally,
+          interviews!inner (type, status)
+        `)
+        .eq('rushee_id', rusheeId)
+        .eq('status', 'submitted')
+
+      if (!assignments || assignments.length === 0) {
+        setInterviewBreakdown([])
+        return
+      }
+
+      // Fetch all answers for this rushee across these assignments
+      const { data: answers } = await (supabase as any)
+        .from('interview_answers')
+        .select('interview_id, brother_id, question_id, score, yes_no, notes')
+        .eq('rushee_id', rusheeId)
+        .in('interview_id', assignments.map((a: any) => a.interview_id))
+
+      // Fetch question metadata
+      const questionIds = [...new Set((answers ?? []).map((a: any) => a.question_id))]
+      const { data: questions } = questionIds.length > 0
+        ? await (supabase as any)
+            .from('interview_questions')
+            .select('id, order_index, prompt, field_type, score_options')
+            .in('id', questionIds)
+        : { data: [] }
+
+      // Fetch brother names
+      const brotherIds = [...new Set(assignments.map((a: any) => a.brother_id))]
+      const { data: brothers } = await supabase
+        .from('brothers')
+        .select('id, name')
+        .in('id', brotherIds)
+
+      const brotherMap = new Map((brothers ?? []).map((b: any) => [b.id, b.name]))
+      const questionMap = new Map<string, any>((questions ?? []).map((q: any) => [q.id, q]))
+
+      // Group by interview type
+      const byType = new Map<string, InterviewPanelist[]>()
+      for (const ia of assignments) {
+        const ivType = (ia as any).interviews?.type as string
+        if (!byType.has(ivType)) byType.set(ivType, [])
+
+        // Scope to this panelist's own answers only — mixing in the full
+        // question list here previously showed every other interview
+        // type's questions too (as blank "—" rows) since order_index
+        // resets per type and collided across casual/professional.
+        const panelAnswers: InterviewPanelistAnswer[] = (answers ?? [])
+          .filter((a: any) => a.interview_id === ia.interview_id && a.brother_id === ia.brother_id)
+          .map((a: any) => {
+            const q = questionMap.get(a.question_id)
+            const maxScore = q?.score_options?.length
+              ? Math.max(...q.score_options.map((o: any) => o.value))
+              : null
+            return {
+              question_id: a.question_id,
+              order_index: q?.order_index ?? 0,
+              prompt: q?.prompt ?? '',
+              field_type: q?.field_type ?? 'score_notes',
+              score: a.score,
+              maxScore,
+              yes_no: a.yes_no,
+              notes: a.notes,
+            }
+          })
+          .sort((a: any, b: any) => a.order_index - b.order_index)
+
+        byType.get(ivType)!.push({
+          brother_id: ia.brother_id,
+          brother_name: brotherMap.get(ia.brother_id) ?? ia.brother_id,
+          recommendation: (ia as any).recommendation,
+          recommendation_notes: (ia as any).recommendation_notes,
+          knows_personally: (ia as any).knows_personally,
+          answers: panelAnswers,
+        })
+      }
+
+      const result: InterviewBreakdownData = [...byType.entries()].map(([type, panelists]) => ({
+        type: type as 'casual' | 'professional',
+        panelists,
+      }))
+
+      setInterviewBreakdown(result)
+    } catch (err) {
+      console.error('Error loading interview breakdown:', err)
+      setInterviewBreakdown([])
+    } finally {
+      setLoadingBreakdown(false)
     }
   }
 
@@ -734,6 +872,11 @@ export default function BrotherCuts() {
                           <p className="text-ink-muted whitespace-pre-wrap">
                             {evaluation.comments || 'No comment provided'}
                           </p>
+                          {evaluation.knows_personally && (
+                            <div className="flex justify-end mt-2">
+                              <span className="badge badge-warning">Knows rushee personally</span>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -805,6 +948,101 @@ export default function BrotherCuts() {
               {selectedRusheeData.evaluations === 0 && (
                 <div className="bg-surface-alt border border-line rounded-2xl p-3 mb-4 text-center">
                   <p className="text-ink-muted text-sm">No evaluations submitted yet</p>
+                </div>
+              )}
+
+              {/* Interview Recommendation */}
+              {loadingBreakdown && (
+                <div className="bg-surface-alt border border-line rounded-2xl p-3 mb-4 text-center">
+                  <p className="text-ink-muted text-sm">Loading interview data…</p>
+                </div>
+              )}
+              {!loadingBreakdown && interviewBreakdown && interviewBreakdown.length > 0 && (
+                <div className="bg-surface-alt border border-line rounded-2xl p-3 mb-4">
+                  <h3 className="text-ink font-semibold mb-2 text-sm">Interview Recommendation</h3>
+                  <div className="space-y-2">
+                    {(['casual', 'professional'] as const).map(type => {
+                      const group = interviewBreakdown.find(g => g.type === type)
+                      if (!group || group.panelists.length === 0) return null
+                      const recs = group.panelists
+                        .map(p => p.recommendation)
+                        .filter((r): r is number => r !== null)
+                      const avg = recs.length > 0 ? recs.reduce((a, b) => a + b, 0) / recs.length : 0
+                      return (
+                        <div key={type} className="flex justify-between items-center">
+                          <span className="text-ink-muted text-sm capitalize">{type} Interview</span>
+                          <div className="flex items-center">
+                            <div className="w-32 bg-line rounded-full h-2 mr-2">
+                              <div className="bg-ink h-2 rounded-full" style={{ width: `${(avg / 5) * 100}%` }}></div>
+                            </div>
+                            <span className="text-ink font-semibold text-sm">{avg.toFixed(1)} / 5</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => setShowBreakdown(!showBreakdown)}
+                    className="mt-3 w-full text-left text-xs font-semibold text-ink-subtle uppercase tracking-[0.3em] flex items-center justify-between py-1"
+                  >
+                    <span>Show Interview</span>
+                    <span>{showBreakdown ? '▲' : '▼'}</span>
+                  </button>
+
+                  {showBreakdown && (
+                    <div className="mt-2 space-y-4">
+                      {interviewBreakdown.map(group => (
+                        <div key={group.type}>
+                          <p className="text-xs font-semibold text-ink-subtle uppercase tracking-widest mb-1 capitalize">
+                            {group.type}
+                          </p>
+                          {group.panelists.map(panelist => (
+                            <div key={panelist.brother_id} className="bg-surface border border-line rounded-lg p-3 mb-2">
+                              <div className="flex items-center justify-between mb-1">
+                                <p className="text-sm font-medium text-ink">{panelist.brother_name}</p>
+                                {panelist.recommendation !== null && (
+                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                    Rec: {panelist.recommendation}/5
+                                  </span>
+                                )}
+                              </div>
+                              {panelist.knows_personally && (
+                                <p className="text-xs text-amber-600 mb-1">Knows personally</p>
+                              )}
+                              {panelist.recommendation_notes && (
+                                <p className="text-xs text-ink-subtle italic mb-2">&ldquo;{panelist.recommendation_notes}&rdquo;</p>
+                              )}
+                              <div className="space-y-1">
+                                {panelist.answers.map(ans => (
+                                  <div key={ans.question_id} className="text-xs">
+                                    <span className="text-ink-subtle">Q{ans.order_index} - </span>
+                                    {ans.field_type === 'yes_no' ? (
+                                      <span className={ans.yes_no ? 'text-green-600' : 'text-red-600'}>
+                                        {ans.yes_no === null ? '—' : ans.yes_no ? 'Yes' : 'No'}
+                                      </span>
+                                    ) : (
+                                      <span className="text-ink font-medium">
+                                        {ans.score ?? '—'}{ans.maxScore ? `/${ans.maxScore}` : ''}
+                                      </span>
+                                    )}
+                                    {ans.notes && (
+                                      <span className="text-ink-subtle ml-1">- {ans.notes}</span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              {!loadingBreakdown && interviewBreakdown && interviewBreakdown.length === 0 && (
+                <div className="bg-surface-alt border border-line rounded-2xl p-3 mb-4 text-center">
+                  <p className="text-ink-muted text-sm">No interviews submitted yet</p>
                 </div>
               )}
 

@@ -27,7 +27,7 @@ const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard' },
   { href: '/admin/events', label: 'Events' },
   { href: '/admin/attendance', label: 'Attendance' },
-  { href: '/admin/standing', label: 'Standings' },
+  { href: '/admin/standing', label: 'Rushees' },
   { href: '/brother/interviews', label: 'Interviews' },
   { href: '/admin/brothers', label: 'Brothers' },
   { href: '/admin/brother-insights', label: 'Participation' },

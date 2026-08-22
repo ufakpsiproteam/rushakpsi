@@ -33,6 +33,7 @@ export default function RusheeApplication() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [resumeFileName, setResumeFileName] = useState('')
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [applicationId, setApplicationId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -252,6 +253,7 @@ export default function RusheeApplication() {
       // Store the storage path — the `resumes` bucket is private, so it's
       // exchanged for a signed URL at view time rather than linked directly.
       setFormData(prev => ({ ...prev, resumeUrl: fileName }))
+      setResumeFileName(file.name)
       alert('Resume uploaded successfully!')
     } catch (error) {
       console.error('Error uploading resume:', error)
@@ -643,7 +645,9 @@ export default function RusheeApplication() {
                     {uploading ? 'Uploading...' : 'Upload Resume'}
                   </button>
                   {formData.resumeUrl && (
-                    <span className="text-sm text-emerald-600">✓ Resume uploaded</span>
+                    <span className="text-sm text-emerald-600">
+                      ✓ Resume uploaded{resumeFileName && ` — ${resumeFileName}`}
+                    </span>
                   )}
                 </div>
                 <p className="text-xs text-ink-subtle mt-2">Max file size: 10MB</p>
