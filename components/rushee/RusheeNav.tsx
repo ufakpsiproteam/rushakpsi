@@ -57,6 +57,18 @@ const ICON = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
     </svg>
   ),
+  mail: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
+  ),
+}
+
+/** Rushee point of contact — see docs/project.txt line 28. */
+export const POINT_OF_CONTACT = {
+  name: 'Halle Taylor',
+  title: 'VP of Alumni & External',
+  email: 'vpofalumexternal.alphaphi@gmail.com',
 }
 
 const DESKTOP_TABS: NavItem[] = [
@@ -135,6 +147,14 @@ export default function RusheeNav() {
               >
                 {ICON.account}
               </Link>
+              <a
+                href={`mailto:${POINT_OF_CONTACT.email}`}
+                aria-label={`Email ${POINT_OF_CONTACT.name}, ${POINT_OF_CONTACT.title}`}
+                title={`Questions? Email ${POINT_OF_CONTACT.name} (${POINT_OF_CONTACT.title})`}
+                className="nav-tab"
+              >
+                {ICON.mail}
+              </a>
               <button onClick={handleSignOut} className="btn btn-ghost btn-sm">
                 Sign Out
               </button>

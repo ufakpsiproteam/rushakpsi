@@ -461,23 +461,6 @@ export async function toggleRusheeStar(brotherId: string, rusheeId: string) {
 }
 
 // Storage helpers
-export async function uploadAttendancePhoto(rusheeId: string, file: File) {
-  const fileExt = file.name.split('.').pop()
-  const fileName = `${rusheeId}/${Date.now()}.${fileExt}`
-
-  const { data, error } = await supabase.storage
-    .from('attendance-photos')
-    .upload(fileName, file)
-
-  if (error) return { error }
-
-  const { data: { publicUrl } } = supabase.storage
-    .from('attendance-photos')
-    .getPublicUrl(fileName)
-
-  return { data: { path: fileName, url: publicUrl }, error: null }
-}
-
 export async function uploadProfilePhoto(userId: string, file: File) {
   const fileExt = file.name.split('.').pop()
   const fileName = `${userId}/profile.${fileExt}`

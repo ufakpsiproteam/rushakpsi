@@ -91,13 +91,6 @@ export default function AdminDashboard() {
     })
   }
 
-  const recentActivity = [
-    { action: 'Application submitted', name: 'John Doe', time: '2 hours ago' },
-    { action: 'Photo check-in approved', name: 'Jane Smith', time: '3 hours ago' },
-    { action: 'Application submitted', name: 'Michael Brown', time: '5 hours ago' },
-    { action: 'Evaluation completed', name: 'Sarah Johnson (Brother)', time: '1 day ago' }
-  ]
-
   return (
     <div className="min-h-screen bg-canvas">
       <AdminNav />

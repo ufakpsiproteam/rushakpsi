@@ -148,21 +148,15 @@ export default function RusheeEvents() {
     await fetchData()
   }, [fetchData])
 
-  // Helper function to check if event is currently active (happening now)
-  const isEventActive = (eventDate: string, eventTime: string) => {
-    // For now, return false - you can implement actual time checking logic
-    // based on your requirements
-    return false
-  }
-
   // Helper to get display status for an event
   const getEventDisplayStatus = (eventId: string) => {
     // Check if we have an override status from photo submission
     if (eventStatuses[eventId]) {
       return eventStatuses[eventId]
     }
-    // TODO: Check actual attendance status from Supabase
-    // For now, default to 'upcoming'
+    // Real attendance status is already fetched and merged into
+    // eventStatuses above (see fetchData) — this only covers events with
+    // no attendance record at all, which are genuinely upcoming.
     return 'upcoming' as 'attended' | 'pending' | 'upcoming'
   }
 

@@ -1,6 +1,6 @@
 'use client'
 
-import RusheeNav from '@/components/rushee/RusheeNav'
+import RusheeNav, { POINT_OF_CONTACT } from '@/components/rushee/RusheeNav'
 import StatusBanner from '@/components/rushee/StatusBanner'
 import ProfilePictureModal from '@/components/rushee/ProfilePictureModal'
 import PullToRefresh from '@/components/PullToRefresh'
@@ -199,6 +199,13 @@ export default function RusheeDashboard() {
               </div>
             </div>
           </section>
+
+          <p className="text-center text-xs text-ink-subtle mt-6">
+            Have any questions? Email{' '}
+            <a href={`mailto:${POINT_OF_CONTACT.email}`} className="font-semibold text-ink underline">
+              {POINT_OF_CONTACT.name}
+            </a>
+          </p>
           </main>
         </PullToRefresh>
       </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import RusheeNav from '@/components/rushee/RusheeNav'
+import RusheeNav, { POINT_OF_CONTACT } from '@/components/rushee/RusheeNav'
 import PullToRefresh from '@/components/PullToRefresh'
 
 export default function RusheeInfo() {
@@ -221,6 +221,33 @@ export default function RusheeInfo() {
                 </a>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Point of Contact */}
+        <section className="mt-8">
+          <div className="bg-white border border-line rounded-2xl p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-ink mb-4">Point of Contact</h2>
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-surface-sunken flex items-center justify-center flex-shrink-0">
+                <svg className="w-8 h-8 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold text-ink">{POINT_OF_CONTACT.name}</p>
+                <p className="text-ink-muted text-sm">{POINT_OF_CONTACT.title}</p>
+                <a
+                  href={`mailto:${POINT_OF_CONTACT.email}`}
+                  className="text-ink hover:text-ink-muted text-sm font-semibold underline"
+                >
+                  {POINT_OF_CONTACT.email}
+                </a>
+              </div>
+            </div>
+            <p className="text-ink-subtle text-xs mt-4">
+              Have any questions during recruitment? Reach out any time.
+            </p>
           </div>
         </section>
         </main>

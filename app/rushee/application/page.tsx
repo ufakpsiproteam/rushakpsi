@@ -740,38 +740,6 @@ export default function RusheeApplication() {
                 />
                 <p className="text-xs text-ink-subtle mt-1">{formData.brotherConnectionReason.length}/{characterLimit}</p>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-ink-muted mb-2">
-                  6. If you were to be any Monopoly piece or property which would you be and why? *
-                </label>
-                <textarea
-                  name="monopolyPiece"
-                  value={formData.monopolyPiece}
-                  onChange={handleChange}
-                  required
-                  maxLength={characterLimit}
-                  rows={4}
-                  className="w-full px-4 py-2 bg-white border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink resize-none"
-                />
-                <p className="text-xs text-ink-subtle mt-1">{formData.monopolyPiece.length}/{characterLimit}</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-ink-muted mb-2">
-                  7. With our theme for this semester being "Monopoly - Own It All," meaning own who you are and your individuality in every aspect of your life and use it to your advantage, what is an aspect of the Monopoly game that you can learn from and use in your life? *
-                </label>
-                <textarea
-                  name="monopolyThemeLesson"
-                  value={formData.monopolyThemeLesson}
-                  onChange={handleChange}
-                  required
-                  maxLength={characterLimit}
-                  rows={4}
-                  className="w-full px-4 py-2 bg-white border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink resize-none"
-                />
-                <p className="text-xs text-ink-subtle mt-1">{formData.monopolyThemeLesson.length}/{characterLimit}</p>
-              </div>
             </div>
           </div>
 

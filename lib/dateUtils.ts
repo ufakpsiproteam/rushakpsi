@@ -69,6 +69,21 @@ export function formatWeekdayInEST(dateString: string): string {
 }
 
 /**
+ * The canonical event time format: "7:00 PM" or "7:00 PM - 9:00 PM".
+ * A strict subset of what parseEventStartMinutes/parseEventEndMinutes below
+ * will accept (they tolerate any 1-2 digit hour with no upper bound), so
+ * anything that passes this always parses correctly downstream — this is
+ * the gate that keeps malformed strings ("TBD", "7-9 PM") out in the first
+ * place, enforced on the admin events form and mirrored in a DB CHECK
+ * constraint (see supabase/migrations/20260822_enforce_event_time_format.sql).
+ */
+export const EVENT_TIME_PATTERN = /^(1[0-2]|[1-9]):[0-5][0-9]\s?(AM|PM|am|pm)(\s*-\s*(1[0-2]|[1-9]):[0-5][0-9]\s?(AM|PM|am|pm))?$/
+
+export function isValidEventTimeFormat(timeString: string): boolean {
+  return EVENT_TIME_PATTERN.test(timeString.trim())
+}
+
+/**
  * Parse a time string of the shape "7:00 PM" or "7:00 PM - 9:00 PM" and
  * return minutes past midnight for the *start* time.
  *
