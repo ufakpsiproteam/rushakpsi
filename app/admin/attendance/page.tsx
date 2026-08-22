@@ -24,6 +24,7 @@ interface AttendanceRecord {
   photo_url: string
   status: 'pending' | 'approved' | 'rejected' | 'removed'
   created_at: string
+  reviewed_at?: string | null
   group_number?: number
   rushee: {
     id: string
@@ -309,6 +310,7 @@ export default function AdminAttendance() {
           photo_url: record.photo_url,
           status: record.status,
           created_at: record.created_at,
+          reviewed_at: record.reviewed_at,
           group_number: record.group_number,
           rushee: {
             id: record.rushee?.id || '',
@@ -640,7 +642,10 @@ export default function AdminAttendance() {
               ) : (
                 filteredRecords.map((record) => {
                   const rusheeName = record.rushee?.name || 'Unknown Rushee'
-                  const submittedAt = new Date(record.created_at).toLocaleTimeString('en-US', {
+                  const isManualCheckin = record.photo_url === 'manual-checkin'
+                  const timestampLabel = isManualCheckin ? 'Checked in at' : 'Submitted at'
+                  const timestampSource = isManualCheckin && record.reviewed_at ? record.reviewed_at : record.created_at
+                  const submittedAt = new Date(timestampSource).toLocaleTimeString('en-US', {
                     hour: 'numeric',
                     minute: '2-digit',
                     hour12: true
@@ -684,7 +689,7 @@ export default function AdminAttendance() {
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-ink-muted">Submitted at {submittedAt}</p>
+                          <p className="text-sm text-ink-muted">{timestampLabel} {submittedAt}</p>
                         </div>
                       </div>
 
