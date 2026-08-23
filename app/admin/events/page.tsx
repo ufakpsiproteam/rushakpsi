@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react'
 import { getEvents, createEvent, updateEvent, deleteEvent, updateEventStatus } from '@/lib/database'
 import { formatDateInEST, isValidEventTimeFormat } from '@/lib/dateUtils'
 
-const EVENT_TIME_FORMAT_HINT = 'Enter a time like "7:00 PM" or a range like "7:00 PM - 9:00 PM"'
+const EVENT_TIME_FORMAT_HINT = 'Enter a time like "7:00 PM" or a range like "7:00 PM - 9:00 PM", or "TBD" if not set yet'
+const EVENT_TIME_INPUT_PATTERN = '^([Tt][Bb][Dd]|(1[0-2]|[1-9]):[0-5][0-9]\\s?(AM|PM|am|pm)(\\s*-\\s*(1[0-2]|[1-9]):[0-5][0-9]\\s?(AM|PM|am|pm))?)$'
 
 type EventStatus = 'locked' | 'attendance' | 'evaluation'
 
@@ -545,7 +546,7 @@ export default function AdminEvents() {
                       value={formData.time}
                       onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                       placeholder="7:00 PM - 9:00 PM"
-                      pattern="^(1[0-2]|[1-9]):[0-5][0-9]\s?(AM|PM|am|pm)(\s*-\s*(1[0-2]|[1-9]):[0-5][0-9]\s?(AM|PM|am|pm))?$"
+                      pattern={EVENT_TIME_INPUT_PATTERN}
                       title={EVENT_TIME_FORMAT_HINT}
                       className="w-full px-4 py-2 border border-line rounded-lg text-ink focus:outline-none focus:ring-2 focus:ring-ink"
                       required
@@ -677,7 +678,7 @@ export default function AdminEvents() {
                       value={formData.time}
                       onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                       placeholder="7:00 PM - 9:00 PM"
-                      pattern="^(1[0-2]|[1-9]):[0-5][0-9]\s?(AM|PM|am|pm)(\s*-\s*(1[0-2]|[1-9]):[0-5][0-9]\s?(AM|PM|am|pm))?$"
+                      pattern={EVENT_TIME_INPUT_PATTERN}
                       title={EVENT_TIME_FORMAT_HINT}
                       className="w-full px-4 py-2 border border-line rounded-lg text-ink focus:outline-none focus:ring-2 focus:ring-ink"
                       required

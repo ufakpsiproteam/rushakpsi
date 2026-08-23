@@ -1,7 +1,10 @@
 import { createEvents, type EventAttributes } from 'ics'
 import {
   CHAPTER_TIMEZONE,
+  addOneDay,
   chapterInstantAtMinutes,
+  formatYYYYMMDD,
+  isTBDTime,
   parseCalendarDate,
   parseEventEndMinutes,
   parseEventStartMinutes,
@@ -63,6 +66,29 @@ function wallClockParts(event: CalendarExportEvent, minutes: number): [number, n
  */
 export function buildICSFile(events: CalendarExportEvent[]): string {
   const icsEvents: EventAttributes[] = events.reduce<EventAttributes[]>((acc, event) => {
+    if (isTBDTime(event.time)) {
+      const date = parseCalendarDate(event.date)
+      if (!date) return acc
+
+      // A 3-element date (no hour/minute) is what the `ics` library treats
+      // as an all-day event — it emits DTSTART;VALUE=DATE with no time
+      // component, so calendar apps show it as a banner at the top of the
+      // day rather than a midnight-to-midnight block. Passing `end` equal
+      // to `start` tells the library this is a same-day all-day event, so
+      // it omits DTEND entirely rather than emitting a DURATION line with
+      // a malformed trailing "T" (confirmed via `duration: {days:1}`,
+      // which produces "DURATION:P1DT" — not valid ISO 8601).
+      const allDay: [number, number, number] = [date.year, date.month, date.day]
+      acc.push({
+        title: event.title,
+        start: allDay,
+        end: allDay,
+        description: eventDescription(event),
+        ...(event.location ? { location: event.location } : {}),
+      })
+      return acc
+    }
+
     const startMinutes = parseEventStartMinutes(event.time) ?? 0
     const endMinutes = parseEventEndMinutes(event.time) ?? startMinutes + DEFAULT_DURATION_MINUTES
 
@@ -121,18 +147,33 @@ function toGoogleUTCString(instantMs: number): string {
  * separately from the .ics TZID handling above.
  */
 export function buildGoogleCalendarUrl(event: CalendarExportEvent): string {
-  const startMinutes = parseEventStartMinutes(event.time) ?? 0
-  const endMinutes = parseEventEndMinutes(event.time) ?? startMinutes + DEFAULT_DURATION_MINUTES
-
-  const startInstant = chapterInstantAtMinutes(event.date, startMinutes)
-  const endInstant = chapterInstantAtMinutes(event.date, endMinutes)
-
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: event.title,
-    dates: `${startInstant ? toGoogleUTCString(startInstant) : ''}/${endInstant ? toGoogleUTCString(endInstant) : ''}`,
     details: eventDescription(event),
   })
+
+  if (isTBDTime(event.time)) {
+    // All-day events use bare YYYYMMDD dates (no time, no Z) — Google
+    // treats the end date as exclusive, so a one-day all-day event's end
+    // is the following calendar day.
+    const date = parseCalendarDate(event.date)
+    if (date) {
+      params.set('dates', `${formatYYYYMMDD(date)}/${formatYYYYMMDD(addOneDay(date))}`)
+    }
+  } else {
+    const startMinutes = parseEventStartMinutes(event.time) ?? 0
+    const endMinutes = parseEventEndMinutes(event.time) ?? startMinutes + DEFAULT_DURATION_MINUTES
+
+    const startInstant = chapterInstantAtMinutes(event.date, startMinutes)
+    const endInstant = chapterInstantAtMinutes(event.date, endMinutes)
+
+    params.set(
+      'dates',
+      `${startInstant ? toGoogleUTCString(startInstant) : ''}/${endInstant ? toGoogleUTCString(endInstant) : ''}`
+    )
+  }
+
   if (event.location) params.set('location', event.location)
 
   return `https://calendar.google.com/calendar/render?${params.toString()}`

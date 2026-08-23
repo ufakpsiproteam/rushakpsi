@@ -41,6 +41,26 @@ export function parseCalendarDate(dateString: string): { year: number; month: nu
 }
 
 /**
+ * The calendar date one day after the given one, handling month/year
+ * rollover. Pure calendar arithmetic (via a UTC-anchored Date), not a real
+ * instant — there's no timezone conversion involved, just "next day on the
+ * calendar," e.g. for a Google Calendar all-day event's exclusive end date.
+ */
+export function addOneDay(date: { year: number; month: number; day: number }): {
+  year: number
+  month: number
+  day: number
+} {
+  const next = new Date(Date.UTC(date.year, date.month - 1, date.day + 1))
+  return { year: next.getUTCFullYear(), month: next.getUTCMonth() + 1, day: next.getUTCDate() }
+}
+
+/** YYYYMMDD, the bare calendar-date format Google Calendar's all-day `dates` param and iCal's VALUE=DATE both use. */
+export function formatYYYYMMDD(date: { year: number; month: number; day: number }): string {
+  return `${date.year}${String(date.month).padStart(2, '0')}${String(date.day).padStart(2, '0')}`
+}
+
+/**
  * Format a calendar date for display, e.g. "February 5, 2026".
  * Timezone-independent: the same string renders identically everywhere.
  */
@@ -73,14 +93,23 @@ export function formatWeekdayInEST(dateString: string): string {
  * A strict subset of what parseEventStartMinutes/parseEventEndMinutes below
  * will accept (they tolerate any 1-2 digit hour with no upper bound), so
  * anything that passes this always parses correctly downstream — this is
- * the gate that keeps malformed strings ("TBD", "7-9 PM") out in the first
- * place, enforced on the admin events form and mirrored in a DB CHECK
- * constraint (see supabase/migrations/20260822_enforce_event_time_format.sql).
+ * the gate that keeps malformed strings ("7-9 PM") out in the first place,
+ * enforced on the admin events form and mirrored in a DB CHECK constraint
+ * (see supabase/migrations/20260822_enforce_event_time_format.sql and
+ * 20260823_allow_tbd_event_time.sql). "TBD" (any case) is accepted as a
+ * separate, deliberate literal value — see isTBDTime — for events whose
+ * time genuinely isn't set yet; it renders as an all-day entry in calendar
+ * exports rather than a fake midnight time block.
  */
 export const EVENT_TIME_PATTERN = /^(1[0-2]|[1-9]):[0-5][0-9]\s?(AM|PM|am|pm)(\s*-\s*(1[0-2]|[1-9]):[0-5][0-9]\s?(AM|PM|am|pm))?$/
 
+export function isTBDTime(timeString?: string | null): boolean {
+  return (timeString ?? '').trim().toUpperCase() === 'TBD'
+}
+
 export function isValidEventTimeFormat(timeString: string): boolean {
-  return EVENT_TIME_PATTERN.test(timeString.trim())
+  const trimmed = timeString.trim()
+  return isTBDTime(trimmed) || EVENT_TIME_PATTERN.test(trimmed)
 }
 
 /**
