@@ -521,7 +521,7 @@ export default function LandingDesignPage() {
 
         <GalaxyStars />
 
-        <div className="relative mx-auto w-full max-w-4xl px-5 sm:px-6 text-center" style={{ marginTop: '58vh' }}>
+        <div className="relative mx-auto w-full max-w-4xl px-5 sm:px-6 text-center" style={{ marginTop: 'min(50vh, calc(100svh - 380px))' }}>
           <div aria-hidden="true" className="mx-auto mb-6 h-px w-16 bg-[var(--portal-gold-accent)]" />
 
           <h1 className="text-[clamp(3rem,13vw,7rem)] leading-[0.98] text-on-inverse">
@@ -532,7 +532,7 @@ export default function LandingDesignPage() {
 
           <div className="mt-10 flex flex-col items-center gap-3">
             <Link href="/auth/signup" className={GOLD_PILL}>
-              <span className={GOLD_PILL_LABEL} style={subheading}>Sign Up</span>
+              <span className={GOLD_PILL_LABEL}>Sign Up</span>
               <ArrowIcon />
             </Link>
             <p className="text-sm text-on-inverse/50">
@@ -590,7 +590,7 @@ export default function LandingDesignPage() {
 
           <div className="mt-6 flex justify-center">
             <a href={CYCLE.instagramUrl} target="_blank" rel="noopener noreferrer" className={GOLD_PILL}>
-              <span className={GOLD_PILL_LABEL} style={subheading}>Follow Along</span>
+              <span className={GOLD_PILL_LABEL}>Follow Along</span>
               <InstagramIcon />
             </a>
           </div>
@@ -604,7 +604,6 @@ export default function LandingDesignPage() {
             <h2 className="text-3xl sm:text-4xl">Rush Events</h2>
             <p
               className="mt-4 inline-flex rounded-[8px] border border-[var(--portal-gold-accent)]/30 bg-[var(--portal-gold-accent)]/[0.08] px-4 py-1.5 text-sm font-semibold tracking-wide text-[var(--portal-gold-accent)]"
-              style={subheading}
             >
               {requirementSummary(policy)}
             </p>
@@ -671,7 +670,7 @@ export default function LandingDesignPage() {
 
           <div className="mt-10 flex justify-center sm:mt-12">
             <a href={CYCLE.groupMeUrl} target="_blank" rel="noopener noreferrer" className={GOLD_PILL}>
-              <span className={GOLD_PILL_LABEL} style={subheading}>Join the GroupMe for event updates</span>
+              <span className={GOLD_PILL_LABEL}>Join the GroupMe for event updates</span>
               <ArrowIcon />
             </a>
           </div>
@@ -719,7 +718,7 @@ export default function LandingDesignPage() {
 
           <div className="mt-8 flex justify-center">
             <Link href="/auth/signup" className={GOLD_PILL}>
-              <span className={GOLD_PILL_LABEL} style={subheading}>Sign Up</span>
+              <span className={GOLD_PILL_LABEL}>Sign Up</span>
               <ArrowIcon />
             </Link>
           </div>
