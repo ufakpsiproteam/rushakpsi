@@ -1,0 +1,14 @@
+-- "Rushees can update application" had no is_submitted check, so it was
+-- OR'd together with "Rushees can update own application if not submitted"
+-- (which does check it) and silently reopened editing on submitted
+-- applications. Confirmed live via impersonation test (2026-08-23): a
+-- rushee could edit their own already-submitted application, defeating
+-- the intended "locked once submitted" rule. Same failure shape as the
+-- event_attendance and applications-read bugs documented earlier in this
+-- project's history (overlapping permissive policies).
+--
+-- The remaining policy, "Rushees can update own application if not
+-- submitted" (USING auth.uid() = rushee_id AND is_submitted = false,
+-- WITH CHECK auth.uid() = rushee_id), already covers every legitimate
+-- case: a rushee editing their own not-yet-submitted application.
+DROP POLICY IF EXISTS "Rushees can update application" ON applications;

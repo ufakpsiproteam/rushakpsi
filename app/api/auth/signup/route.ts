@@ -3,8 +3,15 @@ import { getServiceClient } from '@/lib/server-auth'
 import { POLICY_DEFAULTS, validatePassword } from '@/lib/policy'
 
 /**
- * Public self-signup (rushees today; the function stays general since
- * lib/auth.ts previously supported brother signup too).
+ * Public self-signup — rushees only, hardcoded server-side. Brother
+ * accounts are created exclusively via the invite flow
+ * (app/api/invites/accept/route.ts). This route used to accept
+ * `accountType`/`accessLevel` from the request body and trust them
+ * verbatim, which let anyone create a brother account — including one
+ * with `accessLevel: 'admin'` — without an invite or any authentication
+ * at all. Fixed 2026-08-23: account type and access level are no longer
+ * read from the request; every account created here is a `rushee` at
+ * `basic` access, matching what the actual signup page has always sent.
  *
  * Account and profile creation happen together here, server-side, with
  * the service role — the same pattern as /api/invites/accept. Doing
@@ -18,17 +25,13 @@ import { POLICY_DEFAULTS, validatePassword } from '@/lib/policy'
  */
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, name, accountType, accessLevel, major, year } = await request.json()
+    const { email, password, name, major, year } = await request.json()
 
     if (!email || !password || !name) {
       return NextResponse.json({ error: 'Please provide your name, email, and password' }, { status: 400 })
     }
 
-    if (accountType !== 'rushee' && accountType !== 'brother') {
-      return NextResponse.json({ error: 'Invalid account type' }, { status: 400 })
-    }
-
-    if (accountType === 'rushee' && !String(email).trim().toLowerCase().endsWith('@ufl.edu')) {
+    if (!String(email).trim().toLowerCase().endsWith('@ufl.edu')) {
       return NextResponse.json({ error: 'Please use your UF email address (example@ufl.edu)' }, { status: 400 })
     }
 
@@ -37,18 +40,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: passwordError }, { status: 400 })
     }
 
-    if (accountType === 'rushee' && (!major || !year)) {
+    if (!major || !year) {
       return NextResponse.json({ error: 'Rushees must provide major and year' }, { status: 400 })
     }
 
     const service = getServiceClient()
-    const resolvedAccessLevel = accountType === 'rushee' ? 'basic' : (accessLevel || 'basic')
 
     const { data: created, error: createError } = await service.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
-      user_metadata: { name, account_type: accountType },
+      user_metadata: { name, account_type: 'rushee' },
     })
 
     if (createError || !created?.user) {
@@ -64,8 +66,8 @@ export async function POST(request: NextRequest) {
       id: userId,
       email,
       name,
-      account_type: accountType,
-      access_level: resolvedAccessLevel,
+      account_type: 'rushee',
+      access_level: 'basic',
     })
 
     if (profileError) {
@@ -74,33 +76,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Could not create your account.' }, { status: 500 })
     }
 
-    if (accountType === 'brother') {
-      const { error: brotherError } = await service.from('brothers').insert({
-        id: userId,
-        email,
-        name,
-        access_level: accessLevel || 'basic',
-      })
+    const { error: rusheeError } = await service.from('rushees').insert({
+      id: userId,
+      name,
+      email,
+      major,
+      year,
+    })
 
-      if (brotherError) {
-        await service.auth.admin.deleteUser(userId)
-        console.error('[auth/signup] brother record failed, rolled back')
-        return NextResponse.json({ error: 'Could not create your account.' }, { status: 500 })
-      }
-    } else {
-      const { error: rusheeError } = await service.from('rushees').insert({
-        id: userId,
-        name,
-        email,
-        major,
-        year,
-      })
-
-      if (rusheeError) {
-        await service.auth.admin.deleteUser(userId)
-        console.error('[auth/signup] rushee record failed, rolled back')
-        return NextResponse.json({ error: 'Could not create your account.' }, { status: 500 })
-      }
+    if (rusheeError) {
+      await service.auth.admin.deleteUser(userId)
+      console.error('[auth/signup] rushee record failed, rolled back')
+      return NextResponse.json({ error: 'Could not create your account.' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
