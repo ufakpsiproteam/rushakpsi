@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
               <div className="alert alert-positive">
                 <p>
                   If an account exists for <span className="font-semibold">{email.trim()}</span>,
-                  a reset link is on its way. Check your inbox and your spam folder.
+                  a reset link is on its way. Check your inbox <strong>and your spam</strong> folder.
                 </p>
               </div>
               <p className="field-help mt-3">The link expires after a short time.</p>

@@ -112,24 +112,24 @@ export default function DecisionLetter({ type, rusheeName, vpName }: DecisionLet
         </button>{' '}
         by the stated deadline</>,
       <>
-        <strong>Attend Smoker:</strong> February 5th, 2026 at 6:00 PM
+        <strong>Attend Smoker:</strong> September 24th, 2026 at 6:30 PM
         <br />
         <span className="ml-4">Location: Hillel (2020 W University Ave, Gainesville, FL 32603)</span>
         <br />
         <span className="ml-4"><em>Please arrive AKPsi time (15 minutes early)</em></span>
       </>,
       <>
-        <strong>Attend Inductions:</strong> February 7th, 2026 at 8:00 AM
+        <strong>Attend Inductions:</strong> September 26th, 2026 at 8:00 AM
         <br />
-        <span className="ml-4">Location: TUR L005</span>
+        <span className="ml-4">Location: TBD</span>
         <br />
-        <span className="ml-4"><em>Be there AKPsi time (15 minutes early) and report to room 2305</em></span>
+        <span className="ml-4"><em>Be there AKPsi time (15 minutes early)</em></span>
       </>,
     ],
     importantNote: (
       <>
         <strong>Important:</strong> A response to the Bid Acceptance Form is expected by{' '}
-        <strong>4:00 PM on February 5th, 2026</strong>. Failure to respond by this deadline may result in your bid being rescinded.
+        <strong>4:00 PM on September 24th, 2026</strong>. Failure to respond by this deadline may result in your bid being rescinded.
       </>
     ),
     closing:
