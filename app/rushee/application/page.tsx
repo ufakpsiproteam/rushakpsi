@@ -266,6 +266,13 @@ export default function RusheeApplication() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    const overLimit = [formData.whyInterested, formData.pillarRelation, formData.brotherConnectionReason]
+      .some((answer) => countWords(answer) > ESSAY_WORD_LIMIT)
+    if (overLimit) {
+      alert(`One or more essay answers is over the ${ESSAY_WORD_LIMIT}-word limit. Please trim your response before submitting.`)
+      return
+    }
+
     // R19 — submission is final, so it is always deliberate.
     const confirmed = window.confirm(
       'Submit your application?\n\nOnce submitted, your application locks and you will not be able to edit it. Make sure every answer is how you want it.'
@@ -301,7 +308,8 @@ export default function RusheeApplication() {
     }
   }
 
-  const characterLimit = POLICY.application.essayCharLimit
+  const ESSAY_WORD_LIMIT = 250
+  const countWords = (text: string) => (text.trim() === '' ? 0 : text.trim().split(/\s+/).length)
 
   // Banner component - only show when event minimums are met
   const CasualInterviewBanner = () => {
@@ -312,7 +320,7 @@ export default function RusheeApplication() {
         <p className="text-sm sm:text-base font-medium">
           📅 Sign up for casual interviews!{' '}
           <a
-            href="https://docs.google.com/spreadsheets/d/134aYIdwIsEfEYGKluLa2U9JTtkRU3ESFQg_LFVHoI7E/edit?gid=0#gid=0"
+            href="https://docs.google.com/spreadsheets/d/1qACVVDuaxDt8jsaLxYwmipFfppjwAoFO1ijIob59vXk/edit?usp=drivesdk"
             target="_blank"
             rel="noopener noreferrer"
             className="underline font-semibold hover:text-surface-sunken transition-colors"
@@ -441,7 +449,10 @@ export default function RusheeApplication() {
             <p className="text-xs uppercase tracking-[0.35em] text-ink-subtle">Membership Application</p>
             <h1 className="mt-2 text-3xl font-semibold text-ink">Tell us your story</h1>
             <p className="text-sm text-ink-muted mt-2">
-              Take your time and be thoughtful with your responses. Character limit: {characterLimit} characters per essay question.
+              Take your time and be thoughtful with your responses. Essay questions are capped at {ESSAY_WORD_LIMIT} words each.
+            </p>
+            <p className="text-sm font-semibold text-ink mt-1">
+              Applications are due September 15th, 2026 at 11:59 PM.
             </p>
           </div>
           <div className="text-sm">
@@ -657,88 +668,61 @@ export default function RusheeApplication() {
 
           {/* Essay Questions */}
           <div className="bg-white border border-line rounded-2xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-ink mb-4">Essay Questions</h2>
+            <h2 className="text-lg font-semibold text-ink mb-1">Essay Questions</h2>
+            <p className="text-xs text-ink-subtle mb-4">No more than {ESSAY_WORD_LIMIT} words for each question.</p>
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-ink-muted mb-2">
-                  1. Please list any outside involvements? *
-                </label>
-                <textarea
-                  name="outsideInvolvements"
-                  value={formData.outsideInvolvements}
-                  onChange={handleChange}
-                  required
-                  maxLength={characterLimit}
-                  rows={4}
-                  className="w-full px-4 py-2 bg-white border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink resize-none"
-                  placeholder="Clubs, organizations, sports, volunteer work, etc."
-                />
-                <p className="text-xs text-ink-subtle mt-1">{formData.outsideInvolvements.length}/{characterLimit}</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-ink-muted mb-2">
-                  2. How did you hear about Alpha Kappa Psi? *
-                </label>
-                <textarea
-                  name="howHeardAboutAkpsi"
-                  value={formData.howHeardAboutAkpsi}
-                  onChange={handleChange}
-                  required
-                  maxLength={characterLimit}
-                  rows={4}
-                  className="w-full px-4 py-2 bg-white border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink resize-none"
-                />
-                <p className="text-xs text-ink-subtle mt-1">{formData.howHeardAboutAkpsi.length}/{characterLimit}</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-ink-muted mb-2">
-                  3. Why are you interested in becoming a member of Alpha Kappa Psi? *
+                  1. If your personality was a planet, what planet would you be and why? *
                 </label>
                 <textarea
                   name="whyInterested"
                   value={formData.whyInterested}
                   onChange={handleChange}
                   required
-                  maxLength={characterLimit}
+                  maxLength={2000}
                   rows={4}
                   className="w-full px-4 py-2 bg-white border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink resize-none"
                 />
-                <p className="text-xs text-ink-subtle mt-1">{formData.whyInterested.length}/{characterLimit}</p>
+                <p className={`text-xs mt-1 ${countWords(formData.whyInterested) > ESSAY_WORD_LIMIT ? 'text-red-600' : 'text-ink-subtle'}`}>
+                  {countWords(formData.whyInterested)}/{ESSAY_WORD_LIMIT} words
+                </p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-ink-muted mb-2">
-                  4. Pick one of our pillars and describe how it relates to you (Brotherhood, Knowledge, Unity, Integrity, and Service)? *
+                  2. You&apos;re on a spaceship with five strangers for six months. What role do you think you would naturally take on within the group, and why? *
                 </label>
                 <textarea
                   name="pillarRelation"
                   value={formData.pillarRelation}
                   onChange={handleChange}
                   required
-                  maxLength={characterLimit}
+                  maxLength={2000}
                   rows={4}
                   className="w-full px-4 py-2 bg-white border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink resize-none"
                 />
-                <p className="text-xs text-ink-subtle mt-1">{formData.pillarRelation.length}/{characterLimit}</p>
+                <p className={`text-xs mt-1 ${countWords(formData.pillarRelation) > ESSAY_WORD_LIMIT ? 'text-red-600' : 'text-ink-subtle'}`}>
+                  {countWords(formData.pillarRelation)}/{ESSAY_WORD_LIMIT} words
+                </p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-ink-muted mb-2">
-                  5. Who is a brother who you connected with and why? *
+                  3. Tell us about something you&apos;re passionate about. What motivates you to continue pursuing it? *
                 </label>
                 <textarea
                   name="brotherConnectionReason"
                   value={formData.brotherConnectionReason}
                   onChange={handleChange}
                   required
-                  maxLength={characterLimit}
+                  maxLength={2000}
                   rows={4}
                   className="w-full px-4 py-2 bg-white border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink resize-none"
-                  placeholder="Share which brother made an impact and why"
                 />
-                <p className="text-xs text-ink-subtle mt-1">{formData.brotherConnectionReason.length}/{characterLimit}</p>
+                <p className={`text-xs mt-1 ${countWords(formData.brotherConnectionReason) > ESSAY_WORD_LIMIT ? 'text-red-600' : 'text-ink-subtle'}`}>
+                  {countWords(formData.brotherConnectionReason)}/{ESSAY_WORD_LIMIT} words
+                </p>
               </div>
             </div>
           </div>

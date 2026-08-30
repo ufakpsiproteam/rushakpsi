@@ -10,7 +10,6 @@ interface DecisionLetterProps {
 }
 
 export default function DecisionLetter({ type, rusheeName, vpName }: DecisionLetterProps) {
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false)
   const [showBidAcceptanceModal, setShowBidAcceptanceModal] = useState(false)
   const letterContent: Record<
     DecisionLetterProps['type'],
@@ -45,12 +44,9 @@ export default function DecisionLetter({ type, rusheeName, vpName }: DecisionLet
       </>,
     ],
     nextSteps: [
-      <>Please complete the Recruitment {' '}
-        <button
-          onClick={() => setShowConfirmationModal(true)}
-          className="underline text-ink hover:text-ink cursor-pointer"
-        >
-          Confirmation Form</button></>,
+      <>
+        <strong>Attend the Invite-Only Event:</strong> September 17th, 2026 at 6:15 PM
+      </>,
       <>
         Sign up for interviews using the following {' '}
         <a
@@ -119,7 +115,7 @@ export default function DecisionLetter({ type, rusheeName, vpName }: DecisionLet
         <span className="ml-4"><em>Please arrive AKPsi time (15 minutes early)</em></span>
       </>,
       <>
-        <strong>Attend Inductions:</strong> September 26th, 2026 at 8:00 AM
+        <strong>Attend Inductions:</strong> September 26th, 2026 at 8:15 AM
         <br />
         <span className="ml-4">Location: TBD</span>
         <br />
@@ -217,51 +213,6 @@ export default function DecisionLetter({ type, rusheeName, vpName }: DecisionLet
         <p className="text-sm text-ink-muted">Alpha Kappa Psi | Alpha Phi Chapter | University of Florida</p>
       </div>
 
-      {/* Confirmation Form Modal */}
-      {showConfirmationModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-[95vw] max-w-[2000px] h-[95vh] overflow-hidden flex flex-col">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-line flex-shrink-0">
-              <h2 className="text-2xl font-bold text-ink">Recruitment Confirmation Form</h2>
-              <div className="flex items-center gap-2">
-                <a
-                  href="https://tally.so/r/pbOD8y"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-2 hover:bg-surface-sunken rounded-lg transition-colors"
-                  title="Open in new tab"
-                >
-                  <svg className="w-6 h-6 text-ink-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
-                <button
-                  onClick={() => setShowConfirmationModal(false)}
-                  className="p-2 hover:bg-surface-sunken rounded-lg transition-colors"
-                  title="Close"
-                >
-                  <svg className="w-6 h-6 text-ink-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            {/* Modal Content - Embedded Tally Form */}
-            <div className="flex-1 overflow-hidden">
-              <iframe
-                src="https://tally.so/r/pbOD8y"
-                width="100%"
-                height="100%"
-                title="Recruitment Confirmation Form"
-                className="w-full h-full border-0"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Bid Acceptance Form Modal */}
       {showBidAcceptanceModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -271,7 +222,7 @@ export default function DecisionLetter({ type, rusheeName, vpName }: DecisionLet
               <h2 className="text-2xl font-bold text-ink">Bid Acceptance Form</h2>
               <div className="flex items-center gap-2">
                 <a
-                  href="https://tally.so/r/7RxYOA"
+                  href="https://docs.google.com/forms/d/1q4knQzW9xyaPxWglp_z4jyJtjZ27E2DTiLRUBl5JGmc/viewform"
                   target="_blank"
                   rel="noreferrer"
                   className="p-2 hover:bg-surface-sunken rounded-lg transition-colors"
@@ -296,7 +247,7 @@ export default function DecisionLetter({ type, rusheeName, vpName }: DecisionLet
             {/* Modal Content - Embedded Tally Form */}
             <div className="flex-1 overflow-hidden">
               <iframe
-                src="https://tally.so/r/7RxYOA"
+                src="https://docs.google.com/forms/d/1q4knQzW9xyaPxWglp_z4jyJtjZ27E2DTiLRUBl5JGmc/viewform?embedded=true"
                 width="100%"
                 height="100%"
                 title="Bid Acceptance Form"
