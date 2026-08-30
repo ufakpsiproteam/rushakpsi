@@ -648,14 +648,34 @@ export default function BrotherInterviewsPage() {
     await loadData()
   }
 
-  // Map progress by rushee_id → type → best row
+  // Map progress by rushee_id → type → merged row. A rushee can have more
+  // than one interview session of the same type (e.g. an earlier session
+  // that was cancelled and restarted) — fn_interview_progress returns one
+  // row per session. Submitted grades from every session still count (a
+  // panelist's work doesn't stop counting just because the session was
+  // later cancelled/redone), so submitted_count is summed across all of a
+  // rushee's sessions of that type rather than read off a single "best"
+  // row — otherwise an earlier empty or since-cancelled session can shadow
+  // the real completed one and show "X"/undercount for someone who
+  // actually finished. Which status badge to show, and the pending/removed
+  // counts for it, still come from the single most relevant session
+  // (in_progress beats completed beats cancelled; ties broken by recency).
   const progressMap = new Map<string, Map<InterviewType, ProgressRow>>()
   for (const row of progress) {
     if (!progressMap.has(row.rushee_id)) progressMap.set(row.rushee_id, new Map())
     const typeMap = progressMap.get(row.rushee_id)!
     const existing = typeMap.get(row.type)
-    if (!existing || STATUS_RANK[row.interview_status] < STATUS_RANK[existing.interview_status]) {
-      typeMap.set(row.type, row)
+    if (!existing) {
+      typeMap.set(row.type, { ...row })
+      continue
+    }
+    existing.submitted_count += row.submitted_count
+    const rankDiff = STATUS_RANK[row.interview_status] - STATUS_RANK[existing.interview_status]
+    if (rankDiff < 0 || (rankDiff === 0 && row.started_at > existing.started_at)) {
+      existing.interview_status = row.interview_status
+      existing.pending_count = row.pending_count
+      existing.removed_count = row.removed_count
+      existing.started_at = row.started_at
     }
   }
 

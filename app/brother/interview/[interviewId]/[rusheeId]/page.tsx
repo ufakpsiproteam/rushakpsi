@@ -49,6 +49,18 @@ const RECOMMENDATION_OPTIONS = [
   { value: 1, label: 'Inadequate', description: 'Would not recommend.' },
 ]
 
+// Interview questions/scripts are seeded with a couple of {token} placeholders
+// for dates that weren't fixed yet at seed time — fill them in at render time
+// rather than baking a date into the DB copy.
+const SCRIPT_TOKENS: Record<string, string> = {
+  invite_only_datetime: 'September 17th, 2026 at 6:15 PM',
+  invite_event_dates: 'September 24th (Smoker) and September 26th (Inductions)',
+}
+
+function fillTokens(text: string): string {
+  return text.replace(/\{(\w+)\}/g, (match, key) => SCRIPT_TOKENS[key] ?? match)
+}
+
 // ── Small UI helpers ───────────────────────────────────────────────────────
 
 function ScriptBlock({ lines }: { lines: string[] }) {
@@ -214,18 +226,20 @@ export default function InterviewModePage() {
     setAssignment(ia)
     setRushee(rRes.data ? { name: rRes.data.name, major: rRes.data.major } : { name: 'Unknown', major: null })
 
-    const qs = (qRes.data ?? []).filter((q: any) => q.type === ivType && q.is_active) as InterviewQuestion[]
+    const qs = (qRes.data ?? [])
+      .filter((q: any) => q.type === ivType && q.is_active)
+      .map((q: any) => ({ ...q, prompt: fillTokens(q.prompt) })) as InterviewQuestion[]
     setQuestions(qs)
 
     const scripts = (scriptRes.data ?? []) as InterviewScript[]
     setOpeningScripts(
-      scripts.filter(s => s.kind === 'opening').sort((a, b) => a.position - b.position).map(s => s.content)
+      scripts.filter(s => s.kind === 'opening').sort((a, b) => a.position - b.position).map(s => fillTokens(s.content))
     )
     setClosingScripts(
-      scripts.filter(s => s.kind === 'closing').sort((a, b) => a.position - b.position).map(s => s.content)
+      scripts.filter(s => s.kind === 'closing').sort((a, b) => a.position - b.position).map(s => fillTokens(s.content))
     )
     const cs = scripts.find(s => s.kind === 'conflict_script')
-    setConflictScript(cs?.content ?? null)
+    setConflictScript(cs ? fillTokens(cs.content) : null)
 
     // Build answers map from existing answers
     const answerMap: Record<string, AnswerState> = {}

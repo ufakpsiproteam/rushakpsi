@@ -25,6 +25,7 @@ interface InterviewPanelist {
   recommendation: number | null
   recommendation_notes: string | null
   knows_personally: boolean
+  conflict_flagged_at: string | null
   answers: InterviewPanelistAnswer[]
 }
 
@@ -361,15 +362,18 @@ export default function AdminCuts() {
     setLoadingBreakdown(true)
     setInterviewBreakdown(null)
     try {
-      // Fetch submitted assignments for this rushee
+      // Fetch submitted assignments for this rushee, plus any assignment
+      // that flagged a conflict — those stay 'pending' forever (the
+      // panelist recuses instead of submitting), so a plain status filter
+      // silently drops them and the conflict never reaches the review board.
       const { data: assignments } = await (supabase as any)
         .from('interview_assignments')
         .select(`
-          interview_id, brother_id, recommendation, recommendation_notes, knows_personally,
+          interview_id, brother_id, recommendation, recommendation_notes, knows_personally, conflict_flagged_at,
           interviews!inner (type, status)
         `)
         .eq('rushee_id', rusheeId)
-        .eq('status', 'submitted')
+        .or('status.eq.submitted,conflict_flagged_at.not.is.null')
 
       if (!assignments || assignments.length === 0) {
         setInterviewBreakdown([])
@@ -438,6 +442,7 @@ export default function AdminCuts() {
           recommendation: (ia as any).recommendation,
           recommendation_notes: (ia as any).recommendation_notes,
           knows_personally: (ia as any).knows_personally,
+          conflict_flagged_at: (ia as any).conflict_flagged_at,
           answers: panelAnswers,
         })
       }
@@ -1214,15 +1219,31 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                           <p className="text-xs font-semibold text-ink-subtle uppercase tracking-widest mb-1 capitalize">
                             {group.type}
                           </p>
-                          {group.panelists.map(panelist => (
+                          {group.panelists.map(panelist => {
+                            const scored = panelist.answers.filter(a => a.field_type !== 'yes_no' && a.maxScore !== null)
+                            const scoreTotal = scored.reduce((sum, a) => sum + (a.score ?? 0), 0)
+                            const scoreMax = scored.reduce((sum, a) => sum + (a.maxScore ?? 0), 0)
+                            return (
                             <div key={panelist.brother_id} className="bg-surface border border-line rounded-lg p-3 mb-2">
-                              <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-start justify-between mb-1">
                                 <p className="text-sm font-medium text-ink">{panelist.brother_name}</p>
-                                {panelist.recommendation !== null && (
-                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                                    Rec: {panelist.recommendation}/5
-                                  </span>
-                                )}
+                                <div className="flex flex-col items-end gap-1">
+                                  {panelist.recommendation !== null && (
+                                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                                      Rec: {panelist.recommendation}/5
+                                    </span>
+                                  )}
+                                  {scoreMax > 0 && (
+                                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
+                                      Score: {scoreTotal}/{scoreMax}
+                                    </span>
+                                  )}
+                                  {panelist.conflict_flagged_at && (
+                                    <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                                      Conflict flagged
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                               {panelist.knows_personally && (
                                 <p className="text-xs text-amber-600 mb-1">Knows personally</p>
@@ -1250,7 +1271,7 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                                 ))}
                               </div>
                             </div>
-                          ))}
+                          )})}
                         </div>
                       ))}
                     </div>
