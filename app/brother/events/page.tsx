@@ -248,33 +248,54 @@ function BrotherEventsContent() {
 
   const handleContinueToEvaluate = async () => {
     if (selectedRushees.length > 0 && selectedEvent) {
-      // Save selected rushees to localStorage
-      const selectedKey = `selected_${selectedEvent}`
-      localStorage.setItem(selectedKey, JSON.stringify(selectedRushees))
-
-      // Save interactions to database
+      // Save interactions to database FIRST. The evaluate screen's "have
+      // you met this rushee" gate (hasMetRusheeAtEvent) reads these rows
+      // directly, so if this write silently fails, every rushee here
+      // would hit that gate with no explanation — which is exactly the
+      // bug this fixes. Advancing to step 2 is now conditional on the
+      // write actually succeeding.
       try {
         const { supabase } = await import('@/lib/supabase')
         const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
-          // Insert interactions for each selected rushee
-          const interactions = selectedRushees.map(rusheeId => ({
-            brother_id: user.id,
-            rushee_id: rusheeId,
-            event_id: selectedEvent
-          }))
-
-          // Use upsert to avoid duplicates if they go back and forth
-          await (supabase as any)
-            .from('brother_rushee_interactions')
-            .upsert(interactions, {
-              onConflict: 'brother_id,rushee_id,event_id'
-            })
+        if (!user) {
+          alert('Your session may have expired. Please sign in again and retry.')
+          return
         }
+
+        // Insert interactions for each selected rushee
+        const interactions = selectedRushees.map(rusheeId => ({
+          brother_id: user.id,
+          rushee_id: rusheeId,
+          event_id: selectedEvent
+        }))
+
+        // Use upsert to avoid duplicates if they go back and forth. This
+        // table only has an own-row RLS policy for INSERT, not UPDATE (only
+        // admins can update it) — a plain upsert compiles to
+        // ON CONFLICT DO UPDATE, which needs UPDATE permission and gets
+        // rejected by RLS for a regular brother re-submitting a rushee
+        // that's already recorded. ignoreDuplicates makes it DO NOTHING
+        // instead, which only needs INSERT and is all this ever needed —
+        // there's nothing on an existing row worth overwriting.
+        const { error } = await (supabase as any)
+          .from('brother_rushee_interactions')
+          .upsert(interactions, {
+            onConflict: 'brother_id,rushee_id,event_id',
+            ignoreDuplicates: true
+          })
+
+        if (error) throw error
       } catch (error) {
         console.error('Error saving interactions:', error)
-        // Don't block the flow if saving interactions fails
+        alert('Could not save who you met. Please check your connection and try again — nothing has been lost.')
+        return
       }
+
+      // Save selected rushees to localStorage only after the database
+      // write is confirmed, so a resumed session never trusts a selection
+      // that was never actually recorded.
+      const selectedKey = `selected_${selectedEvent}`
+      localStorage.setItem(selectedKey, JSON.stringify(selectedRushees))
 
       // Update URL to include evaluation state
       router.push(`/brother/events?evaluating=${selectedEvent}`)
@@ -612,39 +633,48 @@ function BrotherEventsContent() {
                       {currentEvent.title} - Click on a rushee to evaluate them
                     </p>
                   </div>
-                  <button
-                    onClick={async () => {
-                      if (!confirm('Reset your rushee selection? This will take you back to the selection screen and clear the interactions it recorded.')) {
-                        return
-                      }
-
-                      // PRD §6.4.4: removes the interaction records created
-                      // by that selection, so interaction counts stay accurate.
-                      if (selectedEvent) {
-                        try {
-                          const { supabase } = await import('@/lib/supabase')
-                          const { data: { user } } = await supabase.auth.getUser()
-                          if (user) {
-                            await (supabase as any)
-                              .from('brother_rushee_interactions')
-                              .delete()
-                              .eq('brother_id', user.id)
-                              .eq('event_id', selectedEvent)
-                          }
-                        } catch {
-                          alert('Could not clear the recorded interactions. Please try again.')
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setStep('select')}
+                      className="px-4 py-2 bg-surface-sunken border border-line-strong text-ink-muted rounded-lg font-semibold hover:bg-line transition-colors text-sm whitespace-nowrap"
+                      title="Go back and check off anyone you missed — keeps everyone already recorded"
+                    >
+                      Edit Selection
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (!confirm('Reset your rushee selection? This will take you back to the selection screen and clear the interactions it recorded.')) {
                           return
                         }
-                        localStorage.removeItem(`selected_${selectedEvent}`)
-                      }
 
-                      setStep('select')
-                      setSelectedRushees([])
-                    }}
-                    className="px-4 py-2 bg-surface-sunken border border-line-strong text-ink-muted rounded-lg font-semibold hover:bg-line transition-colors text-sm whitespace-nowrap"
-                  >
-                    Reset Selection
-                  </button>
+                        // PRD §6.4.4: removes the interaction records created
+                        // by that selection, so interaction counts stay accurate.
+                        if (selectedEvent) {
+                          try {
+                            const { supabase } = await import('@/lib/supabase')
+                            const { data: { user } } = await supabase.auth.getUser()
+                            if (user) {
+                              await (supabase as any)
+                                .from('brother_rushee_interactions')
+                                .delete()
+                                .eq('brother_id', user.id)
+                                .eq('event_id', selectedEvent)
+                            }
+                          } catch {
+                            alert('Could not clear the recorded interactions. Please try again.')
+                            return
+                          }
+                          localStorage.removeItem(`selected_${selectedEvent}`)
+                        }
+
+                        setStep('select')
+                        setSelectedRushees([])
+                      }}
+                      className="px-4 py-2 bg-surface-sunken border border-line-strong text-ink-muted rounded-lg font-semibold hover:bg-line transition-colors text-sm whitespace-nowrap"
+                    >
+                      Reset Selection
+                    </button>
+                  </div>
                 </div>
               </div>
 

@@ -115,7 +115,7 @@ export default function DecisionLetter({ type, rusheeName, vpName }: DecisionLet
         <span className="ml-4"><em>Please arrive AKPsi time (15 minutes early)</em></span>
       </>,
       <>
-        <strong>Attend Inductions:</strong> September 26th, 2026 at 8:15 AM
+        <strong>Attend Inductions:</strong> September 27th, 2026 at 8:15 AM
         <br />
         <span className="ml-4">Location: TBD</span>
         <br />
