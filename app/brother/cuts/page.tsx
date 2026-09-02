@@ -157,30 +157,25 @@ export default function BrotherCuts() {
         .from('applications')
         .select('*')
 
-      // Accurate interaction counts (unique brothers) from standings logic
+      // Accurate interaction counts (unique brothers) from standings logic.
+      // One bulk fetch + client-side grouping instead of a query per
+      // rushee — with ~170 rushees this used to fire ~170 simultaneous
+      // requests on every page load, which is what actually drove
+      // Postgres's connection count up (see 2026-09-02 "database error
+      // querying schema" incident), not real concurrent user traffic.
+      const { data: interactionsData } = await supabase
+        .from('brother_rushee_interactions')
+        .select('rushee_id, brother_id')
+        .range(0, 9999)
       const interactionCounts = new Map<string, number>()
-      await Promise.all(
-        rusheesData.map(async (rushee: any) => {
-          const { data: interactionData } = await supabase
-            .from('brother_rushee_interactions')
-            .select('brother_id')
-            .eq('rushee_id', rushee.id)
-          const uniqueBrothers = new Set((interactionData || []).map((i: any) => i.brother_id))
-          interactionCounts.set(rushee.id, uniqueBrothers.size)
-        })
-      )
-
-      // Accurate evaluation counts (matches standings page)
-      const evaluationCounts = new Map<string, number>()
-      await Promise.all(
-        rusheesData.map(async (rushee: any) => {
-          const { count } = await supabase
-            .from('evaluations')
-            .select('*', { count: 'exact', head: true })
-            .eq('rushee_id', rushee.id)
-          evaluationCounts.set(rushee.id, count ?? 0)
-        })
-      )
+      for (const rushee of rusheesData as any[]) {
+        const uniqueBrothers = new Set(
+          (interactionsData || [])
+            .filter((i: any) => i.rushee_id === rushee.id)
+            .map((i: any) => i.brother_id)
+        )
+        interactionCounts.set(rushee.id, uniqueBrothers.size)
+      }
 
       // Process data for each rushee
       const processedRushees: RusheeData[] = rusheesData.map((rushee: any) => {
@@ -191,7 +186,7 @@ export default function BrotherCuts() {
 
         // Calculate evaluation stats
         const rusheeEvals = evaluationsData?.filter((e: any) => e.rushee_id === rushee.id) || []
-        const evaluationCount = evaluationCounts.get(rushee.id) ?? rusheeEvals.length
+        const evaluationCount = rusheeEvals.length
         const interactionCount = interactionCounts.get(rushee.id) ?? evaluationCount
 
         let avgProfessional = 0

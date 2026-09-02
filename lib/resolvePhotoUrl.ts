@@ -1,5 +1,16 @@
 import { supabase } from './supabase'
 
+// Signed URLs are valid for 1 hour; without this cache every RusheePhoto
+// mount (every grid, every re-render) called Storage for a fresh one, and
+// each of those calls opens its own DB connection on Storage's side. A
+// 169-rushee grid load was firing ~169 simultaneous Storage connections,
+// which is what actually drove Postgres to its 60-connection ceiling and
+// locked Auth out (see 2026-09-02 "database error querying schema"
+// incident) — not real concurrent user count. Cached slightly under the
+// real 1-hour expiry so a stale-but-still-valid URL is never served.
+const signedUrlCache = new Map<string, { url: string; expiresAt: number }>()
+const SIGNED_URL_TTL_MS = 55 * 60 * 1000
+
 /**
  * Both rushees.photo and pledges.photo have historically been written
  * two different ways: a `getPublicUrl()` result (a full URL with the
@@ -43,12 +54,26 @@ export async function resolvePhotoUrl(
     path = trimmed
   }
 
+  const cacheKey = `${bucket}:${path}`
+  const cached = signedUrlCache.get(cacheKey)
+  if (cached && cached.expiresAt > Date.now()) return cached.url
+
   const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 3600)
-  if (!error && data) return data.signedUrl
+  if (!error && data) {
+    signedUrlCache.set(cacheKey, { url: data.signedUrl, expiresAt: Date.now() + SIGNED_URL_TTL_MS })
+    return data.signedUrl
+  }
 
   if (bucket === 'profile-pictures') {
+    const fallbackKey = `profile-photos:${path}`
+    const fallbackCached = signedUrlCache.get(fallbackKey)
+    if (fallbackCached && fallbackCached.expiresAt > Date.now()) return fallbackCached.url
+
     const fallback = await supabase.storage.from('profile-photos').createSignedUrl(path, 3600)
-    if (!fallback.error && fallback.data) return fallback.data.signedUrl
+    if (!fallback.error && fallback.data) {
+      signedUrlCache.set(fallbackKey, { url: fallback.data.signedUrl, expiresAt: Date.now() + SIGNED_URL_TTL_MS })
+      return fallback.data.signedUrl
+    }
   }
 
   return null

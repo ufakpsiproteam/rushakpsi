@@ -45,7 +45,15 @@ function SignInForm() {
       window.location.href = targetRoute
     } catch (err: any) {
       console.error('Sign in error:', err)
-      setError(err.message || 'Failed to sign in. Please check your credentials.')
+      // Auth's own 5xx errors (e.g. "database error querying schema") are
+      // Supabase's internal wording for a transient capacity issue, not
+      // anything the person did wrong — show something actionable instead.
+      const isCapacityError = err?.status >= 500 || /database error|querying schema/i.test(err?.message || '')
+      setError(
+        isCapacityError
+          ? 'Site is at capacity right now. Please wait a few seconds and try again.'
+          : err.message || 'Failed to sign in. Please check your credentials.'
+      )
       setLoading(false)
     }
   }
