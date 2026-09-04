@@ -23,7 +23,30 @@ export default function ResetPassword() {
     // Handle the password reset token from URL
     const handlePasswordResetToken = async () => {
       try {
-        // Check if there's a hash in the URL (Supabase sends token as hash fragment)
+        // PKCE flow (default for @supabase/ssr's createBrowserClient): the
+        // recovery link redirects back here with ?code=... in the query
+        // string, not the hash fragment. Must be exchanged for a session.
+        const queryParams = new URLSearchParams(window.location.search)
+        const code = queryParams.get('code')
+
+        if (code) {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
+          if (error) throw error
+
+          if (data.session) {
+            setIsValidToken(true)
+            // Clean up the URL query string
+            window.history.replaceState(null, '', window.location.pathname)
+          } else {
+            throw new Error('No session created from recovery code')
+          }
+          setValidating(false)
+          return
+        }
+
+        // Fallback: implicit flow, where Supabase sends the token as a hash
+        // fragment instead of a query param.
         const hashParams = new URLSearchParams(window.location.hash.substring(1))
         const accessToken = hashParams.get('access_token')
         const refreshToken = hashParams.get('refresh_token')
