@@ -18,15 +18,62 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false)
   const [validating, setValidating] = useState(true)
   const [isValidToken, setIsValidToken] = useState(false)
+  const [pendingTokenHash, setPendingTokenHash] = useState<string | null>(null)
+  const [confirming, setConfirming] = useState(false)
+
+  // Consuming the recovery token has to wait for an explicit click. Email
+  // security scanners (e.g. Microsoft Safe Links on @ufl.edu addresses)
+  // auto-fetch every link in an inbound email to check it, which burns a
+  // one-time link the instant it arrives — before the real user ever opens
+  // the message. Landing here with just a token_hash in the query doesn't
+  // consume anything by itself; only the button's verifyOtp call does.
+  const confirmRecovery = async (tokenHash: string) => {
+    setConfirming(true)
+    setError('')
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: 'recovery',
+      })
+
+      if (error) throw error
+
+      if (data.session) {
+        setIsValidToken(true)
+        window.history.replaceState(null, '', window.location.pathname)
+      } else {
+        throw new Error('No session created from recovery link')
+      }
+    } catch (err: any) {
+      console.error('Recovery confirmation error:', err)
+      setError(err.message || 'Invalid or expired reset link. Please request a new password reset.')
+      setPendingTokenHash(null)
+    } finally {
+      setConfirming(false)
+    }
+  }
 
   useEffect(() => {
     // Handle the password reset token from URL
     const handlePasswordResetToken = async () => {
       try {
+        const queryParams = new URLSearchParams(window.location.search)
+
+        // New template link format: points straight at this page with the
+        // raw token, not through Supabase's /verify endpoint. Verification
+        // is deferred to an explicit button click (see confirmRecovery).
+        const tokenHash = queryParams.get('token_hash')
+        const queryType = queryParams.get('type')
+
+        if (tokenHash && queryType === 'recovery') {
+          setPendingTokenHash(tokenHash)
+          setValidating(false)
+          return
+        }
+
         // PKCE flow (default for @supabase/ssr's createBrowserClient): the
         // recovery link redirects back here with ?code=... in the query
         // string, not the hash fragment. Must be exchanged for a session.
-        const queryParams = new URLSearchParams(window.location.search)
         const code = queryParams.get('code')
 
         if (code) {
@@ -151,6 +198,41 @@ export default function ResetPassword() {
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-ink"></div>
           <p className="mt-4 text-ink-muted">Validating reset link...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (pendingTokenHash && !isValidToken) {
+    return (
+      <div className="relative flex min-h-screen items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <div className="w-full max-w-md">
+          <div className="card card-pad">
+            <Link href="/" className="inline-flex items-baseline gap-3 mb-6">
+              <span className="lettermark text-2xl">ΑΚΨ</span>
+              <span className="page-eyebrow">Alpha Phi Chapter</span>
+            </Link>
+
+            <h2 className="page-title text-2xl mb-3">Reset Password</h2>
+            <p className="text-ink-muted mb-6">
+              Click below to continue resetting your password.
+            </p>
+
+            {error && (
+              <div className="alert alert-negative mb-4">
+                <p className="text-sm">{error}</p>
+              </div>
+            )}
+
+            <button
+              type="button"
+              disabled={confirming}
+              onClick={() => confirmRecovery(pendingTokenHash)}
+              className="btn btn-primary btn-lg btn-block"
+            >
+              {confirming ? 'Confirming…' : 'Reset My Password'}
+            </button>
+          </div>
         </div>
       </div>
     )
