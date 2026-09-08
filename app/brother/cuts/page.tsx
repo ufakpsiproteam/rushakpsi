@@ -66,13 +66,9 @@ interface RusheeData {
     gpa: string
     expectedGraduationDate: string
     resumeUrl: string
-    outsideInvolvements: string
-    howHeardAboutAkpsi: string
     whyInterested: string
     pillarRelation: string
     brotherConnectionReason: string
-    monopolyPiece: string
-    monopolyThemeLesson: string
     isSubmitted: boolean
   } | null
 }
@@ -94,7 +90,7 @@ export default function BrotherCuts() {
   const [rushees, setRushees] = useState<RusheeData[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState<'name' | 'rating'>('name')
+  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'submitted'>('name')
   const [showFilters, setShowFilters] = useState(false)
 
   // Load per-panelist interview breakdown whenever a rushee is selected
@@ -257,13 +253,9 @@ export default function BrotherCuts() {
             gpa: application.gpa || '',
             expectedGraduationDate: application.expected_graduation_date || '',
             resumeUrl: application.resume_url || '',
-            outsideInvolvements: application.outside_involvements || '',
-            howHeardAboutAkpsi: application.how_heard_about_akpsi || '',
             whyInterested: application.why_interested || '',
             pillarRelation: application.pillar_relation || '',
             brotherConnectionReason: application.brother_connection_reason || '',
-            monopolyPiece: application.monopoly_piece || '',
-            monopolyThemeLesson: application.monopoly_theme_lesson || '',
             isSubmitted: application.is_submitted || false
           } : null
         }
@@ -436,6 +428,12 @@ export default function BrotherCuts() {
     if (sortBy === 'rating') {
       // Sort by avgScore descending (highest first)
       return b.avgScore - a.avgScore
+    } else if (sortBy === 'submitted') {
+      // Submitted applications first, then not-submitted — A-Z within each group
+      const aSubmitted = a.application !== null
+      const bSubmitted = b.application !== null
+      if (aSubmitted !== bSubmitted) return aSubmitted ? -1 : 1
+      return a.name.localeCompare(b.name)
     } else {
       // Sort by name alphabetically
       return a.name.localeCompare(b.name)
@@ -544,7 +542,7 @@ export default function BrotherCuts() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                   </svg>
                   <span className="text-sm font-semibold text-ink-muted">Sort</span>
-                  {sortBy === 'rating' && (
+                  {sortBy !== 'name' && (
                     <span className="px-2 py-0.5 bg-surface-sunken text-ink text-xs font-semibold rounded-full">
                       Active
                     </span>
@@ -568,11 +566,12 @@ export default function BrotherCuts() {
                     <label className="block text-sm font-semibold text-ink-muted mb-2">Sort by:</label>
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as 'name' | 'rating')}
+                      onChange={(e) => setSortBy(e.target.value as 'name' | 'rating' | 'submitted')}
                       className="w-full px-3 py-2 bg-surface border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink focus:border-transparent"
                     >
                       <option value="name">Name (A-Z)</option>
                       <option value="rating">Rating (High to Low)</option>
+                      <option value="submitted">Application Submitted (A-Z)</option>
                     </select>
                   </div>
                 </div>
@@ -1145,32 +1144,16 @@ export default function BrotherCuts() {
                         )}
                       </div>
                       <div>
-                        <p className="text-ink font-semibold text-sm mb-1">1. Outside Involvements</p>
-                        <p className="text-ink-muted text-sm">{selectedRusheeData.application.outsideInvolvements || 'Not answered'}</p>
-                      </div>
-                      <div>
-                        <p className="text-ink font-semibold text-sm mb-1">2. How did you hear about Alpha Kappa Psi?</p>
-                        <p className="text-ink-muted text-sm">{selectedRusheeData.application.howHeardAboutAkpsi || 'Not answered'}</p>
-                      </div>
-                      <div>
-                        <p className="text-ink font-semibold text-sm mb-1">3. Why are you interested in becoming a member?</p>
+                        <p className="text-ink font-semibold text-sm mb-1">1. If your personality was a planet, what planet would you be and why?</p>
                         <p className="text-ink-muted text-sm">{selectedRusheeData.application.whyInterested || 'Not answered'}</p>
                       </div>
                       <div>
-                        <p className="text-ink font-semibold text-sm mb-1">4. Pillar Relation</p>
+                        <p className="text-ink font-semibold text-sm mb-1">2. You&apos;re on a spaceship with five strangers for six months. What role do you think you would naturally take on within the group, and why?</p>
                         <p className="text-ink-muted text-sm">{selectedRusheeData.application.pillarRelation || 'Not answered'}</p>
                       </div>
                       <div>
-                        <p className="text-ink font-semibold text-sm mb-1">5. Brother Connection</p>
+                        <p className="text-ink font-semibold text-sm mb-1">3. Tell us about something you&apos;re passionate about. What motivates you to continue pursuing it?</p>
                         <p className="text-ink-muted text-sm">{selectedRusheeData.application.brotherConnectionReason || 'Not answered'}</p>
-                      </div>
-                      <div>
-                        <p className="text-ink font-semibold text-sm mb-1">6. Monopoly Piece</p>
-                        <p className="text-ink-muted text-sm">{selectedRusheeData.application.monopolyPiece || 'Not answered'}</p>
-                      </div>
-                      <div>
-                        <p className="text-ink font-semibold text-sm mb-1">7. Monopoly Theme Lesson</p>
-                        <p className="text-ink-muted text-sm">{selectedRusheeData.application.monopolyThemeLesson || 'Not answered'}</p>
                       </div>
                     </div>
                   )}
