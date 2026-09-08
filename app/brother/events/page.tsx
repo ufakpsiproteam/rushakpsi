@@ -643,22 +643,44 @@ function BrotherEventsContent() {
                     </button>
                     <button
                       onClick={async () => {
-                        if (!confirm('Reset your rushee selection? This will take you back to the selection screen and clear the interactions it recorded.')) {
+                        if (!confirm("Reset your selection for rushees you haven't evaluated yet? Anyone you've already evaluated stays recorded — their evaluation and attendance credit are not affected.")) {
                           return
                         }
 
                         // PRD §6.4.4: removes the interaction records created
-                        // by that selection, so interaction counts stay accurate.
+                        // by that selection, so interaction counts stay
+                        // accurate — but never for a rushee this brother has
+                        // already evaluated. An evaluation can only be
+                        // created once a matching interaction row exists
+                        // (hasMetRusheeAtEvent), so deleting that row out
+                        // from under a saved evaluation orphans it: the
+                        // evaluation survives but the rushee's interaction
+                        // count silently drops, which is exactly what was
+                        // corrupting the eval-vs-interaction counts.
                         if (selectedEvent) {
                           try {
                             const { supabase } = await import('@/lib/supabase')
                             const { data: { user } } = await supabase.auth.getUser()
                             if (user) {
-                              await (supabase as any)
+                              const { data: evaluatedRows } = await supabase
+                                .from('evaluations')
+                                .select('rushee_id')
+                                .eq('brother_id', user.id)
+
+                              const protectedRusheeIds = (evaluatedRows || []).map((r: any) => r.rushee_id)
+
+                              let query = (supabase as any)
                                 .from('brother_rushee_interactions')
                                 .delete()
                                 .eq('brother_id', user.id)
                                 .eq('event_id', selectedEvent)
+
+                              if (protectedRusheeIds.length > 0) {
+                                query = query.not('rushee_id', 'in', `(${protectedRusheeIds.join(',')})`)
+                              }
+
+                              const { error } = await query
+                              if (error) throw error
                             }
                           } catch {
                             alert('Could not clear the recorded interactions. Please try again.')
@@ -670,6 +692,7 @@ function BrotherEventsContent() {
                         setStep('select')
                         setSelectedRushees([])
                       }}
+                      title="Clears your selection for rushees you haven't evaluated yet. Already-evaluated rushees are kept — this isn't a 'finish up' action."
                       className="px-4 py-2 bg-surface-sunken border border-line-strong text-ink-muted rounded-lg font-semibold hover:bg-line transition-colors text-sm whitespace-nowrap"
                     >
                       Reset Selection
