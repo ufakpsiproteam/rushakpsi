@@ -4,6 +4,7 @@ import BrotherNav from '@/components/brother/BrotherNav'
 import RusheePhoto from '@/components/RusheePhoto'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { fetchAllRows } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
 import { hasCutsAccess } from '@/lib/auth'
 import { getRusheeResumeUrl } from './actions'
@@ -146,11 +147,16 @@ export default function BrotherCuts() {
         .select('rushee_id, event:events(type), status')
         .eq('status', 'approved')
 
-      // Fetch all evaluations
-      const { data: evaluationsData } = await supabase
-        .from('evaluations')
-        .select('rushee_id, professional_score, personal_score')
-        .range(0, 9999)
+      // Fetch all evaluations. Paginated — a single .range() silently
+      // truncates once the table passes Supabase's per-request row cap
+      // (see fetchAllRows), which is exactly what corrupted the
+      // interaction-count comparison below once that table crossed it.
+      const evaluationsData = await fetchAllRows((from, to) =>
+        supabase
+          .from('evaluations')
+          .select('rushee_id, professional_score, personal_score')
+          .range(from, to)
+      )
 
       // Fetch all applications
       const { data: applicationsData } = await supabase
@@ -163,10 +169,12 @@ export default function BrotherCuts() {
       // requests on every page load, which is what actually drove
       // Postgres's connection count up (see 2026-09-02 "database error
       // querying schema" incident), not real concurrent user traffic.
-      const { data: interactionsData } = await supabase
-        .from('brother_rushee_interactions')
-        .select('rushee_id, brother_id')
-        .range(0, 9999)
+      const interactionsData = await fetchAllRows((from, to) =>
+        supabase
+          .from('brother_rushee_interactions')
+          .select('rushee_id, brother_id')
+          .range(from, to)
+      )
       const interactionCounts = new Map<string, number>()
       for (const rushee of rusheesData as any[]) {
         const uniqueBrothers = new Set(

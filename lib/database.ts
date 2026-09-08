@@ -1,5 +1,28 @@
 import { supabase } from './supabase'
 
+// Supabase's REST API caps every response at a fixed row count (project
+// "Max Rows" setting) regardless of what .range()/.limit() a query asks
+// for — it truncates silently, no error. Any table that can grow past
+// that cap needs this instead of a single .range() call. buildQuery must
+// return a *fresh* query each call since .range() can't be reapplied to
+// an already-executed builder.
+export async function fetchAllRows<T = any>(
+  buildQuery: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: any }>,
+  pageSize = 1000
+): Promise<T[]> {
+  const all: T[] = []
+  let from = 0
+  while (true) {
+    const { data, error } = await buildQuery(from, from + pageSize - 1)
+    if (error) throw error
+    const rows = data || []
+    all.push(...rows)
+    if (rows.length < pageSize) break
+    from += pageSize
+  }
+  return all
+}
+
 // Auth helpers
 export async function signUp(email: string, password: string, userData: {
   full_name: string
