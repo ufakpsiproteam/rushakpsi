@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { fetchAllRows } from '@/lib/database'
 import RusheePhoto from '@/components/RusheePhoto'
 import { getRusheeResumeUrl } from '@/app/brother/cuts/actions'
+import { loadPolicy, evaluateEligibility, POLICY_DEFAULTS, type Policy } from '@/lib/policy'
 
 type ColorStatus = 'normal' | 'green' | 'yellow' | 'red'
 
@@ -86,11 +87,34 @@ export default function AdminCuts() {
   const [interviewBreakdown, setInterviewBreakdown] = useState<InterviewBreakdownData | null>(null)
   const [loadingBreakdown, setLoadingBreakdown] = useState(false)
   const [showBreakdown, setShowBreakdown] = useState(false)
+  const [showGallery, setShowGallery] = useState(false)
+  const [attendancePhotos, setAttendancePhotos] = useState<any[]>([])
+  const [loadingPhotos, setLoadingPhotos] = useState(false)
+
+  async function loadAttendancePhotos(rusheeId: string) {
+    setLoadingPhotos(true)
+    try {
+      const { data } = await supabase
+        .from('event_attendance')
+        .select('photo_url, event:events(title, date), created_at')
+        .eq('rushee_id', rusheeId)
+        .not('photo_url', 'is', null)
+        .order('created_at', { ascending: false })
+
+      setAttendancePhotos(data || [])
+    } catch (error) {
+      console.error('Error loading attendance photos:', error)
+    } finally {
+      setLoadingPhotos(false)
+    }
+  }
 
   // Load per-panelist interview breakdown whenever a rushee is selected
   useEffect(() => {
     setShowBreakdown(false)
     setInterviewBreakdown(null)
+    setShowGallery(false)
+    setAttendancePhotos([])
     if (selectedRushee) {
       loadInterviewBreakdown(selectedRushee)
     }
@@ -101,8 +125,13 @@ export default function AdminCuts() {
   const [colorFilter, setColorFilter] = useState<ColorStatus | 'all'>('all')
   const [showStats, setShowStats] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'submitted'>('name')
+  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'submitted' | 'minimum'>('name')
   const [showFilters, setShowFilters] = useState(false)
+  const [policy, setPolicy] = useState<Policy>(POLICY_DEFAULTS)
+
+  useEffect(() => {
+    loadPolicy().then(setPolicy)
+  }, [])
 
   /**
    * R38 — review marks are per reviewer and stored server-side, so they
@@ -287,7 +316,9 @@ export default function AdminCuts() {
             name: rushee.name || 'Unknown',
             major: rushee.major || 'Undeclared',
             year: rushee.year || 'Unknown',
-            gpa: rushee.gpa || 'N/A',
+            // Signup never asks for GPA — only the application form does —
+            // so rushees.gpa is not a real source, applications.gpa is.
+            gpa: (application?.is_submitted && application.gpa) || 'N/A',
             photo: rushee.photo,
             inviteOnly: rushee.invite_only ?? null,
             bidStatus: rushee.bid_status ?? null,
@@ -536,19 +567,28 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
     return status === colorFilter
   })
 
+  // 'submitted' and 'minimum' sorts also filter the list — a rushee that
+  // hasn't submitted an application, or hasn't met the event minimum,
+  // isn't just sorted last, it isn't shown at all in that mode.
+  const sortFiltered = colorFiltered.filter((r) => {
+    if (sortBy === 'submitted') return r.application !== null
+    if (sortBy === 'minimum') {
+      const total = r.casualEvents + r.professionalEvents
+      return evaluateEligibility({ casual: r.casualEvents, professional: r.professionalEvents, total }, policy).minimumsMet
+    }
+    return true
+  })
+
   // Finally, sort the results
-  const filteredRushees = [...colorFiltered].sort((a, b) => {
+  const filteredRushees = [...sortFiltered].sort((a, b) => {
     if (sortBy === 'rating') {
       // Sort by avgScore descending (highest first)
       return b.avgScore - a.avgScore
-    } else if (sortBy === 'submitted') {
-      // Submitted applications first, then not-submitted — A-Z within each group
-      const aSubmitted = a.application !== null
-      const bSubmitted = b.application !== null
-      if (aSubmitted !== bSubmitted) return aSubmitted ? -1 : 1
-      return a.name.localeCompare(b.name)
+    } else if (sortBy === 'minimum') {
+      // Sort by # of evaluations descending (highest first)
+      return b.evaluations - a.evaluations
     } else {
-      // Sort by name alphabetically
+      // 'name' and 'submitted' both sort alphabetically
       return a.name.localeCompare(b.name)
     }
   })
@@ -706,12 +746,13 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                     <label className="block text-sm font-semibold text-ink-muted mb-2">Sort by:</label>
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as 'name' | 'rating' | 'submitted')}
+                      onChange={(e) => setSortBy(e.target.value as 'name' | 'rating' | 'submitted' | 'minimum')}
                       className="w-full px-3 py-2 bg-white border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink focus:border-transparent"
                     >
                       <option value="name">Name (A-Z)</option>
                       <option value="rating">Rating (High to Low)</option>
                       <option value="submitted">Application Submitted (A-Z)</option>
+                      <option value="minimum">Met Minimum (# of Evals)</option>
                     </select>
                   </div>
                 </div>
@@ -935,8 +976,12 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                   <p className="text-2xl font-semibold text-white">{rushee.avgScore}</p>
                 </div>
                 <div className="bg-surface-alt border border-line rounded-lg p-3 text-center">
-                  <p className="text-ink-subtle text-xs font-semibold mb-1 uppercase tracking-[0.3em]">App Score</p>
-                  <p className="text-2xl font-semibold text-ink">{rushee.applicationScore ?? '—'}</p>
+                  <p className="text-ink-subtle text-xs font-semibold mb-1 uppercase tracking-[0.3em]">Evals / Event</p>
+                  <p className="text-2xl font-semibold text-ink">
+                    {rushee.casualEvents + rushee.professionalEvents > 0
+                      ? (rushee.evaluations / (rushee.casualEvents + rushee.professionalEvents)).toFixed(1)
+                      : '—'}
+                  </p>
                 </div>
               </div>
 
@@ -994,7 +1039,7 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
               <div className="flex-shrink-0 p-6 pb-4 border-b border-line">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-center">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 mr-4 bg-surface-sunken rounded-2xl overflow-hidden flex items-center justify-center flex-shrink-0">
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 mr-4 bg-surface-sunken rounded-2xl overflow-hidden flex items-center justify-center flex-shrink-0">
                     <RusheePhoto
                       photo={selectedRusheeData.photo}
                       alt={selectedRusheeData.name}
@@ -1005,6 +1050,18 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                         </svg>
                       }
                     />
+                    <button
+                      onClick={() => {
+                        loadAttendancePhotos(selectedRusheeData.id)
+                        setShowGallery(true)
+                      }}
+                      className="absolute bottom-0 right-0 p-1 bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white rounded-tl-lg transition-colors"
+                      title="View attendance photos"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </button>
                   </div>
                   <div>
                     <h2 className="text-2xl font-semibold text-ink">{selectedRusheeData.name}</h2>
@@ -1476,6 +1533,74 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                       ))}
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Attendance Photos Gallery Modal */}
+        {showGallery && selectedRusheeData && (
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[60] p-8">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+              {/* Gallery Header */}
+              <div className="flex items-center justify-between p-6 border-b border-line">
+                <div>
+                  <h2 className="text-2xl font-bold text-ink">{selectedRusheeData.name}&apos;s Attendance Photos</h2>
+                  <p className="text-ink-subtle mt-1">{attendancePhotos.length} photo{attendancePhotos.length !== 1 ? 's' : ''}</p>
+                </div>
+                <button
+                  onClick={() => setShowGallery(false)}
+                  className="p-2 hover:bg-surface-sunken rounded-lg transition-colors"
+                >
+                  <svg className="w-6 h-6 text-ink-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Gallery Content */}
+              <div className="flex-1 overflow-y-auto p-6">
+                {loadingPhotos ? (
+                  <div className="flex items-center justify-center py-20">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-ink"></div>
+                  </div>
+                ) : attendancePhotos.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20">
+                    <svg className="w-20 h-20 text-line-strong mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-ink-muted font-semibold text-lg">No attendance photos</p>
+                    <p className="text-ink-subtle text-sm mt-1">This rushee hasn&apos;t checked in with photos yet</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+                    {attendancePhotos.map((photo: any, index: number) => (
+                      <div key={index} className="group relative bg-surface-alt rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+                        <div className="aspect-square bg-surface-sunken overflow-hidden">
+                          <RusheePhoto
+                            photo={photo.photo_url}
+                            bucket="attendance-photos"
+                            alt={`${photo.event?.title || 'Event'} attendance`}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            fallback={<div className="w-full h-full flex items-center justify-center text-ink-faint text-sm">No photo</div>}
+                          />
+                        </div>
+                        <div className="p-4 bg-white">
+                          <p className="font-bold text-ink mb-1">
+                            {photo.event?.title || 'Unknown Event'}
+                          </p>
+                          <p className="text-sm text-ink-subtle">
+                            {photo.event?.date ? new Date(photo.event.date).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            }) : 'Date unknown'}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -8,6 +8,7 @@ import { fetchAllRows } from '@/lib/database'
 import { useAuth } from '@/contexts/AuthContext'
 import { hasCutsAccess } from '@/lib/auth'
 import { getRusheeResumeUrl } from './actions'
+import { loadPolicy, evaluateEligibility, POLICY_DEFAULTS, type Policy } from '@/lib/policy'
 
 interface InterviewPanelistAnswer {
   question_id: string
@@ -90,8 +91,13 @@ export default function BrotherCuts() {
   const [rushees, setRushees] = useState<RusheeData[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'submitted'>('name')
+  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'submitted' | 'minimum'>('name')
   const [showFilters, setShowFilters] = useState(false)
+  const [policy, setPolicy] = useState<Policy>(POLICY_DEFAULTS)
+
+  useEffect(() => {
+    loadPolicy().then(setPolicy)
+  }, [])
 
   // Load per-panelist interview breakdown whenever a rushee is selected
   useEffect(() => {
@@ -229,7 +235,9 @@ export default function BrotherCuts() {
           name: rushee.name || 'Unknown',
           major: rushee.major || 'Undeclared',
           year: rushee.year || 'Unknown',
-          gpa: rushee.gpa || 'N/A',
+          // Signup never asks for GPA — only the application form does —
+          // so rushees.gpa is not a real source, applications.gpa is.
+          gpa: (application?.is_submitted && application.gpa) || 'N/A',
           photo: rushee.photo,
           inviteOnly: rushee.invite_only ?? null,
           bidStatus: rushee.bid_status ?? null,
@@ -423,19 +431,28 @@ export default function BrotherCuts() {
     return matchesName || matchesMajor || matchesYear
   })
 
+  // 'submitted' and 'minimum' sorts also filter the list — a rushee that
+  // hasn't submitted an application, or hasn't met the event minimum,
+  // isn't just sorted last, it isn't shown at all in that mode.
+  const sortFiltered = searchFilteredRushees.filter((r) => {
+    if (sortBy === 'submitted') return r.application !== null
+    if (sortBy === 'minimum') {
+      const total = r.casualEvents + r.professionalEvents
+      return evaluateEligibility({ casual: r.casualEvents, professional: r.professionalEvents, total }, policy).minimumsMet
+    }
+    return true
+  })
+
   // Sort the results
-  const filteredRushees = [...searchFilteredRushees].sort((a, b) => {
+  const filteredRushees = [...sortFiltered].sort((a, b) => {
     if (sortBy === 'rating') {
       // Sort by avgScore descending (highest first)
       return b.avgScore - a.avgScore
-    } else if (sortBy === 'submitted') {
-      // Submitted applications first, then not-submitted — A-Z within each group
-      const aSubmitted = a.application !== null
-      const bSubmitted = b.application !== null
-      if (aSubmitted !== bSubmitted) return aSubmitted ? -1 : 1
-      return a.name.localeCompare(b.name)
+    } else if (sortBy === 'minimum') {
+      // Sort by # of evaluations descending (highest first)
+      return b.evaluations - a.evaluations
     } else {
-      // Sort by name alphabetically
+      // 'name' and 'submitted' both sort alphabetically
       return a.name.localeCompare(b.name)
     }
   })
@@ -566,12 +583,13 @@ export default function BrotherCuts() {
                     <label className="block text-sm font-semibold text-ink-muted mb-2">Sort by:</label>
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as 'name' | 'rating' | 'submitted')}
+                      onChange={(e) => setSortBy(e.target.value as 'name' | 'rating' | 'submitted' | 'minimum')}
                       className="w-full px-3 py-2 bg-surface border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink focus:border-transparent"
                     >
                       <option value="name">Name (A-Z)</option>
                       <option value="rating">Rating (High to Low)</option>
                       <option value="submitted">Application Submitted (A-Z)</option>
+                      <option value="minimum">Met Minimum (# of Evals)</option>
                     </select>
                   </div>
                 </div>
@@ -662,8 +680,12 @@ export default function BrotherCuts() {
                   <p className="text-2xl font-semibold text-on-inverse">{rushee.avgScore}</p>
                 </div>
                 <div className="bg-surface-alt border border-line rounded-lg p-3 text-center">
-                  <p className="text-ink-subtle text-xs font-semibold mb-1 uppercase tracking-[0.3em]">App Score</p>
-                  <p className="text-2xl font-semibold text-ink">{rushee.applicationScore ?? '—'}</p>
+                  <p className="text-ink-subtle text-xs font-semibold mb-1 uppercase tracking-[0.3em]">Evals / Event</p>
+                  <p className="text-2xl font-semibold text-ink">
+                    {rushee.casualEvents + rushee.professionalEvents > 0
+                      ? (rushee.evaluations / (rushee.casualEvents + rushee.professionalEvents)).toFixed(1)
+                      : '—'}
+                  </p>
                 </div>
               </div>
 
