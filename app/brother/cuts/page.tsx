@@ -91,7 +91,7 @@ export default function BrotherCuts() {
   const [rushees, setRushees] = useState<RusheeData[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'submitted' | 'minimum'>('name')
+  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'submitted' | 'minimum' | 'events'>('name')
   const [showFilters, setShowFilters] = useState(false)
   const [policy, setPolicy] = useState<Policy>(POLICY_DEFAULTS)
 
@@ -431,15 +431,17 @@ export default function BrotherCuts() {
     return matchesName || matchesMajor || matchesYear
   })
 
-  // 'submitted' and 'minimum' sorts also filter the list — a rushee that
-  // hasn't submitted an application, or hasn't met the event minimum,
-  // isn't just sorted last, it isn't shown at all in that mode.
+  // 'submitted', 'minimum', and 'events' sorts also filter the list — a
+  // rushee that hasn't submitted an application, hasn't met the event
+  // minimum, or hasn't attended any event isn't just sorted last, it
+  // isn't shown at all in that mode.
   const sortFiltered = searchFilteredRushees.filter((r) => {
     if (sortBy === 'submitted') return r.application !== null
     if (sortBy === 'minimum') {
       const total = r.casualEvents + r.professionalEvents
       return evaluateEligibility({ casual: r.casualEvents, professional: r.professionalEvents, total }, policy).minimumsMet
     }
+    if (sortBy === 'events') return r.casualEvents + r.professionalEvents >= 1
     return true
   })
 
@@ -451,6 +453,12 @@ export default function BrotherCuts() {
     } else if (sortBy === 'minimum') {
       // Sort by # of evaluations descending (highest first)
       return b.evaluations - a.evaluations
+    } else if (sortBy === 'events') {
+      // Sort by # of events attended descending (highest first), then A-Z
+      const aEvents = a.casualEvents + a.professionalEvents
+      const bEvents = b.casualEvents + b.professionalEvents
+      if (aEvents !== bEvents) return bEvents - aEvents
+      return a.name.localeCompare(b.name)
     } else {
       // 'name' and 'submitted' both sort alphabetically
       return a.name.localeCompare(b.name)
@@ -583,13 +591,14 @@ export default function BrotherCuts() {
                     <label className="block text-sm font-semibold text-ink-muted mb-2">Sort by:</label>
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as 'name' | 'rating' | 'submitted' | 'minimum')}
+                      onChange={(e) => setSortBy(e.target.value as 'name' | 'rating' | 'submitted' | 'minimum' | 'events')}
                       className="w-full px-3 py-2 bg-surface border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink focus:border-transparent"
                     >
                       <option value="name">Name (A-Z)</option>
                       <option value="rating">Rating (High to Low)</option>
                       <option value="submitted">Application Submitted (A-Z)</option>
                       <option value="minimum">Met Minimum (# of Evals)</option>
+                      <option value="events"># of Events Attended (A-Z)</option>
                     </select>
                   </div>
                 </div>
