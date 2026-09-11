@@ -236,6 +236,16 @@ export default function AdminDashboard() {
                 <p className="mt-1 text-sm text-ink-muted">Manage the question bank</p>
               </div>
             </Link>
+
+            <Link href="/admin/site-content" className="card card-interactive card-pad flex items-center gap-4">
+              <svg className="w-7 h-7 text-ink-faint shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <div>
+                <p className="section-title">Rushing Content</p>
+                <p className="mt-1 text-sm text-ink-muted">Edit people, links, dates &amp; letters</p>
+              </div>
+            </Link>
           </div>
         </div>
 

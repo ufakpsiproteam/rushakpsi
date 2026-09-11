@@ -8,6 +8,8 @@ import { supabase } from '@/lib/supabase'
 import { portalFontVariables } from '@/lib/portalFonts'
 import { formatDateInEST, getEventTimestampEST } from '@/lib/dateUtils'
 import { POLICY, loadPolicy, requirementSummary } from '@/lib/policy'
+import { type SiteContent } from '@/lib/siteContent'
+import { useSiteContent } from '@/lib/useSiteContent'
 
 /**
  * Public landing page — PRD §6.1.1.
@@ -18,17 +20,6 @@ import { POLICY, loadPolicy, requirementSummary } from '@/lib/policy'
  * and §1.6 — the theme is content/token dressing, not a fork. Everything
  * below the hero keeps the PRD's specified copy, ordering, and live data.
  */
-
-const CYCLE = {
-  name: 'AKΨ Fall Rush',
-  subheading: 'Find your orbit',
-  groupMeUrl: 'https://groupme.com/join_group/116593082/z1Vs4Ej3',
-  processHeading: 'Liftoff in…',
-  instagramUrl: 'https://www.instagram.com/ufakpsi/',
-  instagramHandle: '@ufakpsi',
-  linkedinUrl: 'https://www.linkedin.com/company/uf-alpha-kappa-psi-alpha-phi-chapter/posts/?feedView=all',
-  linkedinHandle: '@ufakpsi',
-}
 
 const HERO_DESKTOP = '/rush-hero-desktop.jpg'
 const HERO_MOBILE = '/rush-hero-mobile.jpg'
@@ -232,7 +223,7 @@ function GalaxyStars() {
  * full brightness right at that trigger and stays there (useTransform
  * clamps past 1).
  */
-function ProcessCards() {
+function ProcessCards({ steps }: { steps: SiteContent['processSteps'] }) {
   const card2Ref = useRef<HTMLDivElement>(null)
   const card3Ref = useRef<HTMLDivElement>(null)
   const endRef = useRef<HTMLDivElement>(null)
@@ -251,7 +242,7 @@ function ProcessCards() {
   return (
     <>
       <div className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-3 sm:gap-5">
-        {PROCESS.map((item, i) => (
+        {steps.map((item, i) => (
           <div
             key={item.step}
             ref={cardRefs[i]}
@@ -336,64 +327,21 @@ function RocketIcon() {
   )
 }
 
-const PILLARS = [
-  { name: 'Brotherhood', detail: 'Lifelong connection and accountability.' },
-  { name: 'Knowledge', detail: 'Sharpen business instincts and curiosity.' },
-  { name: 'Integrity', detail: 'Do the right thing, every time.' },
-  { name: 'Service', detail: 'Give back with intention and impact.' },
-  { name: 'Unity', detail: 'Build together, win together.' },
-]
-
-const PROCESS = [
-  {
-    step: 'Step 1',
-    title: 'Pre-Rush Events',
-    subtitle: 'Get to know the brothers',
-    detail: 'Connect early, ask questions, and see what makes AKPsi different.',
-  },
-  {
-    step: 'Step 2',
-    title: 'Rush Events',
-    subtitle: 'Showcase who you are',
-    detail: 'Bring your energy to professional and casual events.',
-  },
-  {
-    step: 'Step 3',
-    title: 'Application + Interviews',
-    subtitle: 'Finish strong',
-    detail: 'Complete requirements and submit your application and interview.',
-  },
-]
-
-const FAQS = [
-  {
-    question: 'What is Alpha Kappa Psi?',
-    answer:
-      'Alpha Kappa Psi is the oldest and largest professional business fraternity, founded in 1904. We focus on developing principled business leaders through our Five Pillars: Brotherhood, Knowledge, Integrity, Service, and Unity.',
-  },
-  {
-    question: 'Who can join?',
-    answer:
-      'Any student at the University of Florida with an interest in business and professional development is welcome to rush, regardless of major or year.',
-  },
-  {
-    question: 'What is the time commitment?',
-    answer:
-      "During rush, you'll need to attend a minimum of 1 professional event, 1 casual event, and 1 event of your choice. As a brother, expect weekly meetings and various professional and social events throughout the semester.",
-  },
-  {
-    question: 'How much does it cost?',
-    answer:
-      'Membership fees include national dues, chapter dues, and event costs. Specific pricing information will be shared during rush events.',
-  },
-  {
-    question: 'What are the rush requirements?',
-    answer:
-      'To be eligible to apply, you must attend at least 1 professional event, 1 casual event, and 1 event of your choice during the rush period.',
-  },
-]
-
 export default function LandingDesignPage() {
+  const siteContent = useSiteContent()
+  const CYCLE = {
+    name: siteContent.cycle.name,
+    subheading: siteContent.cycle.subheading,
+    processHeading: siteContent.cycle.processHeading,
+    groupMeUrl: siteContent.links.groupMeUrl,
+    instagramUrl: siteContent.links.instagramUrl,
+    instagramHandle: siteContent.links.instagramHandle,
+    linkedinUrl: siteContent.links.linkedinUrl,
+  }
+  const PILLARS = siteContent.pillarsLanding
+  const PROCESS = siteContent.processSteps
+  const FAQS = siteContent.faq
+
   const [faqOpen, setFaqOpen] = useState<number | null>(null)
   const [rushEvents, setRushEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -567,7 +515,7 @@ export default function LandingDesignPage() {
         <div className="relative mx-auto max-w-6xl px-5">
           <h2 className="text-center text-3xl sm:text-4xl">{CYCLE.processHeading}</h2>
 
-          <ProcessCards />
+          <ProcessCards steps={PROCESS} />
         </div>
       </section>
 
@@ -710,10 +658,9 @@ export default function LandingDesignPage() {
         <StarField />
 
         <div className="relative mx-auto max-w-2xl px-5 text-center">
-          <h2 className="text-3xl sm:text-5xl leading-tight">Launch yourself to the moon.</h2>
+          <h2 className="text-3xl sm:text-5xl leading-tight">{siteContent.landingClosing.heading}</h2>
           <p className="mx-auto mt-5 max-w-lg text-on-inverse/60">
-            Every brother started exactly where you are now. Come to an event, meet the chapter, and see where it
-            goes.
+            {siteContent.landingClosing.body}
           </p>
 
           <div className="mt-8 flex justify-center">

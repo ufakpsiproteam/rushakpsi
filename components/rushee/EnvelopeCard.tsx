@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import confetti from 'canvas-confetti'
 import DecisionLetter from './DecisionLetter'
 import { supabase } from '@/lib/supabase'
+import { useSiteContent } from '@/lib/useSiteContent'
 
 interface EnvelopeCardProps {
   phase: 'invite' | 'bid'
@@ -38,10 +39,12 @@ export default function EnvelopeCard({
   rusheeName,
   isLocked,
   rusheeId,
-  vpName = 'Halle Taylor',
+  vpName,
   chapterName = 'Alpha Phi Chapter',
 }: EnvelopeCardProps) {
   const [isOpened, setIsOpened] = useState(false)
+  const siteContent = useSiteContent()
+  const resolvedVpName = vpName ?? siteContent.contacts.vpName
   const [hasBeenSeen, setHasBeenSeen] = useState(true) // assume seen until we know otherwise, so NEW never flashes
 
   const getLetterType = ():
@@ -168,7 +171,7 @@ export default function EnvelopeCard({
           <DecisionLetter
             type={letterType}
             rusheeName={rusheeName}
-            vpName={vpName}
+            vpName={resolvedVpName}
             chapterName={chapterName}
           />
         </div>

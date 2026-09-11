@@ -6,8 +6,10 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { POLICY, evaluateEligibility, isDecisionMade, applicationUnlocked } from '@/lib/policy'
+import { useSiteContent } from '@/lib/useSiteContent'
 
 export default function RusheeApplication() {
+  const siteContent = useSiteContent()
   const [formData, setFormData] = useState({
     legalName: '',
     preferredName: '',
@@ -320,7 +322,7 @@ export default function RusheeApplication() {
         <p className="text-sm sm:text-base font-medium">
           📅 Sign up for casual interviews!{' '}
           <a
-            href="https://docs.google.com/spreadsheets/d/1qACVVDuaxDt8jsaLxYwmipFfppjwAoFO1ijIob59vXk/edit?usp=drivesdk"
+            href={siteContent.links.casualInterviewSheetUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="underline font-semibold hover:text-surface-sunken transition-colors"
@@ -452,7 +454,7 @@ export default function RusheeApplication() {
               Take your time and be thoughtful with your responses. Essay questions are capped at {ESSAY_WORD_LIMIT} words each.
             </p>
             <p className="text-sm font-semibold text-ink mt-1">
-              Applications are due September 15th, 2026 at 11:59 PM.
+              Applications are due {siteContent.dates.applicationDeadline}.
             </p>
           </div>
           <div className="text-sm">
@@ -673,7 +675,7 @@ export default function RusheeApplication() {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-ink-muted mb-2">
-                  1. If your personality was a planet, what planet would you be and why? *
+                  1. {siteContent.applicationQuestions.essay1} *
                 </label>
                 <textarea
                   name="whyInterested"
@@ -691,7 +693,7 @@ export default function RusheeApplication() {
 
               <div>
                 <label className="block text-sm font-medium text-ink-muted mb-2">
-                  2. You&apos;re on a spaceship with five strangers for six months. What role do you think you would naturally take on within the group, and why? *
+                  2. {siteContent.applicationQuestions.essay2} *
                 </label>
                 <textarea
                   name="pillarRelation"
@@ -709,7 +711,7 @@ export default function RusheeApplication() {
 
               <div>
                 <label className="block text-sm font-medium text-ink-muted mb-2">
-                  3. Tell us about something you&apos;re passionate about. What motivates you to continue pursuing it? *
+                  3. {siteContent.applicationQuestions.essay3} *
                 </label>
                 <textarea
                   name="brotherConnectionReason"

@@ -1,71 +1,27 @@
 'use client'
 
-import RusheeNav, { POINT_OF_CONTACT } from '@/components/rushee/RusheeNav'
+import RusheeNav from '@/components/rushee/RusheeNav'
 import PullToRefresh from '@/components/PullToRefresh'
+import { useSiteContent } from '@/lib/useSiteContent'
 
 export default function RusheeInfo() {
+  const siteContent = useSiteContent()
+  const pillars = siteContent.pillarsInfo
+  const executiveBoard = siteContent.execBoard
+  const recruitmentTeam = siteContent.recruitmentTeam
+  const professionalAdvisors = siteContent.professionalAdvisors
+  const aboutChapter = siteContent.aboutChapter
+  const POINT_OF_CONTACT = {
+    name: siteContent.contacts.pointOfContactName,
+    title: siteContent.contacts.pointOfContactTitle,
+    email: siteContent.contacts.pointOfContactEmail,
+  }
+  const nationalWebsiteUrl = siteContent.links.nationalWebsiteUrl
+
   async function handleRefresh() {
     // Info page has static content, just wait a moment
     await new Promise(resolve => setTimeout(resolve, 500))
   }
-
-  const pillars = [
-    {
-      name: 'Brotherhood',
-      description: 'Building lifelong connections and a supportive network of principled business leaders.'
-    },
-    {
-      name: 'Knowledge',
-      description: 'Pursuing academic and professional excellence through continuous learning and development.'
-    },
-    {
-      name: 'Integrity',
-      description: 'Upholding the highest ethical standards in all personal and professional endeavors.'
-    },
-    {
-      name: 'Service',
-      description: 'Giving back to our community and making a positive impact on society.'
-    },
-    {
-      name: 'Unity',
-      description: 'Embracing diversity and working together toward common goals.'
-    }
-  ]
-
-  const executiveBoard = [
-    { title: 'President', name: 'Olivia Liu' },
-    { title: 'Executive Vice President', name: 'Rahul Karpur' },
-    { title: 'VP of Finance', name: 'Alejandro Peche' },
-    { title: 'VP of Alumni & External', name: 'Halle Taylor' },
-    { title: 'VP of Community Service', name: 'Pranay Singh' },
-    { title: 'VP of Membership', name: 'Ethan Wilson' },
-    { title: 'VP of Diversity Equity & Inclusion', name: 'Sherry Jiang' },
-    { title: 'VP of Professional Activities', name: 'Adrien Alfieri' },
-    { title: 'VP of Professional Development', name: 'Brother Nevins' },
-    { title: 'VP of Public Relations', name: 'Lydia Zhao' },
-    { title: 'VP of Social Affairs', name: 'Sebastian Wright' }
-  ]
-
-  const recruitmentTeam = [
-    { title: 'VP of Alumni & External', name: 'Halle Taylor' },
-    { title: 'AVP of Recruitment', name: 'Greyson Payne' },
-    { title: 'Director of Recruitment', name: 'Rodrigo Leal' },
-    { title: 'Director of Recruitment', name: 'Braden Hoening' },
-    { title: 'Director of Recruitment', name: 'Ella Hermans' },
-    { title: 'Director of Recruitment', name: 'Annika Shauf' }
-  ]
-
-  const professionalAdvisors = [
-    { title: 'Director of Pledge Education', name: 'Brother Nasse' },
-    { title: 'Director of Career Development', name: 'Brother Kloss' },
-    { title: 'Director of Pledge Resources', name: 'Brother Kumar' },
-    { title: 'Director of Leadership Development', name: 'Brother Hall' },
-    { title: 'Director of Personal Branding', name: 'Brother Thibault' },
-    { title: 'Professional Administrative Assistant', name: 'Braden Hoenig' },
-    { title: 'Professional Administrative Assistant', name: 'Michelle Potenza' },
-    { title: 'AVP of Logistics and Onboarding', name: 'Valeria Romero' },
-    { title: 'AVP of Early Career Research', name: 'Nicholas Baez' }
-  ]
 
   return (
     <div className="min-h-screen bg-canvas">
@@ -159,40 +115,19 @@ export default function RusheeInfo() {
           <div className="bg-white border border-line rounded-2xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-ink mb-3">About Our Chapter</h2>
             <div className="space-y-3 text-ink-muted text-sm">
-              <p>
-                Alpha Kappa Psi is the nation's oldest and largest professional business fraternity, founded in 1904 at New York University. With over 300,000 members initiated worldwide, we continue to build principled business leaders who make a positive impact on their communities and industries.
-              </p>
-              <p>
-                The Alpha Phi chapter at the University of Florida was established to provide students with opportunities for professional development, networking, and leadership growth. Our members come from diverse academic backgrounds, all united by a passion for business and professional excellence.
-              </p>
+              {aboutChapter.paragraphs.map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
 
               <div className="pt-2">
                 <p className="font-semibold text-ink mb-2">Member Benefits:</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 ml-4">
-                  <div className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Professional development workshops and networking events</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Mentorship from alumni and industry professionals</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Leadership opportunities within the chapter</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Community service and philanthropy initiatives</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>Social events and lifelong friendships</span>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="mr-2">•</span>
-                    <span>A global network of over 300,000 brothers</span>
-                  </div>
+                  {aboutChapter.benefits.map((benefit, index) => (
+                    <div key={index} className="flex items-start">
+                      <span className="mr-2">•</span>
+                      <span>{benefit}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -200,7 +135,7 @@ export default function RusheeInfo() {
             <div className="mt-4 pt-4 border-t border-line">
               <div className="flex flex-wrap gap-4 text-sm">
                 <a
-                  href="https://akpsi.org"
+                  href={nationalWebsiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-ink hover:text-ink-muted font-semibold underline"

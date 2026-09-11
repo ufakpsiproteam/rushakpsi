@@ -1,6 +1,6 @@
 'use client'
 
-import RusheeNav, { POINT_OF_CONTACT } from '@/components/rushee/RusheeNav'
+import RusheeNav from '@/components/rushee/RusheeNav'
 import StatusBanner from '@/components/rushee/StatusBanner'
 import ProfilePictureModal from '@/components/rushee/ProfilePictureModal'
 import PullToRefresh from '@/components/PullToRefresh'
@@ -8,8 +8,14 @@ import Link from 'next/link'
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { getRusheeAttendance } from '@/lib/database'
+import { useSiteContent } from '@/lib/useSiteContent'
 
 export default function RusheeDashboard() {
+  const siteContent = useSiteContent()
+  const POINT_OF_CONTACT = {
+    name: siteContent.contacts.pointOfContactName,
+    email: siteContent.contacts.pointOfContactEmail,
+  }
   const [rusheeData, setRusheeData] = useState<{
     name: string
     casualEvents: number

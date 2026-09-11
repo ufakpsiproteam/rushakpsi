@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
+import { useSiteContent } from '@/lib/useSiteContent'
 
 /**
  * Rushee navigation — PRD §6.3.1.
@@ -91,6 +92,12 @@ const MOBILE_TABS: NavItem[] = [
 export default function RusheeNav() {
   const pathname = usePathname()
   const { signOut } = useAuth()
+  const siteContent = useSiteContent()
+  const contact = {
+    name: siteContent.contacts.pointOfContactName,
+    title: siteContent.contacts.pointOfContactTitle,
+    email: siteContent.contacts.pointOfContactEmail,
+  }
 
   /**
    * PRD §6.3.1 — "Sign-out completes within a bounded time and always
@@ -148,9 +155,9 @@ export default function RusheeNav() {
                 {ICON.account}
               </Link>
               <a
-                href={`mailto:${POINT_OF_CONTACT.email}`}
-                aria-label={`Email ${POINT_OF_CONTACT.name}, ${POINT_OF_CONTACT.title}`}
-                title={`Questions? Email ${POINT_OF_CONTACT.name} (${POINT_OF_CONTACT.title})`}
+                href={`mailto:${contact.email}`}
+                aria-label={`Email ${contact.name}, ${contact.title}`}
+                title={`Questions? Email ${contact.name} (${contact.title})`}
                 className="nav-tab"
               >
                 {ICON.mail}
