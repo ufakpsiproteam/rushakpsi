@@ -438,6 +438,7 @@ function BrotherEventsContent() {
                           <RusheePhoto
                             photo={rushee.photo}
                             alt={rushee.name}
+                            size={640}
                             className="w-full h-full object-cover"
                             fallback={
                               <div className="text-ink-faint text-4xl">
@@ -491,6 +492,7 @@ function BrotherEventsContent() {
                                 photo={currentSwipeRushee.attendancePhotoUrl}
                                 bucket="attendance-photos"
                                 alt={currentSwipeRushee.name}
+                                size={768}
                                 className="w-full h-full object-cover"
                                 fallback={
                                   <div className="w-full h-full flex items-center justify-center text-ink-faint">
@@ -504,6 +506,7 @@ function BrotherEventsContent() {
                               <RusheePhoto
                                 photo={currentSwipeRushee.photo}
                                 alt={currentSwipeRushee.name}
+                                size={768}
                                 className="w-full h-full object-cover"
                                 fallback={
                                   <div className="w-full h-full flex items-center justify-center text-ink-faint">
@@ -754,6 +757,7 @@ function BrotherEventsContent() {
                             <RusheePhoto
                               photo={rushee.photo}
                               alt={rushee.name}
+                              size={96}
                               className="w-full h-full object-cover"
                               fallback={
                                 <svg className="w-6 h-6 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">

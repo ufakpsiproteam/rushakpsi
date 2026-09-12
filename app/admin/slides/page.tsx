@@ -408,7 +408,11 @@ export default function RusheeSlidesPresentation() {
 
         // Add photo if available (maintaining aspect ratio)
         if (rushee.photo) {
-          const resolvedPhoto = await resolvePhotoUrl(rushee.photo)
+          // Embedded at 35mm in the PDF — 400px is plenty even zoomed in or
+          // printed, versus fetching the full original (avg ~1.3MB) per
+          // rushee. square: false keeps the source aspect ratio, which the
+          // width/height math below reads back off the fetched image.
+          const resolvedPhoto = await resolvePhotoUrl(rushee.photo, undefined, { width: 400, square: false })
           const imageInfo = resolvedPhoto ? await getImageData(resolvedPhoto) : null
           if (imageInfo) {
             try {
@@ -712,6 +716,7 @@ export default function RusheeSlidesPresentation() {
                       <RusheePhoto
                         photo={rushee.photo}
                         alt={rushee.name}
+                        size={96}
                         className="w-full h-full object-cover"
                         fallback={<div className="w-full h-full flex items-center justify-center text-ink-faint">?</div>}
                       />
@@ -744,6 +749,7 @@ export default function RusheeSlidesPresentation() {
                     <RusheePhoto
                       photo={currentRushee.photo}
                       alt={currentRushee.name}
+                      size={640}
                       className="w-full h-full object-cover"
                       fallback={
                         <svg className="w-full h-full text-ink-faint p-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1119,6 +1125,7 @@ export default function RusheeSlidesPresentation() {
                           photo={photo.photo_url}
                           bucket="attendance-photos"
                           alt={`${photo.event?.title || 'Event'} attendance`}
+                          size={640}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           fallback={<div className="w-full h-full flex items-center justify-center text-ink-faint text-sm">No photo</div>}
                         />

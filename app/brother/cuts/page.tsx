@@ -80,18 +80,18 @@ export default function BrotherCuts() {
   const [selectedRushee, setSelectedRushee] = useState<string | null>(null)
   const [showApplication, setShowApplication] = useState(false)
   const [showComments, setShowComments] = useState(false)
-  const [showGallery, setShowGallery] = useState(false)
   const [evaluations, setEvaluations] = useState<any[]>([])
   const [loadingEvaluations, setLoadingEvaluations] = useState(false)
   const [interviewBreakdown, setInterviewBreakdown] = useState<InterviewBreakdownData | null>(null)
   const [loadingBreakdown, setLoadingBreakdown] = useState(false)
   const [showBreakdown, setShowBreakdown] = useState(false)
-  const [attendancePhotos, setAttendancePhotos] = useState<any[]>([])
-  const [loadingPhotos, setLoadingPhotos] = useState(false)
   const [rushees, setRushees] = useState<RusheeData[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'submitted' | 'minimum' | 'events'>('name')
+  // Defaults to 'qualified' so the board doesn't load/render rushees who
+  // haven't met event minimums (1 casual, 1 professional, 1 of either —
+  // policy.eligibility) unless someone deliberately picks another sort.
+  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'submitted' | 'minimum' | 'events' | 'qualified'>('qualified')
   const [showFilters, setShowFilters] = useState(false)
   const [policy, setPolicy] = useState<Policy>(POLICY_DEFAULTS)
 
@@ -397,26 +397,6 @@ export default function BrotherCuts() {
     }
   }
 
-  const loadAttendancePhotos = async (rusheeId: string) => {
-    setLoadingPhotos(true)
-    setAttendancePhotos([])
-    try {
-      const { data, error } = await supabase
-        .from('event_attendance')
-        .select('photo_url, event:events(title, date), created_at')
-        .eq('rushee_id', rusheeId)
-        .not('photo_url', 'is', null)
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setAttendancePhotos(data || [])
-    } catch (error) {
-      console.error('Error loading attendance photos:', error)
-    } finally {
-      setLoadingPhotos(false)
-    }
-  }
-
   const selectedRusheeData = rushees.find(r => r.id === selectedRushee)
 
   // Apply search filter first
@@ -431,13 +411,13 @@ export default function BrotherCuts() {
     return matchesName || matchesMajor || matchesYear
   })
 
-  // 'submitted', 'minimum', and 'events' sorts also filter the list — a
-  // rushee that hasn't submitted an application, hasn't met the event
-  // minimum, or hasn't attended any event isn't just sorted last, it
-  // isn't shown at all in that mode.
+  // 'submitted', 'minimum', 'events', and 'qualified' sorts also filter the
+  // list — a rushee that hasn't submitted an application, hasn't met the
+  // event minimum, hasn't attended any event, or isn't qualified isn't
+  // just sorted last, it isn't shown at all in that mode.
   const sortFiltered = searchFilteredRushees.filter((r) => {
     if (sortBy === 'submitted') return r.application !== null
-    if (sortBy === 'minimum') {
+    if (sortBy === 'minimum' || sortBy === 'qualified') {
       const total = r.casualEvents + r.professionalEvents
       return evaluateEligibility({ casual: r.casualEvents, professional: r.professionalEvents, total }, policy).minimumsMet
     }
@@ -477,7 +457,6 @@ export default function BrotherCuts() {
     setSelectedRushee(nextRushee.id)
     setShowApplication(false)
     setShowComments(false)
-    setShowGallery(false)
   }
 
   if (loading) {
@@ -567,7 +546,7 @@ export default function BrotherCuts() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                   </svg>
                   <span className="text-sm font-semibold text-ink-muted">Sort</span>
-                  {sortBy !== 'name' && (
+                  {sortBy !== 'qualified' && (
                     <span className="px-2 py-0.5 bg-surface-sunken text-ink text-xs font-semibold rounded-full">
                       Active
                     </span>
@@ -591,10 +570,11 @@ export default function BrotherCuts() {
                     <label className="block text-sm font-semibold text-ink-muted mb-2">Sort by:</label>
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as 'name' | 'rating' | 'submitted' | 'minimum' | 'events')}
+                      onChange={(e) => setSortBy(e.target.value as 'name' | 'rating' | 'submitted' | 'minimum' | 'events' | 'qualified')}
                       className="w-full px-3 py-2 bg-surface border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink focus:border-transparent"
                     >
-                      <option value="name">Name (A-Z)</option>
+                      <option value="qualified">Qualified Only (A-Z) — default</option>
+                      <option value="name">Name (A-Z), everyone</option>
                       <option value="rating">Rating (High to Low)</option>
                       <option value="submitted">Application Submitted (A-Z)</option>
                       <option value="minimum">Met Minimum (# of Evals)</option>
@@ -649,6 +629,7 @@ export default function BrotherCuts() {
                   <RusheePhoto
                     photo={rushee.photo}
                     alt={rushee.name}
+                    size={192}
                     className="w-full h-full object-cover"
                     fallback={
                       <svg className="w-8 h-8 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -733,6 +714,7 @@ export default function BrotherCuts() {
                     <RusheePhoto
                       photo={selectedRusheeData.photo}
                       alt={selectedRusheeData.name}
+                      size={192}
                       className="w-full h-full object-cover"
                       fallback={
                         <svg className="w-12 h-12 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -767,25 +749,10 @@ export default function BrotherCuts() {
                     ▶
                   </button>
                   <button
-                    onClick={async () => {
-                      setShowGallery(true)
-                      setShowComments(false)
-                      setShowApplication(false)
-                      await loadAttendancePhotos(selectedRusheeData.id)
-                    }}
-                    className="p-2 rounded-lg bg-surface-sunken text-ink hover:bg-line transition-colors"
-                    title="View photo gallery"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </button>
-                  <button
                     onClick={() => {
                       setSelectedRushee(null)
                       setShowApplication(false)
                       setShowComments(false)
-                      setShowGallery(false)
                     }}
                     className="text-ink-muted hover:text-ink text-2xl px-2"
                   >
@@ -798,71 +765,7 @@ export default function BrotherCuts() {
               {/* Scrollable Content */}
               <div className="flex-1 overflow-y-auto p-6 pt-4">
 
-              {showGallery ? (
-                /* Gallery View */
-                <>
-                  <div className="mb-4">
-                    <button
-                      onClick={() => setShowGallery(false)}
-                      className="flex items-center gap-2 text-ink-muted hover:text-ink transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                      Back to Details
-                    </button>
-                  </div>
-
-                  {loadingPhotos ? (
-                    <div className="text-center py-12">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink mx-auto mb-4"></div>
-                      <p className="text-ink-muted">Loading photos...</p>
-                    </div>
-                  ) : attendancePhotos.length === 0 ? (
-                    <div className="text-center py-12">
-                      <svg className="w-16 h-16 text-line-strong mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <p className="text-ink-muted font-semibold mb-1">No attendance photos</p>
-                      <p className="text-ink-subtle text-sm">This rushee hasn't checked in with photos yet</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-ink">Attendance Photos</h3>
-                        <span className="text-sm text-ink-subtle">{attendancePhotos.length} photo{attendancePhotos.length !== 1 ? 's' : ''}</span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {attendancePhotos.map((photo: any, index: number) => (
-                          <div key={index} className="bg-surface-alt border border-line rounded-2xl overflow-hidden">
-                            <div className="aspect-square bg-surface-sunken flex items-center justify-center overflow-hidden">
-                              <RusheePhoto
-                                photo={photo.photo_url}
-                                bucket="attendance-photos"
-                                alt={`${photo.event?.title || 'Event'} attendance`}
-                                className="w-full h-full object-cover"
-                                fallback={<div className="w-full h-full flex items-center justify-center text-ink-faint text-sm">No photo</div>}
-                              />
-                            </div>
-                            <div className="p-3">
-                              <p className="text-ink font-semibold text-sm mb-1">
-                                {photo.event?.title || 'Unknown Event'}
-                              </p>
-                              <p className="text-ink-subtle text-xs">
-                                {photo.event?.date ? new Date(photo.event.date).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                }) : 'Date unknown'}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : showComments ? (
+              {showComments ? (
                 /* Comments View */
                 <>
                   <div className="mb-4">

@@ -12,6 +12,21 @@ const signedUrlCache = new Map<string, { url: string; expiresAt: number }>()
 const SIGNED_URL_TTL_MS = 55 * 60 * 1000
 
 /**
+ * Requests a Storage Image Transformation on the signed URL instead of the
+ * original file. `width` is the largest size the image will ever actually
+ * render at on screen (already doubled for retina by the caller) — the
+ * transform downscales server-side so the browser never downloads bytes
+ * for pixels nothing shows. `square: true` (the default) also crops to
+ * width x width, matching the `object-cover` circles/tiles every caller
+ * uses; pass `square: false` for a caller that preserves the source's
+ * natural aspect ratio (e.g. `h-auto`) instead of cropping to a square.
+ */
+export interface PhotoTransform {
+  width: number
+  square?: boolean
+}
+
+/**
  * Both rushees.photo and pledges.photo have historically been written
  * two different ways: a `getPublicUrl()` result (a full URL with the
  * bucket name baked into the path), or — after the 2026-08-11 security
@@ -29,7 +44,8 @@ const SIGNED_URL_TTL_MS = 55 * 60 * 1000
  */
 export async function resolvePhotoUrl(
   rawPhoto: string | null | undefined,
-  defaultBucket: string = 'profile-pictures'
+  defaultBucket: string = 'profile-pictures',
+  transform?: PhotoTransform
 ): Promise<string | null> {
   if (!rawPhoto) return null
   const trimmed = rawPhoto.trim()
@@ -54,22 +70,32 @@ export async function resolvePhotoUrl(
     path = trimmed
   }
 
-  const cacheKey = `${bucket}:${path}`
+  const transformSuffix = transform ? `:${transform.width}:${transform.square === false ? 'natural' : 'square'}` : ''
+  const signedUrlOptions = transform
+    ? {
+        transform:
+          transform.square === false
+            ? { width: transform.width, quality: 80 }
+            : { width: transform.width, height: transform.width, resize: 'cover' as const, quality: 80 },
+      }
+    : undefined
+
+  const cacheKey = `${bucket}:${path}${transformSuffix}`
   const cached = signedUrlCache.get(cacheKey)
   if (cached && cached.expiresAt > Date.now()) return cached.url
 
-  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 3600)
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 3600, signedUrlOptions)
   if (!error && data) {
     signedUrlCache.set(cacheKey, { url: data.signedUrl, expiresAt: Date.now() + SIGNED_URL_TTL_MS })
     return data.signedUrl
   }
 
   if (bucket === 'profile-pictures') {
-    const fallbackKey = `profile-photos:${path}`
+    const fallbackKey = `profile-photos:${path}${transformSuffix}`
     const fallbackCached = signedUrlCache.get(fallbackKey)
     if (fallbackCached && fallbackCached.expiresAt > Date.now()) return fallbackCached.url
 
-    const fallback = await supabase.storage.from('profile-photos').createSignedUrl(path, 3600)
+    const fallback = await supabase.storage.from('profile-photos').createSignedUrl(path, 3600, signedUrlOptions)
     if (!fallback.error && fallback.data) {
       signedUrlCache.set(fallbackKey, { url: fallback.data.signedUrl, expiresAt: Date.now() + SIGNED_URL_TTL_MS })
       return fallback.data.signedUrl

@@ -299,6 +299,7 @@ export default function BrotherDashboard() {
                           <RusheePhoto
                             photo={rushee.photo}
                             alt={rushee.name}
+                            size={640}
                             className="w-full h-full object-cover"
                             fallback={
                               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-surface-sunken to-line">

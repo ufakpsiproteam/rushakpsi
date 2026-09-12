@@ -59,7 +59,7 @@ export default function RusheeAccount() {
         // Set photo preview if exists — 'profile-pictures' is a private
         // bucket, so this needs a signed URL, not the raw stored value.
         if (profile.photo) {
-          resolvePhotoUrl(profile.photo).then((url) => {
+          resolvePhotoUrl(profile.photo, undefined, { width: 256 }).then((url) => {
             if (url) setPhotoPreview(url)
           })
         }

@@ -147,6 +147,7 @@ export default function PledgesPage() {
                           <RusheePhoto
                             photo={pledge.photo}
                             alt=""
+                            size={96}
                             className="w-full h-full object-cover rushee-photo"
                             fallback={
                               <span className="text-xs text-ink-faint">
@@ -218,6 +219,7 @@ export default function PledgesPage() {
                   <RusheePhoto
                     photo={selected.photo}
                     alt=""
+                    size={96}
                     className="w-full h-full object-cover rushee-photo"
                     fallback={<span className="text-ink-faint">{selected.name.slice(0, 1)}</span>}
                   />

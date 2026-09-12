@@ -125,7 +125,10 @@ export default function AdminCuts() {
   const [colorFilter, setColorFilter] = useState<ColorStatus | 'all'>('all')
   const [showStats, setShowStats] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'submitted' | 'minimum' | 'events'>('name')
+  // Defaults to 'qualified' so the board doesn't load/render rushees who
+  // haven't met event minimums (1 casual, 1 professional, 1 of either —
+  // policy.eligibility) unless someone deliberately picks another sort.
+  const [sortBy, setSortBy] = useState<'name' | 'rating' | 'submitted' | 'minimum' | 'events' | 'qualified'>('qualified')
   const [showFilters, setShowFilters] = useState(false)
   const [policy, setPolicy] = useState<Policy>(POLICY_DEFAULTS)
 
@@ -567,13 +570,13 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
     return status === colorFilter
   })
 
-  // 'submitted', 'minimum', and 'events' sorts also filter the list — a
-  // rushee that hasn't submitted an application, hasn't met the event
-  // minimum, or hasn't attended any event isn't just sorted last, it
-  // isn't shown at all in that mode.
+  // 'submitted', 'minimum', 'events', and 'qualified' sorts also filter the
+  // list — a rushee that hasn't submitted an application, hasn't met the
+  // event minimum, hasn't attended any event, or isn't qualified isn't
+  // just sorted last, it isn't shown at all in that mode.
   const sortFiltered = colorFiltered.filter((r) => {
     if (sortBy === 'submitted') return r.application !== null
-    if (sortBy === 'minimum') {
+    if (sortBy === 'minimum' || sortBy === 'qualified') {
       const total = r.casualEvents + r.professionalEvents
       return evaluateEligibility({ casual: r.casualEvents, professional: r.professionalEvents, total }, policy).minimumsMet
     }
@@ -627,13 +630,25 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
   // Calculate statistics for green pledges
   const greenRushees = rushees.filter(r => colorStatuses[r.id] === 'green')
 
+  // Pronouns is free text on the application (e.g. "he/him", "She/Her",
+  // typos/variants) — only exact matches (case-insensitive) against these
+  // known variants count toward the She/Her or He/Him buckets. Anything
+  // else on file (they/them, other free text) is listed individually
+  // below, same as Major Breakdown, rather than lumped into one "Other".
+  const SHE_HER_VARIANTS = new Set(['she/her', 'she/her/hers', 'her/she', 'she', 'her', 'she/hers'])
+  const HE_HIM_VARIANTS = new Set(['he/him', 'he/him/his', 'him/he', 'he', 'him', 'he/his'])
+
   const calculateStats = () => {
     if (greenRushees.length === 0) {
       return {
         total: 0,
         yearBreakdown: {},
         majorBreakdown: {},
-        avgGPA: 0
+        avgGPA: 0,
+        pronounSheHer: 0,
+        pronounHeHim: 0,
+        pronounOther: {} as Record<string, number>,
+        pronounTotal: 0,
       }
     }
 
@@ -657,11 +672,31 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
       ? validGPAs.reduce((sum, gpa) => sum + gpa, 0) / validGPAs.length
       : 0
 
+    // Pronoun breakdown — rushees with no submitted application have no
+    // pronouns on file at all and are excluded entirely, same treatment
+    // as GPA above.
+    let pronounSheHer = 0
+    let pronounHeHim = 0
+    const pronounOther: Record<string, number> = {}
+    greenRushees.forEach(r => {
+      const raw = r.application?.pronouns?.trim()
+      if (!raw) return
+      const normalized = raw.toLowerCase()
+      if (SHE_HER_VARIANTS.has(normalized)) pronounSheHer++
+      else if (HE_HIM_VARIANTS.has(normalized)) pronounHeHim++
+      else pronounOther[raw] = (pronounOther[raw] || 0) + 1
+    })
+    const pronounTotal = pronounSheHer + pronounHeHim + Object.values(pronounOther).reduce((sum, n) => sum + n, 0)
+
     return {
       total: greenRushees.length,
       yearBreakdown,
       majorBreakdown,
-      avgGPA: Number(avgGPA.toFixed(2))
+      avgGPA: Number(avgGPA.toFixed(2)),
+      pronounSheHer,
+      pronounHeHim,
+      pronounOther,
+      pronounTotal,
     }
   }
 
@@ -730,7 +765,7 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                   </svg>
                   <span className="text-sm font-semibold text-ink-muted">Sort</span>
-                  {sortBy !== 'name' && (
+                  {sortBy !== 'qualified' && (
                     <span className="px-2 py-0.5 bg-surface-sunken text-ink text-xs font-semibold rounded-full">
                       Active
                     </span>
@@ -754,10 +789,11 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                     <label className="block text-sm font-semibold text-ink-muted mb-2">Sort by:</label>
                     <select
                       value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as 'name' | 'rating' | 'submitted' | 'minimum' | 'events')}
+                      onChange={(e) => setSortBy(e.target.value as 'name' | 'rating' | 'submitted' | 'minimum' | 'events' | 'qualified')}
                       className="w-full px-3 py-2 bg-white border border-line rounded-lg text-ink focus:ring-2 focus:ring-ink focus:border-transparent"
                     >
-                      <option value="name">Name (A-Z)</option>
+                      <option value="qualified">Qualified Only (A-Z) — default</option>
+                      <option value="name">Name (A-Z), everyone</option>
                       <option value="rating">Rating (High to Low)</option>
                       <option value="submitted">Application Submitted (A-Z)</option>
                       <option value="minimum">Met Minimum (# of Evals)</option>
@@ -945,6 +981,7 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                   <RusheePhoto
                     photo={rushee.photo}
                     alt={rushee.name}
+                    size={192}
                     className="w-full h-full object-cover"
                     fallback={
                       <svg className="w-8 h-8 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1052,6 +1089,7 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                     <RusheePhoto
                       photo={selectedRusheeData.photo}
                       alt={selectedRusheeData.name}
+                      size={192}
                       className="w-full h-full object-cover"
                       fallback={
                         <svg className="w-12 h-12 text-ink-faint" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1542,6 +1580,41 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                       ))}
                   </div>
                 </div>
+
+                {/* Pronoun Breakdown — only rushees with a submitted
+                    application have pronouns on file; the rest are
+                    excluded entirely, so this total can be less than
+                    the overall Total Green Pledges above. */}
+                {stats.pronounTotal > 0 && (
+                  <div className="bg-surface-alt border border-line rounded-2xl p-4">
+                    <p className="text-ink font-semibold mb-3">Pronoun Breakdown</p>
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {[
+                        ['She/Her', stats.pronounSheHer],
+                        ['He/Him', stats.pronounHeHim],
+                        ...Object.entries(stats.pronounOther),
+                      ]
+                        .filter(([, count]) => (count as number) > 0)
+                        .sort((a, b) => (b[1] as number) - (a[1] as number))
+                        .map(([label, count]) => (
+                          <div key={label as string} className="flex justify-between items-center">
+                            <span className="text-ink-muted text-sm">{label}</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 bg-line rounded-full h-2">
+                                <div
+                                  className="bg-ink h-2 rounded-full"
+                                  style={{ width: `${((count as number) / stats.pronounTotal) * 100}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-ink font-semibold text-sm w-16">
+                                {count} ({(((count as number) / stats.pronounTotal) * 100).toFixed(0)}%)
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1590,6 +1663,7 @@ ${redRushees.map(r => `  • ${r.name}`).join('\n') || '  (none)'}`
                             photo={photo.photo_url}
                             bucket="attendance-photos"
                             alt={`${photo.event?.title || 'Event'} attendance`}
+                            size={640}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             fallback={<div className="w-full h-full flex items-center justify-center text-ink-faint text-sm">No photo</div>}
                           />

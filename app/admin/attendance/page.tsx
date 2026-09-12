@@ -676,6 +676,7 @@ export default function AdminAttendance() {
                             photo={record.photo_url}
                             bucket="attendance-photos"
                             alt={rusheeName}
+                            size={96}
                             className="w-full h-full object-cover"
                             fallback={<span className="text-ink-faint text-lg">No photo</span>}
                           />
@@ -790,6 +791,8 @@ export default function AdminAttendance() {
                 photo={photoModal}
                 bucket="attendance-photos"
                 alt="Attendance verification"
+                size={1024}
+                square={false}
                 className="w-full h-auto rounded-2xl mb-4"
                 fallback={<p className="text-ink-muted mb-4">Photo unavailable</p>}
               />

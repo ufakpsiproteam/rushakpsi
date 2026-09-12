@@ -41,11 +41,15 @@ export default function PullToRefresh({ onRefresh, children, className = '' }: P
   }, [])
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    const container = containerRef.current
-    if (!container || isRefreshing) return
+    if (isRefreshing) return
 
-    // Only enable pull-to-refresh when scrolled to top
-    if (container.scrollTop === 0) {
+    // Only enable pull-to-refresh when scrolled to the true top of the
+    // page. This container never gets its own scroll region (callers only
+    // ever set min-height, not a bounded height), so the *document*
+    // scrolls, not this div — checking container.scrollTop here was
+    // always reading 0, making the gate a no-op and letting any mid-page
+    // downward drag start a phantom pull.
+    if (window.scrollY === 0) {
       startY.current = e.touches[0].clientY
       isPulling.current = true
     }

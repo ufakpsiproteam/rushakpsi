@@ -6,12 +6,17 @@ import RusheePhoto from '@/components/RusheePhoto'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRusheesWithBrotherData, toggleStarRushee, updatePersonalNotes } from '@/lib/api'
-import { isRejected } from '@/lib/policy'
+import { isRejected, evaluateEligibility, loadPolicy, POLICY_DEFAULTS, type Policy } from '@/lib/policy'
 
 export default function BrotherRushees() {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStarred, setFilterStarred] = useState(false)
+  // Defaults to hiding rushees who haven't met event minimums (1 casual,
+  // 1 professional, 1 of either) so this page doesn't load/render everyone
+  // by default — "Show All" lets a brother look someone up regardless.
+  const [showAllRushees, setShowAllRushees] = useState(false)
+  const [policy, setPolicy] = useState<Policy>(POLICY_DEFAULTS)
   const [selectedRushee, setSelectedRushee] = useState<string | null>(null)
   const [rushees, setRushees] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -21,28 +26,26 @@ export default function BrotherRushees() {
     checkAccessAndLoadRushees()
   }, [])
 
+  useEffect(() => {
+    loadPolicy().then(setPolicy)
+  }, [])
+
   async function handleRefresh() {
     await loadRushees()
   }
 
-  // Reload rushees when navigating back to this page
+  // Reload rushees when navigating back to this page. `focus` alone covers
+  // tab-foreground — it was previously paired with a `visibilitychange`
+  // listener that fires on the same event and was doubling every reload
+  // (full rushee dataset + every visible photo, fetched twice per foreground).
   useEffect(() => {
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible') {
-        await loadRushees()
-      }
-    }
-
     const handleFocus = async () => {
       await loadRushees()
     }
 
-    // Listen for both visibility change and focus events
-    document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('focus', handleFocus)
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('focus', handleFocus)
     }
   }, [])
@@ -122,17 +125,24 @@ export default function BrotherRushees() {
     }
   }
 
-  const filteredRushees = rushees.filter(rushee => {
-    const matchesSearch = rushee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         rushee.major.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStarred = !filterStarred || rushee.starred
-    // R39 — exclude every published rejection, not just Invite Only (N).
-    return (
-      matchesSearch &&
-      matchesStarred &&
-      !isRejected({ inviteOnly: rushee.inviteOnly, bidStatus: rushee.bidStatus })
-    )
-  })
+  const filteredRushees = rushees
+    .filter(rushee => {
+      const matchesSearch = rushee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           rushee.major.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesStarred = !filterStarred || rushee.starred
+      // R39 — exclude every published rejection, not just Invite Only (N).
+      return (
+        matchesSearch &&
+        matchesStarred &&
+        !isRejected({ inviteOnly: rushee.inviteOnly, bidStatus: rushee.bidStatus })
+      )
+    })
+    .filter(rushee => {
+      if (showAllRushees) return true
+      const total = rushee.casualEvents + rushee.professionalEvents
+      return evaluateEligibility({ casual: rushee.casualEvents, professional: rushee.professionalEvents, total }, policy).minimumsMet
+    })
+    .sort((a, b) => a.name.localeCompare(b.name))
 
   const selectedRusheeData = rushees.find(r => r.id === selectedRushee)
 
@@ -181,8 +191,21 @@ export default function BrotherRushees() {
             >
               Starred Only
             </button>
+            <button
+              onClick={() => setShowAllRushees(!showAllRushees)}
+              title="By default, only rushees who've met event minimums (1 casual, 1 professional, 1 of either) are shown"
+              className={`px-6 py-2 rounded-lg font-semibold transition-colors ${
+                showAllRushees
+                  ? 'bg-inverse text-on-inverse'
+                  : 'bg-surface text-ink border border-line hover:bg-surface-alt'
+              }`}
+            >
+              Show All
+            </button>
           </div>
-          <p className="text-xs text-ink-subtle mt-2">{filteredRushees.length} rushees</p>
+          <p className="text-xs text-ink-subtle mt-2">
+            {filteredRushees.length} rushees{!showAllRushees ? ' (qualified only)' : ''}
+          </p>
         </div>
 
         {/* Rushees Grid - More columns on larger screens */}
@@ -198,6 +221,7 @@ export default function BrotherRushees() {
                 <RusheePhoto
                   photo={rushee.photo}
                   alt={rushee.name}
+                  size={640}
                   className="w-full h-full object-cover"
                   fallback={
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-surface-sunken to-line">
@@ -253,6 +277,7 @@ export default function BrotherRushees() {
                   <RusheePhoto
                     photo={selectedRusheeData.photo}
                     alt={selectedRusheeData.name}
+                    size={192}
                     className="w-24 h-24 object-cover rounded-lg border-2 border-line-strong"
                     fallback={
                       <div className="w-24 h-24 flex items-center justify-center bg-gradient-to-br from-surface-sunken to-line rounded-lg border-2 border-line-strong">

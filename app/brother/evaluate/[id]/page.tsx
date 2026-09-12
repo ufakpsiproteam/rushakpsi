@@ -288,6 +288,7 @@ export default function EvaluateRushee() {
             <RusheePhoto
               photo={rushee?.photo}
               alt=""
+              size={96}
               className="w-full h-full object-cover rushee-photo"
               fallback={<span className="text-ink-faint text-lg">{(rushee?.name || '?').slice(0, 1)}</span>}
             />

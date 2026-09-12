@@ -134,7 +134,7 @@ export default function AdminStanding() {
       if (!selectedRushee) return
 
       if (selectedRushee.photo) {
-        const url = await resolvePhotoUrl(selectedRushee.photo)
+        const url = await resolvePhotoUrl(selectedRushee.photo, undefined, { width: 192 })
         if (!cancelled && url) {
           setResolvedPhotoUrl(url)
           return
@@ -152,7 +152,9 @@ export default function AdminStanding() {
         if (error || !data || data.length === 0) continue
 
         const filePath = `${selectedRushee.id}/${data[0].name}`
-        const { data: signed } = await supabase.storage.from(bucket).createSignedUrl(filePath, 3600)
+        const { data: signed } = await supabase.storage.from(bucket).createSignedUrl(filePath, 3600, {
+          transform: { width: 192, height: 192, resize: 'cover', quality: 80 },
+        })
         if (signed && !cancelled) {
           setResolvedPhotoUrl(signed.signedUrl)
           return
